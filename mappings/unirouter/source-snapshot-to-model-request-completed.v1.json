@@ -1,0 +1,407 @@
+{
+  "artifact_format": "foigent.source-mapping-candidate.v1",
+  "artifact_kind": "unirouter.source-snapshot-to-model-request-completed",
+  "candidate_status": "B9_SOURCE_CANDIDATE_NOT_BINDING",
+  "work_item_id": "FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726",
+  "authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "owner_role": "UniRouter Source Domain Owner"
+  },
+  "joint_candidate": {
+    "status": "THREE_PARTY_TEXT_ALIGNED_NON_BINDING",
+    "sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f"
+  },
+  "source_baseline": {
+    "repository": "https://github.com/foigent/unirouter.git",
+    "commit": "bf91ea63a16952bb2925afd5438233cac597dcc1",
+    "tree": "ddadc277fbede49fac0cbc1cc561203312432ac3"
+  },
+  "b8_boundary": {
+    "semantic_refs_only": true,
+    "shared_wire_paths_defined": false,
+    "shared_schema_artifacts_created": false,
+    "statement": "Targets prefixed semantic: identify V3 meaning only; B8 must provide authoritative JSON paths and Schemas."
+  },
+  "source_evidence": [
+    "internal/completedfeed/contract.go",
+    "internal/completedfeed/service.go",
+    "internal/completedfeed/handler.go",
+    "internal/completedfeed/cursor.go",
+    "internal/billing/terminal_materializer.go",
+    "internal/billing/outbox.go",
+    "migrations/000043_v1_completed_execution_feed.up.sql",
+    "contracts/completed-execution/v1/unirouter.completed-execution.v1.schema.json"
+  ],
+  "coverage": {
+    "included": "Authenticated, admitted, project-scoped requests that reach a durable UniRouter billing terminal and are materialized as revision 1 completed-execution items.",
+    "excluded": [
+      "pre-admission rejection",
+      "pre-billing rejection",
+      "legacy terminal record without positive project_id",
+      "provider success or HTTP success as an independent completion claim",
+      "X-Insight visibility as a Source completion claim"
+    ],
+    "bootstrap": "activation_forward",
+    "retention": "7d"
+  },
+  "event_semantics": {
+    "event_type": "model.request.completed",
+    "terminal_statuses": [
+      "settled",
+      "cancelled"
+    ],
+    "terminal_at": "Exact Source terminal.available_at, normalized by the current producer to UTC microsecond precision before Snapshot persistence.",
+    "occurred_at": "Optional deterministic alias of the same terminal_at instant.",
+    "parent_observed_at": "absent",
+    "timeline_complete": "Exact boolean true for every emitted revision 1 Feed item; final billing-terminal timeline, not complete observability."
+  },
+  "field_mappings": [
+    {
+      "mapping_id": "snapshot_schema_version",
+      "source_pointer": "/schema_version",
+      "shared_semantic_ref": "semantic:source_payload_schema",
+      "provenance": "direct",
+      "wire_transform": "require exact unirouter.completed-execution.v1; preserve in Source Snapshot bytes",
+      "compatibility": "Does not create a second shared schema_ref or alter Source bytes."
+    },
+    {
+      "mapping_id": "request_id",
+      "source_pointer": "/request_id",
+      "shared_semantic_ref": "semantic:event.event_id",
+      "provenance": "direct",
+      "wire_transform": "exact valid Source UTF-8 bytes; no UUID conversion and no Unicode normalization",
+      "compatibility": "Also binds correlation/subject semantics; Source implementation bounds request_id to 1..64 bytes."
+    },
+    {
+      "mapping_id": "org_id",
+      "source_pointer": "/org_id",
+      "shared_semantic_ref": "semantic:event.scope.org_ref",
+      "provenance": "direct",
+      "wire_transform": "positive integer to canonical base-10 string with no sign or leading zero",
+      "compatibility": "Organization scope is mandatory; request_id is not globally unique."
+    },
+    {
+      "mapping_id": "project_id",
+      "source_pointer": "/project_id",
+      "shared_semantic_ref": "semantic:event.scope.project_ref",
+      "provenance": "direct",
+      "wire_transform": "positive integer to canonical base-10 string with no sign or leading zero",
+      "compatibility": "Only positive project-scoped terminal records enter the Reference Feed."
+    },
+    {
+      "mapping_id": "terminal_status",
+      "source_pointer": "/terminal/status",
+      "shared_semantic_ref": "semantic:model.request.completed.terminal.status",
+      "provenance": "direct",
+      "wire_transform": "exact settled or cancelled enum",
+      "compatibility": "No success, delivery, or visibility inference."
+    },
+    {
+      "mapping_id": "terminal_available_at",
+      "source_pointer": "/terminal/available_at",
+      "shared_semantic_ref": "semantic:event.time.terminal_at",
+      "provenance": "direct",
+      "wire_transform": "parse exact Source instant and emit UTC YYYY-MM-DDTHH:MM:SS.ffffffZ",
+      "compatibility": "Source Snapshot bytes/hash remain unchanged; parent observed_at is absent."
+    },
+    {
+      "mapping_id": "usage_model",
+      "source_pointer": "/usage/model",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.model",
+      "provenance": "direct",
+      "wire_transform": "exact valid Source UTF-8 bytes; no NFC normalization",
+      "compatibility": "Current Source bound is 1..100 bytes."
+    },
+    {
+      "mapping_id": "usage_prompt_tokens",
+      "source_pointer": "/usage/prompt_tokens",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.prompt_tokens",
+      "provenance": "direct",
+      "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
+      "compatibility": "Must equal uncached + cache_read + cache_creation."
+    },
+    {
+      "mapping_id": "usage_uncached_prompt_tokens",
+      "source_pointer": "/usage/uncached_prompt_tokens",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.uncached_prompt_tokens",
+      "provenance": "direct",
+      "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
+      "compatibility": "No binary floating point."
+    },
+    {
+      "mapping_id": "usage_cache_read_tokens",
+      "source_pointer": "/usage/cache_read_tokens",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.cache_read_tokens",
+      "provenance": "direct",
+      "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
+      "compatibility": "No binary floating point."
+    },
+    {
+      "mapping_id": "usage_cache_creation_tokens",
+      "source_pointer": "/usage/cache_creation_tokens",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.cache_creation_tokens",
+      "provenance": "direct",
+      "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
+      "compatibility": "No binary floating point."
+    },
+    {
+      "mapping_id": "usage_completion_tokens",
+      "source_pointer": "/usage/completion_tokens",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.completion_tokens",
+      "provenance": "direct",
+      "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
+      "compatibility": "No binary floating point."
+    },
+    {
+      "mapping_id": "usage_source",
+      "source_pointer": "/usage/source",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.source",
+      "provenance": "direct",
+      "wire_transform": "exact bounded Source UTF-8 bytes",
+      "compatibility": "No semantic renaming or normalization."
+    },
+    {
+      "mapping_id": "usage_authority",
+      "source_pointer": "/usage/authority",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.authority",
+      "provenance": "direct",
+      "wire_transform": "exact bounded Source UTF-8 bytes",
+      "compatibility": "No semantic renaming or normalization."
+    },
+    {
+      "mapping_id": "usage_purpose",
+      "source_pointer": "/usage/purpose",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.purpose",
+      "provenance": "direct",
+      "wire_transform": "exact bounded Source UTF-8 bytes",
+      "compatibility": "No semantic renaming or normalization."
+    },
+    {
+      "mapping_id": "usage_finality",
+      "source_pointer": "/usage/finality",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.finality",
+      "provenance": "direct",
+      "wire_transform": "exact bounded Source UTF-8 bytes",
+      "compatibility": "Distinct from Feed-item timeline_complete."
+    },
+    {
+      "mapping_id": "usage_contract_version",
+      "source_pointer": "/usage/contract_version",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.contract_version",
+      "provenance": "direct",
+      "wire_transform": "exact bounded Source UTF-8 bytes",
+      "compatibility": "Product-owned usage contract identity."
+    },
+    {
+      "mapping_id": "usage_estimate_version",
+      "source_pointer": "/usage/estimate_version",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.estimate_version",
+      "provenance": "direct_optional",
+      "wire_transform": "preserve absent versus exact bounded Source UTF-8 string",
+      "compatibility": "Do not convert absence to null or empty."
+    },
+    {
+      "mapping_id": "usage_cache_usage_schema",
+      "source_pointer": "/usage/cache_usage_schema",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.cache_usage_schema",
+      "provenance": "direct",
+      "wire_transform": "exact bounded Source UTF-8 bytes",
+      "compatibility": "Empty is Source-valid where emitted."
+    },
+    {
+      "mapping_id": "usage_cache_usage_status",
+      "source_pointer": "/usage/cache_usage_status",
+      "shared_semantic_ref": "semantic:model.request.completed.usage.cache_usage_status",
+      "provenance": "direct",
+      "wire_transform": "exact bounded Source UTF-8 bytes",
+      "compatibility": "No target inference."
+    },
+    {
+      "mapping_id": "money_schema",
+      "source_pointer": "/money/schema",
+      "shared_semantic_ref": "semantic:model.request.completed.money.schema",
+      "provenance": "direct",
+      "wire_transform": "require exact micro-cny.v1",
+      "compatibility": "No unit change."
+    },
+    {
+      "mapping_id": "money_currency",
+      "source_pointer": "/money/currency",
+      "shared_semantic_ref": "semantic:model.request.completed.money.currency",
+      "provenance": "direct",
+      "wire_transform": "require exact CNY",
+      "compatibility": "No currency conversion."
+    },
+    {
+      "mapping_id": "money_amount_scale",
+      "source_pointer": "/money/amount_scale",
+      "shared_semantic_ref": "semantic:model.request.completed.money.amount_scale",
+      "provenance": "direct",
+      "wire_transform": "require exact JSON integer 1000000",
+      "compatibility": "No string coercion."
+    },
+    {
+      "mapping_id": "money_calculated_cost_micros",
+      "source_pointer": "/money/calculated_cost_micros",
+      "shared_semantic_ref": "semantic:model.request.completed.money.calculated_cost_micros",
+      "provenance": "direct",
+      "wire_transform": "preserve exact canonical nonnegative decimal string",
+      "compatibility": "No recomputation or binary floating point."
+    },
+    {
+      "mapping_id": "money_charged_cost_micros",
+      "source_pointer": "/money/charged_cost_micros",
+      "shared_semantic_ref": "semantic:model.request.completed.money.charged_cost_micros",
+      "provenance": "direct",
+      "wire_transform": "preserve exact canonical nonnegative decimal string",
+      "compatibility": "No recomputation or binary floating point."
+    },
+    {
+      "mapping_id": "money_pricing_version",
+      "source_pointer": "/money/pricing_version",
+      "shared_semantic_ref": "semantic:model.request.completed.money.pricing_version",
+      "provenance": "direct",
+      "wire_transform": "exact bounded Source UTF-8 bytes",
+      "compatibility": "Product-owned pricing identity."
+    },
+    {
+      "mapping_id": "capture_gap_source",
+      "source_pointer": "/capture_gaps/*/source",
+      "shared_semantic_ref": "semantic:model.request.completed.gaps[].affected_claim",
+      "provenance": "direct",
+      "wire_transform": "exact Source value; shared view orders by affected_claim ascending",
+      "compatibility": "Shared ordering never changes Source Snapshot bytes/order/hash."
+    },
+    {
+      "mapping_id": "capture_gap_reason",
+      "source_pointer": "/capture_gaps/*/reason",
+      "shared_semantic_ref": "semantic:model.request.completed.gaps[].reason_code",
+      "provenance": "direct",
+      "wire_transform": "require exact not_available_at_billing_terminal",
+      "compatibility": "No reason synthesis."
+    }
+  ],
+  "feed_wrapper_mappings": [
+    {
+      "source_field": "FeedPage.source_instance",
+      "shared_semantic_ref": "semantic:event.producer.instance",
+      "provenance": "direct",
+      "rule": "Exact configured source_instance; stable logical producer identity."
+    },
+    {
+      "source_field": "FeedItem.request_id",
+      "shared_semantic_ref": "semantic:event.event_id_binding",
+      "provenance": "integrity_binding",
+      "rule": "Must equal Snapshot request_id."
+    },
+    {
+      "source_field": "FeedItem.terminal_available_at",
+      "shared_semantic_ref": "semantic:event.time.terminal_at_binding",
+      "provenance": "integrity_binding",
+      "rule": "Must equal Snapshot terminal.available_at at UTC microsecond precision."
+    },
+    {
+      "source_field": "FeedItem.revision",
+      "shared_semantic_ref": "semantic:event.source_revision",
+      "provenance": "direct",
+      "rule": "Exact immutable string 1; excluded from event identity."
+    },
+    {
+      "source_field": "FeedItem.timeline_complete",
+      "shared_semantic_ref": "semantic:event.timeline_complete",
+      "provenance": "direct",
+      "rule": "Exact boolean true for current V1 Feed items."
+    },
+    {
+      "source_field": "FeedItem.snapshot_sha256",
+      "shared_semantic_ref": "semantic:event.integrity.source_hash",
+      "provenance": "direct",
+      "rule": "Exact sha256 lowercase digest of immutable Source Snapshot bytes."
+    },
+    {
+      "source_field": "FeedItem.snapshot",
+      "shared_semantic_ref": "semantic:event.source_payload_input",
+      "provenance": "direct",
+      "rule": "Validate exact bytes/hash before mapping; do not reserialize for source_hash."
+    }
+  ],
+  "gap_profile": {
+    "source_order": [
+      "call_log",
+      "request_trace",
+      "client_ip_presence",
+      "upstream_error_presence"
+    ],
+    "shared_order": [
+      "call_log",
+      "client_ip_presence",
+      "request_trace",
+      "upstream_error_presence"
+    ],
+    "reason_code": "not_available_at_billing_terminal",
+    "derived": {
+      "gap_id": "<event_id>:gap:<affected_claim>",
+      "parent_event_id": "exact parent event_id",
+      "request_org_project_linkage": "validated parent identity and scope",
+      "observed_at": "exact parent terminal_at"
+    },
+    "declared": {
+      "gap_type": "not_available_from_source",
+      "severity": "warning",
+      "payload_capture_mode": "none"
+    }
+  },
+  "delivery_exclusions": [
+    {
+      "source_field": "FeedPage.generated_at",
+      "destination": "Batch or transport evidence only",
+      "excluded_from": [
+        "Event identity",
+        "shared idempotency",
+        "Envelope hash",
+        "item-linked provenance"
+      ]
+    },
+    {
+      "source_field": "FeedPage.next_cursor",
+      "destination": "Consumer-owned Checkpoint input only",
+      "excluded_from": [
+        "Event identity",
+        "shared idempotency",
+        "Envelope hash",
+        "item-linked provenance"
+      ]
+    },
+    {
+      "source_field": "FeedPage.high_watermark",
+      "destination": "Batch or Checkpoint transport evidence only",
+      "excluded_from": [
+        "Event identity",
+        "shared idempotency",
+        "Envelope hash",
+        "item-linked provenance"
+      ]
+    },
+    {
+      "source_field": "FeedPage.has_more",
+      "destination": "Batch pagination only",
+      "excluded_from": [
+        "Event identity",
+        "shared idempotency",
+        "Envelope hash",
+        "item-linked provenance"
+      ]
+    },
+    {
+      "source_field": "connection.acknowledged_sequence",
+      "destination": "Source-local receiver acknowledgement only",
+      "excluded_from": [
+        "Event identity",
+        "shared idempotency",
+        "Envelope hash",
+        "Consumer-owned durable Checkpoint identity"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,230 @@
+{
+  "artifact_format": "foigent.source-mapping-candidate.v1",
+  "artifact_kind": "unirouter.source-lifecycle-to-shared-axes",
+  "candidate_status": "B9_SOURCE_CANDIDATE_NOT_BINDING",
+  "work_item_id": "FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726",
+  "authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "owner_role": "UniRouter Source Domain Owner"
+  },
+  "joint_candidate": {
+    "status": "THREE_PARTY_TEXT_ALIGNED_NON_BINDING",
+    "sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f"
+  },
+  "source_baseline": {
+    "repository": "https://github.com/foigent/unirouter.git",
+    "commit": "bf91ea63a16952bb2925afd5438233cac597dcc1",
+    "tree": "ddadc277fbede49fac0cbc1cc561203312432ac3"
+  },
+  "b8_boundary": {
+    "semantic_refs_only": true,
+    "shared_wire_paths_defined": false,
+    "shared_schema_artifacts_created": false,
+    "statement": "V3 names orthogonal lifecycle concerns but B8 has not frozen shared axis field names or enums."
+  },
+  "source_evidence": [
+    "internal/completedfeed/control.go",
+    "internal/completedfeed/handler.go",
+    "internal/completedfeed/service.go",
+    "internal/completedfeed/store.go",
+    "internal/admin/xinsight_feed_connection_handlers.go",
+    "internal/middleware/completed_feed_auth.go",
+    "internal/outbox/outbox.go",
+    "migrations/000027_prd6_durable_internal_outbox.up.sql",
+    "migrations/000043_v1_completed_execution_feed.up.sql",
+    "migrations/000044_v1_xinsight_feed_control.up.sql"
+  ],
+  "axis_mappings": [
+    {
+      "mapping_id": "project_connection_absent",
+      "local_fact": "No completed_execution_feed_connections row; read model reports not_configured.",
+      "shared_axis_semantic": "configuration",
+      "shared_state_semantic": "unconfigured",
+      "projection": "direct",
+      "authority": "UniRouter project connection state"
+    },
+    {
+      "mapping_id": "project_connection_paused",
+      "local_fact": "completed_execution_feed_connections.status=paused",
+      "shared_axis_semantic": "transport",
+      "shared_state_semantic": "paused_by_source_operator",
+      "projection": "direct",
+      "authority": "UniRouter project connection state"
+    },
+    {
+      "mapping_id": "project_connection_active",
+      "local_fact": "completed_execution_feed_connections.status=active",
+      "shared_axis_semantic": "transport",
+      "shared_state_semantic": "source_allows_running_pull",
+      "projection": "direct",
+      "authority": "UniRouter project connection state"
+    },
+    {
+      "mapping_id": "global_feed_unconfigured",
+      "local_fact": "No nonempty validated COMPLETED_EXECUTION_FEED_SOURCE_INSTANCE is available.",
+      "shared_axis_semantic": "configuration",
+      "shared_state_semantic": "unconfigured",
+      "projection": "direct",
+      "authority": "UniRouter effective configuration"
+    },
+    {
+      "mapping_id": "global_feed_disabled",
+      "local_fact": "CompletedExecutionFeedEnabled=false or Service.Enabled()=false.",
+      "shared_axis_semantic": "transport",
+      "shared_state_semantic": "inactive",
+      "projection": "direct",
+      "authority": "UniRouter effective configuration",
+      "note": "This is not a health failure and does not infer a Consumer state."
+    },
+    {
+      "mapping_id": "global_feed_enabled",
+      "local_fact": "Service.Enabled()=true with database, cursor codec and stable source_instance configured.",
+      "shared_axis_semantic": "transport",
+      "shared_state_semantic": "source_transport_enabled",
+      "projection": "direct",
+      "authority": "UniRouter effective configuration",
+      "note": "Enabled is not equivalent to end-to-end healthy."
+    },
+    {
+      "mapping_id": "credential_missing",
+      "local_fact": "No feed_active or feed_staged api_keys row for the project and xinsight.feed.read purpose.",
+      "shared_axis_semantic": "authentication",
+      "shared_state_semantic": "missing",
+      "projection": "derived",
+      "authority": "UniRouter credential registry"
+    },
+    {
+      "mapping_id": "credential_staged",
+      "local_fact": "api_keys.status=feed_staged and purpose=xinsight.feed.read",
+      "shared_axis_semantic": "authentication",
+      "shared_state_semantic": "staged",
+      "projection": "direct",
+      "authority": "UniRouter credential registry"
+    },
+    {
+      "mapping_id": "credential_active",
+      "local_fact": "api_keys.status=feed_active and purpose=xinsight.feed.read",
+      "shared_axis_semantic": "authentication",
+      "shared_state_semantic": "active",
+      "projection": "direct",
+      "authority": "UniRouter credential registry"
+    },
+    {
+      "mapping_id": "credential_revoked",
+      "local_fact": "api_keys.status=feed_revoked or disabled for purpose=xinsight.feed.read; product read model reports revoked.",
+      "shared_axis_semantic": "authentication",
+      "shared_state_semantic": "revoked",
+      "projection": "direct_with_local_alias",
+      "authority": "UniRouter credential registry"
+    },
+    {
+      "mapping_id": "outbox_pending",
+      "local_fact": "Terminal internal_outbox_events row is available, not dead-lettered and has no live lease.",
+      "shared_axis_semantic": "processing",
+      "shared_state_semantic": "pending",
+      "projection": "derived_from_columns",
+      "authority": "UniRouter internal Outbox"
+    },
+    {
+      "mapping_id": "outbox_claimed",
+      "local_fact": "Terminal internal_outbox_events row has claimed_by and an unexpired claimed_until lease.",
+      "shared_axis_semantic": "processing",
+      "shared_state_semantic": "in_progress",
+      "projection": "derived_from_columns",
+      "authority": "UniRouter internal Outbox"
+    },
+    {
+      "mapping_id": "outbox_retry_wait",
+      "local_fact": "Handler failure released the lease, retained the row, incremented attempts and moved available_at into bounded backoff.",
+      "shared_axis_semantic": "processing",
+      "shared_state_semantic": "retry_wait",
+      "projection": "derived_from_columns",
+      "authority": "UniRouter internal Outbox",
+      "note": "PriorityBilling terminal events are retried and are not moved to generic dead letter by max attempts."
+    },
+    {
+      "mapping_id": "outbox_dead_letter",
+      "local_fact": "dead_lettered_at is present for a non-PriorityBilling internal Outbox event.",
+      "shared_axis_semantic": "processing",
+      "shared_state_semantic": "permanent_error",
+      "projection": "derived_from_columns",
+      "authority": "UniRouter internal Outbox",
+      "note": "Not reachable for the Reference terminal billing events under current PriorityBilling policy."
+    },
+    {
+      "mapping_id": "outbox_processed",
+      "local_fact": "Terminal Outbox row was deleted only after idempotent usage journal and Feed materialization committed.",
+      "shared_axis_semantic": "processing",
+      "shared_state_semantic": "converged",
+      "projection": "requires_destination_evidence",
+      "authority": "UniRouter internal Outbox and completed-execution Feed",
+      "note": "Row absence alone is never proof of success."
+    },
+    {
+      "mapping_id": "feed_item_ready",
+      "local_fact": "Immutable completed_execution_feed_items row exists with valid revision, Snapshot bytes and Snapshot hash.",
+      "shared_axis_semantic": "processing",
+      "shared_state_semantic": "source_ready",
+      "projection": "direct",
+      "authority": "UniRouter completed-execution Feed"
+    },
+    {
+      "mapping_id": "feed_duplicate",
+      "local_fact": "Same internal event_key materializes the same Snapshot hash.",
+      "shared_axis_semantic": "processing",
+      "shared_state_semantic": "duplicate_no_op",
+      "projection": "direct_result",
+      "authority": "UniRouter completed-execution Feed"
+    },
+    {
+      "mapping_id": "feed_conflict",
+      "local_fact": "Same internal event_key resolves to a different Snapshot hash.",
+      "shared_axis_semantic": "processing",
+      "shared_state_semantic": "idempotency_conflict",
+      "projection": "direct_result",
+      "authority": "UniRouter completed-execution Feed"
+    },
+    {
+      "mapping_id": "receiver_acknowledged_sequence",
+      "local_fact": "completed_execution_feed_connections.acknowledged_sequence records the next requested cursor after receiver persistence.",
+      "shared_axis_semantic": "checkpoint",
+      "shared_state_semantic": "source_observed_receiver_acknowledgement",
+      "projection": "source_local_only",
+      "authority": "UniRouter project connection state",
+      "note": "It is not the Consumer-owned durable shared Checkpoint and never enters Event identity/hash."
+    },
+    {
+      "mapping_id": "cursor_outside_retention",
+      "local_fact": "acknowledged_sequence is below completed_execution_feed_states.retained_after_id.",
+      "shared_axis_semantic": "checkpoint",
+      "shared_state_semantic": "expired",
+      "projection": "derived",
+      "authority": "UniRouter Feed retention state"
+    },
+    {
+      "mapping_id": "runtime_health_unrepresented",
+      "local_fact": "UniRouter persists no completed-feed healthy/backoff/permanent-error lifecycle enum.",
+      "shared_axis_semantic": "health",
+      "shared_state_semantic": "no_direct_projection",
+      "projection": "explicitly_unmapped",
+      "authority": "UniRouter",
+      "note": "Health requires bounded runtime/request evidence and must not be inferred from enabled or active."
+    }
+  ],
+  "combination_rules": [
+    "Project active is valid only when the global Feed is enabled, exactly one feed_active credential exists and no feed_staged credential exists.",
+    "Credential staging, activation, cancellation and rotation require the project connection to remain paused.",
+    "Revoking an active or staged credential forces the project connection to paused.",
+    "A feed_staged credential may authenticate only while the connection is paused; it cannot read an active connection.",
+    "No single local enum is projected as the entire shared lifecycle."
+  ],
+  "explicit_exclusions": [
+    "Consumer worker status",
+    "Consumer durable Checkpoint ownership",
+    "X-Insight local registry state",
+    "page generation and fetch time as lifecycle identity",
+    "enabled or active as proof of end-to-end health",
+    "Outbox row absence as proof of successful processing"
+  ]
+}
