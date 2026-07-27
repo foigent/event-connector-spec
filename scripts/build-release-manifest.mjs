@@ -11,7 +11,9 @@ const mode = process.argv[2] ?? "--check";
 
 const componentPaths = {
   protocol_spec: "spec/protocol-v1.md",
+  shared_ci_action: "action.yml",
   release_manifest_schema: "schemas/release-manifest.v1.schema.json",
+  protocol_pin_schema: "schemas/protocol-pin.v1.schema.json",
   event_envelope_schema: "schemas/event-envelope.v1.schema.json",
   capture_gap_schema: "schemas/capture-gap.v1.schema.json",
   domain_catalog: "catalog/domain-catalog.v1.json",

@@ -48,7 +48,9 @@
       "additionalProperties": false,
       "required": [
         "protocol_spec",
+        "shared_ci_action",
         "release_manifest_schema",
+        "protocol_pin_schema",
         "event_envelope_schema",
         "capture_gap_schema",
         "domain_catalog",
@@ -79,7 +81,13 @@
         "protocol_spec": {
           "$ref": "#/$defs/component"
         },
+        "shared_ci_action": {
+          "$ref": "#/$defs/component"
+        },
         "release_manifest_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "protocol_pin_schema": {
           "$ref": "#/$defs/component"
         },
         "event_envelope_schema": {

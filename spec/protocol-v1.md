@@ -98,6 +98,13 @@ Envelope hash input is the complete Event Envelope with
 `integrity.envelope_hash` absent. It is not `null`, empty, or a placeholder.
 `integrity.source_hash` remains included.
 
+Golden files named `*.hash-input.json` represent only that pre-hash input and
+are intentionally not final Envelope instances. A conforming mapper computes
+the digest, inserts it as `integrity.envelope_hash`, and then validates the
+final object against both the Event Envelope Schema and the referenced Domain
+Payload Schema. Removing the hash from that validated final object must
+reproduce the exact Golden hash input.
+
 Strict token-level parsing rejects duplicate object keys at every depth before
 ordinary object mapping. Arrays preserve schema-defined order. Reference
 `capture_gaps` are sorted by `affected_claim`.

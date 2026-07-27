@@ -1,0 +1,21 @@
+name: Foigent Event Connector Protocol Pin
+description: Verify a product protocol pin against this immutable protocol release.
+inputs:
+  pin:
+    description: Path to the product-owned protocol pin JSON.
+    required: true
+  product:
+    description: Product identity, either unirouter or xinsight.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Verify protocol release and product pin
+      shell: bash
+      env:
+        FOIGENT_PROTOCOL_PIN: ${{ inputs.pin }}
+        FOIGENT_PROTOCOL_PRODUCT: ${{ inputs.product }}
+      run: >-
+        node "$GITHUB_ACTION_PATH/scripts/verify-product-pin.mjs"
+        --pin "$FOIGENT_PROTOCOL_PIN"
+        --product "$FOIGENT_PROTOCOL_PRODUCT"

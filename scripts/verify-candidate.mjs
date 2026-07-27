@@ -8,6 +8,13 @@ import { resolve } from "node:path";
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const bundle = readJSON("vectors/canonical-vector-bundle.v1.json");
 const domainSchema = readJSON("schemas/model-request-completed.v1.schema.json");
+const golden = readJSON(bundle.golden_fixture_bundle_path);
+const manifest = readJSON(
+  "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+);
+const compatibility = readJSON(
+  "compatibility/foigent-unirouter-completed-execution-1.0.0-to-xinsight-m0.1.json",
+);
 const failures = [];
 
 function readJSON(path) {
@@ -247,6 +254,70 @@ function mapReferenceSource(sourcePath) {
 function check(condition, message) {
   if (!condition) {
     failures.push(message);
+  }
+}
+
+function checkComponent(component, label) {
+  const bytes = readFileSync(resolve(root, component.path));
+  check(sha256(bytes) === component.sha256, `${label}: file digest mismatch`);
+}
+
+for (const fixture of golden.cases) {
+  checkComponent(
+    {
+      path: fixture.source_fixture.release_path,
+      sha256: fixture.source_fixture.sha256,
+    },
+    `${fixture.case_id}: Source fixture`,
+  );
+  checkComponent(
+    {
+      path: fixture.shared_hash_input.path,
+      sha256: fixture.shared_hash_input.file_sha256,
+    },
+    `${fixture.case_id}: shared hash input`,
+  );
+  const vector = bundle.canonical_envelopes.find(
+    (entry) => entry.case_id === fixture.case_id,
+  );
+  check(vector !== undefined, `${fixture.case_id}: missing canonical vector`);
+  if (vector) {
+    check(
+      vector.canonical_bytes === fixture.expected.canonical_bytes,
+      `${fixture.case_id}: canonical byte pin mismatch`,
+    );
+    check(
+      vector.envelope_hash === fixture.expected.envelope_hash,
+      `${fixture.case_id}: Envelope hash pin mismatch`,
+    );
+  }
+}
+for (const fixture of golden.negative_source_seeds) {
+  checkComponent(
+    {
+      path: fixture.release_path,
+      sha256: fixture.sha256,
+    },
+    `${fixture.case_id}: negative Source fixture`,
+  );
+}
+
+checkComponent(
+  manifest.compatibility.reference_projection_contract,
+  "Reference projection contract",
+);
+checkComponent(
+  manifest.compatibility.reference_compatibility_vector_bundle,
+  "Reference compatibility vectors",
+);
+for (const [side, entries] of [
+  ["Source", compatibility.source_baseline],
+  ["Consumer", compatibility.consumer_baseline],
+]) {
+  for (const [name, component] of Object.entries(entries)) {
+    if (component && typeof component === "object" && component.path) {
+      checkComponent(component, `${side} ${name}`);
+    }
   }
 }
 
