@@ -26,6 +26,10 @@ const approvalPaths = [
 const componentPaths = {
   protocol_spec: "spec/protocol-v1.md",
   shared_ci_action: "action.yml",
+  release_builder: "scripts/build-release-manifest.mjs",
+  candidate_verifier: "scripts/verify-candidate.mjs",
+  conformance_comparator: "scripts/compare-conformance.mjs",
+  product_pin_verifier: "scripts/verify-product-pin.mjs",
   release_manifest_schema: "schemas/release-manifest.v1.schema.json",
   protocol_pin_schema: "schemas/protocol-pin.v1.schema.json",
   event_envelope_schema: "schemas/event-envelope.v1.schema.json",

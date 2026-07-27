@@ -104,6 +104,10 @@
       "required": [
         "protocol_spec",
         "shared_ci_action",
+        "release_builder",
+        "candidate_verifier",
+        "conformance_comparator",
+        "product_pin_verifier",
         "release_manifest_schema",
         "protocol_pin_schema",
         "event_envelope_schema",
@@ -137,6 +141,18 @@
           "$ref": "#/$defs/component"
         },
         "shared_ci_action": {
+          "$ref": "#/$defs/component"
+        },
+        "release_builder": {
+          "$ref": "#/$defs/component"
+        },
+        "candidate_verifier": {
+          "$ref": "#/$defs/component"
+        },
+        "conformance_comparator": {
+          "$ref": "#/$defs/component"
+        },
+        "product_pin_verifier": {
           "$ref": "#/$defs/component"
         },
         "release_manifest_schema": {
