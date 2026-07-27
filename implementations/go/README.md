@@ -16,7 +16,7 @@ Candidate pins:
 - report-encoding addendum tree:
   `987d7c2ee5de05f25b53b875d3d0cf630b79b94a`
 - conformance contract SHA-256:
-  `35658164aa5dd87611b09be016a0beb0713b61923ae344e96740fa4d8235c291`
+  `f3ae834265170ff22088943283fd23dcb562bc2308571ccc722414c2c896dc23`
 - conformance report Schema SHA-256:
   `42048fbf5a5edc2ca4476727563ab41e96a8fb6d3788d446e0e0d7c4154a31a7`
 
@@ -44,6 +44,8 @@ The invocation is exactly:
 The report is deterministic RFC 8785 canonical JSON. Result encoding follows
 the frozen contract:
 
+- cases follow `case_contract` section order and then exact source-vector array
+  order;
 - canonical Envelopes, LP identity inputs, opaque UTF-8, and derived Gap arrays
   are emitted as exact bytes;
 - validity classifications, expected errors, and replay/Checkpoint state

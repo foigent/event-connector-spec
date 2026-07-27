@@ -10,7 +10,7 @@ import (
 const (
 	expectedBundleSHA256             = "sha256:98659630f3e1238d2684c2b4cba728334f4bdace67ff033652676d9d505caf33"
 	expectedGoldenBundleSHA256       = "sha256:b56de610d4444b655e3f700e61ec490caa1fc1d8658db1660192686c0fc1a268"
-	expectedConformanceContractSHA   = "sha256:35658164aa5dd87611b09be016a0beb0713b61923ae344e96740fa4d8235c291"
+	expectedConformanceContractSHA   = "sha256:f3ae834265170ff22088943283fd23dcb562bc2308571ccc722414c2c896dc23"
 	expectedConformanceReportSchema  = "sha256:42048fbf5a5edc2ca4476727563ab41e96a8fb6d3788d446e0e0d7c4154a31a7"
 	expectedSourceSeedIndexSHA256    = "sha256:5d75d1b1ddf596ae1b3ab3c2690e652e9f6d1b2aef93755c7553552f71f39981"
 	expectedSourceSchemaSHA256       = "sha256:4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2"
