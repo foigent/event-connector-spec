@@ -1,27 +1,67 @@
 {
-  "artifact_format": "foigent.source-mapping-candidate.v1",
+  "artifact_format": "foigent.source-mapping-release-candidate.v1",
   "artifact_kind": "unirouter.source-snapshot-to-model-request-completed",
-  "candidate_status": "B9_SOURCE_CANDIDATE_NOT_BINDING",
+  "release_candidate_status": "B9_EXACT_B8_RELEASE_CANDIDATE",
   "work_item_id": "FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726",
   "authority": {
     "repository": "https://github.com/foigent/event-connector-spec",
     "repository_id": 1313391565,
     "owner_role": "UniRouter Source Domain Owner"
   },
-  "joint_candidate": {
-    "status": "THREE_PARTY_TEXT_ALIGNED_NON_BINDING",
-    "sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f"
+  "protocol_text_baseline": {
+    "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
+    "disposition": "incorporated_by_exact_b8_authority_reference"
   },
   "source_baseline": {
     "repository": "https://github.com/foigent/unirouter.git",
     "commit": "bf91ea63a16952bb2925afd5438233cac597dcc1",
     "tree": "ddadc277fbede49fac0cbc1cc561203312432ac3"
   },
-  "b8_boundary": {
-    "semantic_refs_only": true,
-    "shared_wire_paths_defined": false,
-    "shared_schema_artifacts_created": false,
-    "statement": "Targets prefixed semantic: identify V3 meaning only; B8 must provide authoritative JSON paths and Schemas."
+  "b8_authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "commit": "404d1d753801fd32185eea8163d6a8f839c22a89",
+    "tree": "9aa5fe3f0e830631dc355d51c654928f97bdbd88",
+    "binding": "exact_git_object_bytes",
+    "artifact_pins": {
+      "protocol_text": {
+        "path": "spec/protocol-v1.md",
+        "sha256": "sha256:3a0aac41075fde6645c9d07d80416142e4b8de110a0ff429ad96c7df974ed88e"
+      },
+      "event_envelope_schema": {
+        "path": "schemas/event-envelope.v1.schema.json",
+        "schema_id": "foigent://schemas/event-envelope/v1",
+        "sha256": "sha256:6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26"
+      },
+      "model_request_completed_schema": {
+        "path": "schemas/model-request-completed.v1.schema.json",
+        "schema_id": "foigent://events/model/request-completed/v1",
+        "sha256": "sha256:ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6"
+      },
+      "capture_gap_schema": {
+        "path": "schemas/capture-gap.v1.schema.json",
+        "schema_id": "foigent://schemas/capture-gap/v1",
+        "sha256": "sha256:1a5be69da99f62033ceadf05f66d45296d1d5f8b662830f77c0fc6af49edaec8"
+      },
+      "event_batch_schema": {
+        "path": "schemas/event-batch.v1.schema.json",
+        "schema_id": "foigent://schemas/event-batch/v1",
+        "sha256": "sha256:8e2133922bcb77cf032309290593665df1bf56cfa47e433dd573d0e42f36eef9"
+      },
+      "connector_checkpoint_schema": {
+        "path": "schemas/connector-checkpoint.v1.schema.json",
+        "schema_id": "foigent://schemas/connector-checkpoint/v1",
+        "sha256": "sha256:8be2fd290d6db8d288a9b10ac6d9aa0b55a66ff21ea0fb55ac0af2d1b66bf800"
+      },
+      "reference_connector_manifest": {
+        "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+        "sha256": "sha256:1d8b70dab02900e9d033ed0de9a5ce0c646d3556b80440a67354367eb83091f7"
+      },
+      "source_seed_index": {
+        "path": "reference/unirouter/source-seeds.v1.json",
+        "sha256": "sha256:5d75d1b1ddf596ae1b3ab3c2690e652e9f6d1b2aef93755c7553552f71f39981"
+      }
+    }
   },
   "source_evidence": [
     "internal/completedfeed/contract.go",
@@ -43,7 +83,14 @@
       "X-Insight visibility as a Source completion claim"
     ],
     "bootstrap": "activation_forward",
-    "retention": "7d"
+    "retention": "7d",
+    "b8_manifest_bindings": [
+      "/coverage",
+      "/bootstrap",
+      "/compatibility/retention",
+      "/compatibility/source_revision",
+      "/compatibility/timeline_complete"
+    ]
   },
   "event_semantics": {
     "event_type": "model.request.completed",
@@ -52,31 +99,353 @@
       "cancelled"
     ],
     "terminal_at": "Exact Source terminal.available_at, normalized by the current producer to UTC microsecond precision before Snapshot persistence.",
-    "occurred_at": "Optional deterministic alias of the same terminal_at instant.",
+    "occurred_at": "Deterministic alias of the same terminal_at instant.",
     "parent_observed_at": "absent",
-    "timeline_complete": "Exact boolean true for every emitted revision 1 Feed item; final billing-terminal timeline, not complete observability."
+    "timeline_complete": "Exact boolean true for every emitted revision 1 Feed item; final billing-terminal timeline, not complete observability.",
+    "b8_bindings": [
+      {
+        "artifact_key": "event_envelope_schema",
+        "wire_json_path": "/event_type",
+        "schema_json_path": "/properties/event_type",
+        "value": "model.request.completed"
+      },
+      {
+        "artifact_key": "model_request_completed_schema",
+        "wire_json_path": "/payload/terminal/status",
+        "schema_json_path": "/properties/terminal/properties/status",
+        "values": [
+          "settled",
+          "cancelled"
+        ]
+      },
+      {
+        "artifact_key": "event_envelope_schema",
+        "wire_json_path": "/time/terminal_at",
+        "schema_json_path": "/properties/time/properties/terminal_at"
+      },
+      {
+        "artifact_key": "event_envelope_schema",
+        "wire_json_path": "/time/occurred_at",
+        "schema_json_path": "/properties/time/properties/occurred_at"
+      },
+      {
+        "artifact_key": "model_request_completed_schema",
+        "wire_json_path": "/payload/timeline_complete",
+        "schema_json_path": "/properties/timeline_complete",
+        "value": true
+      }
+    ]
+  },
+  "envelope_construction": {
+    "declared_fields": [
+      {
+        "wire_json_path": "/spec_version",
+        "value": "foigent.event-envelope.v1",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/spec_version",
+            "value": "foigent.event-envelope.v1"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/schema_ref",
+        "value": "foigent://events/model/request-completed/v1",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/schema_ref",
+            "value": "foigent://events/model/request-completed/v1"
+          },
+          {
+            "artifact_key": "reference_connector_manifest",
+            "json_path": "/emitted_event_schemas/0/schema_ref",
+            "value": "foigent://events/model/request-completed/v1"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/schema_version",
+        "value": "1",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/schema_version",
+            "value": "1"
+          },
+          {
+            "artifact_key": "reference_connector_manifest",
+            "json_path": "/emitted_event_schemas/0/schema_version",
+            "value": "1"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/producer/product",
+        "value": "unirouter",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/producer/properties/product",
+            "value": "unirouter"
+          },
+          {
+            "artifact_key": "reference_connector_manifest",
+            "json_path": "/source_product",
+            "value": "unirouter"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/producer/connector_id",
+        "value": "foigent.unirouter.completed-execution",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/producer/properties/connector_id",
+            "value": "foigent.unirouter.completed-execution"
+          },
+          {
+            "artifact_key": "reference_connector_manifest",
+            "json_path": "/connector_id",
+            "value": "foigent.unirouter.completed-execution"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/producer/connector_version",
+        "value": "1.0.0",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/producer/properties/connector_version",
+            "value": "1.0.0"
+          },
+          {
+            "artifact_key": "reference_connector_manifest",
+            "json_path": "/connector_version",
+            "value": "1.0.0"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/subject/type",
+        "value": "request",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/subject/properties/type",
+            "value": "request"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/actor/type",
+        "value": "system",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/actor/properties/type",
+            "value": "system"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/data_policy/payload_capture_mode",
+        "value": "metadata_only",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/data_policy/properties/payload_capture_mode",
+            "value": "metadata_only"
+          },
+          {
+            "artifact_key": "reference_connector_manifest",
+            "json_path": "/payload_policy/payload_capture_mode",
+            "value": "metadata_only"
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/data_policy/raw_payload_present",
+        "value": false,
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/data_policy/properties/raw_payload_present",
+            "value": false
+          },
+          {
+            "artifact_key": "reference_connector_manifest",
+            "json_path": "/payload_policy/raw_payload_present",
+            "value": false
+          }
+        ]
+      },
+      {
+        "wire_json_path": "/provenance/adapter_fidelity",
+        "value": "F2",
+        "provenance": "declared",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/provenance/properties/adapter_fidelity",
+            "value": "F2"
+          }
+        ]
+      }
+    ],
+    "identity_rule": {
+      "event_id": "Exact Source request_id bytes.",
+      "tuple_json_paths": [
+        "/producer/product",
+        "/producer/instance",
+        "/scope/tenant_ref or absent",
+        "/scope/org_ref",
+        "/scope/project_ref",
+        "/event_type",
+        "/event_id"
+      ],
+      "tenant_wire_rule": "The /scope/tenant_ref field is absent; its idempotency input is exactly four zero bytes.",
+      "component_encoding": "uint32 big-endian byte length followed by exact UTF-8 bytes",
+      "domain_prefix": "ASCII foigent.event-idempotency.v1",
+      "output": "sha256:<lowercase SHA-256 hex>",
+      "revision_exclusion": "Exact /identity/source_revision string 1 does not enter identity or idempotency.",
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "wire_json_path": "/identity/idempotency_key",
+          "schema_json_path": "/properties/identity/properties/idempotency_key"
+        },
+        {
+          "artifact_key": "event_envelope_schema",
+          "wire_json_path": "/scope/tenant_ref",
+          "schema_json_path": "/properties/scope/properties/tenant_ref"
+        }
+      ]
+    },
+    "hash_rules": {
+      "source_hash": {
+        "wire_json_path": "/integrity/source_hash",
+        "input": "Exact immutable Source Snapshot bytes; no reserialization.",
+        "output": "sha256:<lowercase SHA-256 hex>",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/integrity/properties/source_hash"
+          }
+        ]
+      },
+      "envelope_hash": {
+        "wire_json_path": "/integrity/envelope_hash",
+        "input": "Complete Envelope with /integrity/envelope_hash absent, canonicalized under the exact protocol RFC 8785 safe-integer profile.",
+        "output": "sha256:<lowercase SHA-256 hex>; insert after hashing and validate the final Envelope.",
+        "b8_artifact_bindings": [
+          {
+            "artifact_key": "event_envelope_schema",
+            "schema_json_path": "/properties/integrity/properties/envelope_hash"
+          }
+        ]
+      },
+      "domain_separation": "Source hash, Envelope hash and product-local projection hashes are independent."
+    },
+    "provenance_profile": {
+      "adapter_fidelity": "F2",
+      "field_groups": {
+        "actor": "declared",
+        "correlation": "direct",
+        "data_policy": "declared",
+        "identity": "direct",
+        "payload.capture_gaps": "direct",
+        "payload.money": "direct",
+        "payload.terminal": "direct",
+        "payload.timeline_complete": "direct",
+        "payload.usage": "direct",
+        "scope": "direct",
+        "subject": "derived",
+        "time.occurred_at": "derived",
+        "time.terminal_at": "direct"
+      },
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "wire_json_path": "/provenance/field_groups",
+          "schema_json_path": "/properties/provenance/properties/field_groups"
+        }
+      ]
+    }
   },
   "field_mappings": [
     {
       "mapping_id": "snapshot_schema_version",
       "source_pointer": "/schema_version",
-      "shared_semantic_ref": "semantic:source_payload_schema",
+      "target_classification": "product_local_source_input_non_wire",
+      "shared_json_paths": [],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "reference_connector_manifest",
+          "json_path": "/supported_source_schemas/0/schema_id"
+        },
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/schema/path"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "require exact unirouter.completed-execution.v1; preserve in Source Snapshot bytes",
-      "compatibility": "Does not create a second shared schema_ref or alter Source bytes."
+      "compatibility": "Source schema identity is a mapping input and Manifest pin, not an Event Envelope field."
     },
     {
       "mapping_id": "request_id",
       "source_pointer": "/request_id",
-      "shared_semantic_ref": "semantic:event.event_id",
-      "provenance": "direct",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/event_id",
+        "/subject/ref",
+        "/correlation/request_ref"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/event_id"
+        },
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/subject/properties/ref"
+        },
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/correlation/properties/request_ref"
+        }
+      ],
+      "provenance": "direct_and_derived_binding",
       "wire_transform": "exact valid Source UTF-8 bytes; no UUID conversion and no Unicode normalization",
-      "compatibility": "Also binds correlation/subject semantics; Source implementation bounds request_id to 1..64 bytes."
+      "compatibility": "Source event_id is direct; subject.ref and correlation.request_ref are deterministic bindings of the same bytes."
     },
     {
       "mapping_id": "org_id",
       "source_pointer": "/org_id",
-      "shared_semantic_ref": "semantic:event.scope.org_ref",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/scope/org_ref"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/scope/properties/org_ref"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "positive integer to canonical base-10 string with no sign or leading zero",
       "compatibility": "Organization scope is mandatory; request_id is not globally unique."
@@ -84,7 +453,16 @@
     {
       "mapping_id": "project_id",
       "source_pointer": "/project_id",
-      "shared_semantic_ref": "semantic:event.scope.project_ref",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/scope/project_ref"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/scope/properties/project_ref"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "positive integer to canonical base-10 string with no sign or leading zero",
       "compatibility": "Only positive project-scoped terminal records enter the Reference Feed."
@@ -92,7 +470,16 @@
     {
       "mapping_id": "terminal_status",
       "source_pointer": "/terminal/status",
-      "shared_semantic_ref": "semantic:model.request.completed.terminal.status",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/terminal/status"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/terminal/properties/status"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact settled or cancelled enum",
       "compatibility": "No success, delivery, or visibility inference."
@@ -100,15 +487,38 @@
     {
       "mapping_id": "terminal_available_at",
       "source_pointer": "/terminal/available_at",
-      "shared_semantic_ref": "semantic:event.time.terminal_at",
-      "provenance": "direct",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/time/terminal_at",
+        "/time/occurred_at"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/time/properties/terminal_at"
+        },
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/time/properties/occurred_at"
+        }
+      ],
+      "provenance": "direct_and_derived_alias",
       "wire_transform": "parse exact Source instant and emit UTC YYYY-MM-DDTHH:MM:SS.ffffffZ",
       "compatibility": "Source Snapshot bytes/hash remain unchanged; parent observed_at is absent."
     },
     {
       "mapping_id": "usage_model",
       "source_pointer": "/usage/model",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.model",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/model"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/model"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact valid Source UTF-8 bytes; no NFC normalization",
       "compatibility": "Current Source bound is 1..100 bytes."
@@ -116,7 +526,16 @@
     {
       "mapping_id": "usage_prompt_tokens",
       "source_pointer": "/usage/prompt_tokens",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.prompt_tokens",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/prompt_tokens"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/prompt_tokens"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
       "compatibility": "Must equal uncached + cache_read + cache_creation."
@@ -124,7 +543,16 @@
     {
       "mapping_id": "usage_uncached_prompt_tokens",
       "source_pointer": "/usage/uncached_prompt_tokens",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.uncached_prompt_tokens",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/uncached_prompt_tokens"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/uncached_prompt_tokens"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
       "compatibility": "No binary floating point."
@@ -132,7 +560,16 @@
     {
       "mapping_id": "usage_cache_read_tokens",
       "source_pointer": "/usage/cache_read_tokens",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.cache_read_tokens",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/cache_read_tokens"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/cache_read_tokens"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
       "compatibility": "No binary floating point."
@@ -140,7 +577,16 @@
     {
       "mapping_id": "usage_cache_creation_tokens",
       "source_pointer": "/usage/cache_creation_tokens",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.cache_creation_tokens",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/cache_creation_tokens"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/cache_creation_tokens"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
       "compatibility": "No binary floating point."
@@ -148,7 +594,16 @@
     {
       "mapping_id": "usage_completion_tokens",
       "source_pointer": "/usage/completion_tokens",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.completion_tokens",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/completion_tokens"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/completion_tokens"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "nonnegative integer to canonical decimal string in 0..9223372036854775807",
       "compatibility": "No binary floating point."
@@ -156,7 +611,16 @@
     {
       "mapping_id": "usage_source",
       "source_pointer": "/usage/source",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.source",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/source"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/source"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact bounded Source UTF-8 bytes",
       "compatibility": "No semantic renaming or normalization."
@@ -164,7 +628,16 @@
     {
       "mapping_id": "usage_authority",
       "source_pointer": "/usage/authority",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.authority",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/authority"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/authority"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact bounded Source UTF-8 bytes",
       "compatibility": "No semantic renaming or normalization."
@@ -172,7 +645,16 @@
     {
       "mapping_id": "usage_purpose",
       "source_pointer": "/usage/purpose",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.purpose",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/purpose"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/purpose"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact bounded Source UTF-8 bytes",
       "compatibility": "No semantic renaming or normalization."
@@ -180,7 +662,16 @@
     {
       "mapping_id": "usage_finality",
       "source_pointer": "/usage/finality",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.finality",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/finality"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/finality"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact bounded Source UTF-8 bytes",
       "compatibility": "Distinct from Feed-item timeline_complete."
@@ -188,7 +679,16 @@
     {
       "mapping_id": "usage_contract_version",
       "source_pointer": "/usage/contract_version",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.contract_version",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/contract_version"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/contract_version"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact bounded Source UTF-8 bytes",
       "compatibility": "Product-owned usage contract identity."
@@ -196,7 +696,16 @@
     {
       "mapping_id": "usage_estimate_version",
       "source_pointer": "/usage/estimate_version",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.estimate_version",
+      "target_classification": "shared_wire_optional",
+      "shared_json_paths": [
+        "/payload/usage/estimate_version"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/estimate_version"
+        }
+      ],
       "provenance": "direct_optional",
       "wire_transform": "preserve absent versus exact bounded Source UTF-8 string",
       "compatibility": "Do not convert absence to null or empty."
@@ -204,7 +713,16 @@
     {
       "mapping_id": "usage_cache_usage_schema",
       "source_pointer": "/usage/cache_usage_schema",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.cache_usage_schema",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/cache_usage_schema"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/cache_usage_schema"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact bounded Source UTF-8 bytes",
       "compatibility": "Empty is Source-valid where emitted."
@@ -212,7 +730,16 @@
     {
       "mapping_id": "usage_cache_usage_status",
       "source_pointer": "/usage/cache_usage_status",
-      "shared_semantic_ref": "semantic:model.request.completed.usage.cache_usage_status",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/usage/cache_usage_status"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/usage/properties/cache_usage_status"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact bounded Source UTF-8 bytes",
       "compatibility": "No target inference."
@@ -220,7 +747,16 @@
     {
       "mapping_id": "money_schema",
       "source_pointer": "/money/schema",
-      "shared_semantic_ref": "semantic:model.request.completed.money.schema",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/money/schema"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/money/properties/schema"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "require exact micro-cny.v1",
       "compatibility": "No unit change."
@@ -228,7 +764,16 @@
     {
       "mapping_id": "money_currency",
       "source_pointer": "/money/currency",
-      "shared_semantic_ref": "semantic:model.request.completed.money.currency",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/money/currency"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/money/properties/currency"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "require exact CNY",
       "compatibility": "No currency conversion."
@@ -236,7 +781,16 @@
     {
       "mapping_id": "money_amount_scale",
       "source_pointer": "/money/amount_scale",
-      "shared_semantic_ref": "semantic:model.request.completed.money.amount_scale",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/money/amount_scale"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/money/properties/amount_scale"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "require exact JSON integer 1000000",
       "compatibility": "No string coercion."
@@ -244,7 +798,16 @@
     {
       "mapping_id": "money_calculated_cost_micros",
       "source_pointer": "/money/calculated_cost_micros",
-      "shared_semantic_ref": "semantic:model.request.completed.money.calculated_cost_micros",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/money/calculated_cost_micros"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/money/properties/calculated_cost_micros"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "preserve exact canonical nonnegative decimal string",
       "compatibility": "No recomputation or binary floating point."
@@ -252,7 +815,16 @@
     {
       "mapping_id": "money_charged_cost_micros",
       "source_pointer": "/money/charged_cost_micros",
-      "shared_semantic_ref": "semantic:model.request.completed.money.charged_cost_micros",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/money/charged_cost_micros"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/money/properties/charged_cost_micros"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "preserve exact canonical nonnegative decimal string",
       "compatibility": "No recomputation or binary floating point."
@@ -260,7 +832,16 @@
     {
       "mapping_id": "money_pricing_version",
       "source_pointer": "/money/pricing_version",
-      "shared_semantic_ref": "semantic:model.request.completed.money.pricing_version",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/money/pricing_version"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/money/properties/pricing_version"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact bounded Source UTF-8 bytes",
       "compatibility": "Product-owned pricing identity."
@@ -268,7 +849,16 @@
     {
       "mapping_id": "capture_gap_source",
       "source_pointer": "/capture_gaps/*/source",
-      "shared_semantic_ref": "semantic:model.request.completed.gaps[].affected_claim",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/capture_gaps/*/affected_claim"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "capture_gap_schema",
+          "json_path": "/properties/affected_claim"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "exact Source value; shared view orders by affected_claim ascending",
       "compatibility": "Shared ordering never changes Source Snapshot bytes/order/hash."
@@ -276,7 +866,16 @@
     {
       "mapping_id": "capture_gap_reason",
       "source_pointer": "/capture_gaps/*/reason",
-      "shared_semantic_ref": "semantic:model.request.completed.gaps[].reason_code",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/capture_gaps/*/reason_code"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "capture_gap_schema",
+          "json_path": "/properties/reason_code"
+        }
+      ],
       "provenance": "direct",
       "wire_transform": "require exact not_available_at_billing_terminal",
       "compatibility": "No reason synthesis."
@@ -285,43 +884,130 @@
   "feed_wrapper_mappings": [
     {
       "source_field": "FeedPage.source_instance",
-      "shared_semantic_ref": "semantic:event.producer.instance",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/producer/instance",
+        "/producer_instance"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/producer/properties/instance"
+        },
+        {
+          "artifact_key": "event_batch_schema",
+          "json_path": "/properties/producer_instance"
+        },
+        {
+          "artifact_key": "connector_checkpoint_schema",
+          "json_path": "/properties/producer_instance"
+        },
+        {
+          "artifact_key": "reference_connector_manifest",
+          "json_path": "/instance_binding"
+        }
+      ],
       "provenance": "direct",
       "rule": "Exact configured source_instance; stable logical producer identity."
     },
     {
       "source_field": "FeedItem.request_id",
-      "shared_semantic_ref": "semantic:event.event_id_binding",
+      "target_classification": "shared_wire_integrity_binding",
+      "shared_json_paths": [
+        "/event_id"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/event_id"
+        }
+      ],
       "provenance": "integrity_binding",
       "rule": "Must equal Snapshot request_id."
     },
     {
       "source_field": "FeedItem.terminal_available_at",
-      "shared_semantic_ref": "semantic:event.time.terminal_at_binding",
+      "target_classification": "shared_wire_integrity_binding",
+      "shared_json_paths": [
+        "/time/terminal_at",
+        "/time/occurred_at"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/time/properties/terminal_at"
+        },
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/time/properties/occurred_at"
+        }
+      ],
       "provenance": "integrity_binding",
       "rule": "Must equal Snapshot terminal.available_at at UTC microsecond precision."
     },
     {
       "source_field": "FeedItem.revision",
-      "shared_semantic_ref": "semantic:event.source_revision",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/identity/source_revision"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/identity/properties/source_revision"
+        },
+        {
+          "artifact_key": "reference_connector_manifest",
+          "json_path": "/compatibility/source_revision"
+        }
+      ],
       "provenance": "direct",
       "rule": "Exact immutable string 1; excluded from event identity."
     },
     {
       "source_field": "FeedItem.timeline_complete",
-      "shared_semantic_ref": "semantic:event.timeline_complete",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/payload/timeline_complete"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "model_request_completed_schema",
+          "json_path": "/properties/timeline_complete"
+        },
+        {
+          "artifact_key": "reference_connector_manifest",
+          "json_path": "/compatibility/timeline_complete"
+        }
+      ],
       "provenance": "direct",
       "rule": "Exact boolean true for current V1 Feed items."
     },
     {
       "source_field": "FeedItem.snapshot_sha256",
-      "shared_semantic_ref": "semantic:event.integrity.source_hash",
+      "target_classification": "shared_wire",
+      "shared_json_paths": [
+        "/integrity/source_hash"
+      ],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "json_path": "/properties/integrity/properties/source_hash"
+        }
+      ],
       "provenance": "direct",
       "rule": "Exact sha256 lowercase digest of immutable Source Snapshot bytes."
     },
     {
       "source_field": "FeedItem.snapshot",
-      "shared_semantic_ref": "semantic:event.source_payload_input",
+      "target_classification": "source_input_bytes_non_wire",
+      "shared_json_paths": [],
+      "b8_artifact_bindings": [
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/copy_policy"
+        }
+      ],
       "provenance": "direct",
       "rule": "Validate exact bytes/hash before mapping; do not reserialize for source_hash."
     }
@@ -350,12 +1036,31 @@
       "gap_type": "not_available_from_source",
       "severity": "warning",
       "payload_capture_mode": "none"
-    }
+    },
+    "b8_bindings": [
+      {
+        "artifact_key": "model_request_completed_schema",
+        "wire_json_path": "/payload/capture_gaps",
+        "schema_json_path": "/properties/capture_gaps"
+      },
+      {
+        "artifact_key": "capture_gap_schema",
+        "wire_json_path": "/payload/capture_gaps/*",
+        "schema_json_path": ""
+      }
+    ]
   },
   "delivery_exclusions": [
     {
       "source_field": "FeedPage.generated_at",
-      "destination": "Batch or transport evidence only",
+      "target_classification": "shared_batch_transport_non_event",
+      "b8_destination_bindings": [
+        {
+          "artifact_key": "event_batch_schema",
+          "wire_json_path": "/generated_at",
+          "schema_json_path": "/properties/generated_at"
+        }
+      ],
       "excluded_from": [
         "Event identity",
         "shared idempotency",
@@ -365,7 +1070,19 @@
     },
     {
       "source_field": "FeedPage.next_cursor",
-      "destination": "Consumer-owned Checkpoint input only",
+      "target_classification": "shared_batch_and_checkpoint_transport_non_event",
+      "b8_destination_bindings": [
+        {
+          "artifact_key": "event_batch_schema",
+          "wire_json_path": "/next_cursor",
+          "schema_json_path": "/properties/next_cursor"
+        },
+        {
+          "artifact_key": "connector_checkpoint_schema",
+          "wire_json_path": "/cursor",
+          "schema_json_path": "/properties/cursor"
+        }
+      ],
       "excluded_from": [
         "Event identity",
         "shared idempotency",
@@ -375,7 +1092,19 @@
     },
     {
       "source_field": "FeedPage.high_watermark",
-      "destination": "Batch or Checkpoint transport evidence only",
+      "target_classification": "shared_batch_and_checkpoint_transport_non_event",
+      "b8_destination_bindings": [
+        {
+          "artifact_key": "event_batch_schema",
+          "wire_json_path": "/high_watermark",
+          "schema_json_path": "/properties/high_watermark"
+        },
+        {
+          "artifact_key": "connector_checkpoint_schema",
+          "wire_json_path": "/high_watermark",
+          "schema_json_path": "/properties/high_watermark"
+        }
+      ],
       "excluded_from": [
         "Event identity",
         "shared idempotency",
@@ -385,7 +1114,14 @@
     },
     {
       "source_field": "FeedPage.has_more",
-      "destination": "Batch pagination only",
+      "target_classification": "shared_batch_transport_non_event",
+      "b8_destination_bindings": [
+        {
+          "artifact_key": "event_batch_schema",
+          "wire_json_path": "/has_more",
+          "schema_json_path": "/properties/has_more"
+        }
+      ],
       "excluded_from": [
         "Event identity",
         "shared idempotency",
@@ -395,7 +1131,8 @@
     },
     {
       "source_field": "connection.acknowledged_sequence",
-      "destination": "Source-local receiver acknowledgement only",
+      "target_classification": "product_local_non_wire",
+      "b8_destination_bindings": [],
       "excluded_from": [
         "Event identity",
         "shared idempotency",

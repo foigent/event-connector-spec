@@ -1,27 +1,47 @@
 {
-  "artifact_format": "foigent.source-mapping-candidate.v1",
+  "artifact_format": "foigent.source-mapping-release-candidate.v1",
   "artifact_kind": "unirouter.source-contract-seeds",
-  "candidate_status": "B9_SOURCE_CANDIDATE_NOT_BINDING",
+  "release_candidate_status": "B9_EXACT_B8_RELEASE_CANDIDATE",
   "work_item_id": "FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726",
   "authority": {
     "repository": "https://github.com/foigent/event-connector-spec",
     "repository_id": 1313391565,
     "owner_role": "UniRouter Source Domain Owner"
   },
-  "joint_candidate": {
-    "status": "THREE_PARTY_TEXT_ALIGNED_NON_BINDING",
-    "sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f"
+  "protocol_text_baseline": {
+    "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
+    "disposition": "incorporated_by_exact_b8_authority_reference"
   },
   "source_baseline": {
     "repository": "https://github.com/foigent/unirouter.git",
     "commit": "bf91ea63a16952bb2925afd5438233cac597dcc1",
     "tree": "ddadc277fbede49fac0cbc1cc561203312432ac3"
   },
-  "b8_boundary": {
-    "semantic_refs_only": true,
-    "shared_wire_paths_defined": false,
-    "shared_schema_artifacts_created": false,
-    "statement": "These are immutable Source inputs and evidence requirements, not shared B8 Schema or Golden bundle artifacts."
+  "b8_authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "commit": "404d1d753801fd32185eea8163d6a8f839c22a89",
+    "tree": "9aa5fe3f0e830631dc355d51c654928f97bdbd88",
+    "binding": "exact_git_object_bytes",
+    "artifact_pins": {
+      "protocol_text": {
+        "path": "spec/protocol-v1.md",
+        "sha256": "sha256:3a0aac41075fde6645c9d07d80416142e4b8de110a0ff429ad96c7df974ed88e"
+      },
+      "model_request_completed_schema": {
+        "path": "schemas/model-request-completed.v1.schema.json",
+        "schema_id": "foigent://events/model/request-completed/v1",
+        "sha256": "sha256:ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6"
+      },
+      "reference_connector_manifest": {
+        "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+        "sha256": "sha256:1d8b70dab02900e9d033ed0de9a5ce0c646d3556b80440a67354367eb83091f7"
+      },
+      "source_seed_index": {
+        "path": "reference/unirouter/source-seeds.v1.json",
+        "sha256": "sha256:5d75d1b1ddf596ae1b3ab3c2690e652e9f6d1b2aef93755c7553552f71f39981"
+      }
+    }
   },
   "source_evidence": [
     "internal/completedfeed/contract.go",
@@ -40,18 +60,52 @@
       "seed_id": "source_schema",
       "path": "contracts/completed-execution/v1/unirouter.completed-execution.v1.schema.json",
       "sha256": "4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2",
+      "b8_index_bindings": [
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/schema/path"
+        },
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/schema/sha256"
+        },
+        {
+          "artifact_key": "reference_connector_manifest",
+          "json_path": "/supported_source_schemas/0/sha256"
+        }
+      ],
       "role": "current Source payload Schema identity"
     },
     {
       "seed_id": "settled_fixture",
       "path": "contracts/completed-execution/v1/fixtures/valid-settled.json",
       "sha256": "5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27",
+      "b8_index_bindings": [
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/fixtures/0/path"
+        },
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/fixtures/0/sha256"
+        }
+      ],
       "role": "current settled Source seed"
     },
     {
       "seed_id": "cancelled_fixture",
       "path": "contracts/completed-execution/v1/fixtures/valid-cancelled.json",
       "sha256": "31cbfeb23968c07d158b591c28efb3dd40cffba1fd6d1fd4202f43d63bfe9f2d",
+      "b8_index_bindings": [
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/fixtures/1/path"
+        },
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/fixtures/1/sha256"
+        }
+      ],
       "role": "current cancelled Source seed"
     }
   ],
@@ -59,8 +113,12 @@
     "token_counter_go_type": "int",
     "token_counter_persistence_type": "PostgreSQL INTEGER in usage_finalization_journal",
     "source_schema_upper_bound": "not declared",
-    "shared_candidate_wire": "canonical decimal string in 0..9223372036854775807",
-    "disposition": "Current product-emitted values are a lossless subset of the V3 shared range. B8 must not claim that the current Source JSON Schema itself declares an int64 maximum."
+    "shared_wire": "canonical decimal string in 0..9223372036854775807",
+    "shared_schema_binding": {
+      "artifact_key": "model_request_completed_schema",
+      "json_path": "/$defs/int64Decimal"
+    },
+    "disposition": "Current product-emitted values are a lossless subset of the exact B8 shared range. The B8 mapping does not claim that the current Source JSON Schema declares an int64 maximum."
   },
   "boundary_requirements": [
     {
@@ -116,12 +174,12 @@
     {
       "requirement_id": "unicode_boundary",
       "requirement": "Reject non-NFC protocol constants but preserve exact valid Source opaque UTF-8 bytes without normalization.",
-      "reason": "V3 Source/protocol Unicode boundary."
+      "reason": "Exact Source/protocol Unicode boundary."
     },
     {
       "requirement_id": "duplicate_keys",
-      "requirement": "Reject duplicate JSON keys at every depth before ordinary object decoding in the future shared mapping/conformance path.",
-      "reason": "Current generated Source bytes contain no duplicate keys, but ordinary Go map/struct decoding is not B6 duplicate-key evidence."
+      "requirement": "Reject duplicate JSON keys at every depth before ordinary object decoding in the shared mapping/conformance path.",
+      "reason": "Current generated Source bytes contain no duplicate keys, but ordinary Go map/struct decoding is not duplicate-key evidence."
     },
     {
       "requirement_id": "prohibited_raw_fields",
@@ -142,7 +200,7 @@
   "runtime_nonclaims": [
     "No live Source data was read.",
     "No credential, cursor, Checkpoint or database state was read or changed.",
-    "No shared Golden fixture or B8 Schema is created by this seed declaration.",
-    "The current seeds are compatibility inputs, not proof of the future Go/TypeScript vectors."
+    "No shared Schema or fixture is created or edited by this Source seed declaration.",
+    "The Source seeds are immutable compatibility inputs; accepted Go and TypeScript B6 conformance evidence remains separately pinned."
   ]
 }
