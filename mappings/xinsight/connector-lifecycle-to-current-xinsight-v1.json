@@ -1,0 +1,210 @@
+{
+  "artifact": "xinsight.connector-lifecycle-to-current-xinsight.v1",
+  "status": "B9_CANDIDATE_NOT_BINDING",
+  "baseline": {
+    "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
+    "xinsight_commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
+    "xinsight_tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8"
+  },
+  "scope": {
+    "connector_id": "foigent.unirouter.completed-execution",
+    "connector_version": "1.0.0",
+    "local_cursor_key": "unirouter.completed-execution.v1",
+    "shared_model_note": "V3 requires orthogonal lifecycle axes. Exact B8 lifecycle enum names and Schemas have not been authored, so this artifact maps axis meanings without inventing shared wire values."
+  },
+  "shared_axes_to_current_local_state": [
+    {
+      "shared_axis": "configuration",
+      "local_authority": [
+        "source_systems.status",
+        "adapter_manifests.active",
+        "adapter_import_states activation columns",
+        "deployment-local endpoint and service configuration"
+      ],
+      "current_values_or_rules": [
+        "source_systems.status must equal active",
+        "adapter_manifests.active must equal true",
+        "source_systems.source_type must equal adapter_manifests.source_type",
+        "activation_source_instance, activation_cursor, activation_high_watermark, activated_at and authorization_ref must all be present"
+      ],
+      "loss_or_gap": "No single current configuration-state enum exists."
+    },
+    {
+      "shared_axis": "authentication",
+      "local_authority": [
+        "adapter_import_states.authorization_ref",
+        "deployment-local credential binding",
+        "sanitized worker last_error code"
+      ],
+      "current_values_or_rules": [
+        "authorization_ref records the durable activation authorization reference, not a secret",
+        "credentials remain outside event/provenance identity",
+        "HTTP 401 and 403 fail closed and can surface only as sanitized failure codes"
+      ],
+      "loss_or_gap": "No dedicated durable authentication status column or investigation read model exists."
+    },
+    {
+      "shared_axis": "transport",
+      "local_authority": [
+        "worker_status",
+        "last_import_started_at",
+        "last_poll_failed_at",
+        "last_error",
+        "consecutive_failures"
+      ],
+      "current_values_or_rules": [
+        "polling denotes an in-progress pull attempt",
+        "backoff denotes a retryable failure",
+        "error denotes a non-retryable failure",
+        "transport, HTTP status and response-body failures remain distinct sanitized worker error categories"
+      ],
+      "loss_or_gap": "Transport disposition is encoded by worker state plus last_error rather than a separate transport-axis column."
+    },
+    {
+      "shared_axis": "processing",
+      "local_authority": [
+        "adapter_import_states.status",
+        "adapter_import_states.worker_status",
+        "EvidenceStore per-item convergence"
+      ],
+      "current_values_or_rules": [
+        "legacy status values are idle, running and error",
+        "worker_status values are inactive, idle, polling, backoff, stopping and error",
+        "every item must be inserted or exact duplicate_noop before CommitPage"
+      ],
+      "loss_or_gap": "The legacy status column is overloaded; worker_status is more precise but still combines several shared axes."
+    },
+    {
+      "shared_axis": "checkpoint",
+      "local_authority": [
+        "adapter_import_states.cursor_value",
+        "adapter_import_states.high_watermark",
+        "adapter_import_states activation_cursor",
+        "adapter_import_states activation_high_watermark",
+        "page and item counters"
+      ],
+      "current_values_or_rules": [
+        "cursor advances only after every page item converges",
+        "partial-page failure leaves cursor_value unchanged",
+        "expected-cursor compare-and-set prevents a stale worker from advancing state",
+        "items_committed + duplicate_noop must equal items_received"
+      ],
+      "loss_or_gap": "Checkpoint is product-local and opaque; no shared Checkpoint Schema exists yet."
+    },
+    {
+      "shared_axis": "health",
+      "local_authority": [
+        "worker_status",
+        "last_import_completed_at",
+        "last_poll_failed_at",
+        "last_error",
+        "consecutive_failures",
+        "systemd process state"
+      ],
+      "current_values_or_rules": [
+        "idle after successful page commit",
+        "backoff after retryable failure",
+        "error after permanent failure",
+        "systemd load/active/enabled state is deployment-local and not stored in evidence events"
+      ],
+      "loss_or_gap": "No product API currently combines durable worker health with host service health."
+    }
+  ],
+  "current_transition_projection": [
+    {
+      "operation": "Activate",
+      "precondition": "Active source/adapter identity and no conflicting durable activation",
+      "legacy_status_after": "idle",
+      "worker_status_after": "idle",
+      "checkpoint_effect": "Initialize activation and current cursor/high-watermark to the accepted activation boundary"
+    },
+    {
+      "operation": "MarkPollStarted",
+      "precondition": "Expected current cursor and worker_status in inactive|idle|polling|backoff|error",
+      "legacy_status_after": "running",
+      "worker_status_after": "polling",
+      "checkpoint_effect": "No cursor or high-watermark change"
+    },
+    {
+      "operation": "CommitPage",
+      "precondition": "worker_status=polling, expected cursor matches, and every item is committed or duplicate_noop",
+      "legacy_status_after": "idle",
+      "worker_status_after": "idle",
+      "checkpoint_effect": "Atomically advance cursor and high-watermark; reset consecutive_failures"
+    },
+    {
+      "operation": "MarkFailure(retryable=true)",
+      "precondition": "worker_status=polling and expected cursor matches",
+      "legacy_status_after": "error",
+      "worker_status_after": "backoff",
+      "checkpoint_effect": "Cursor and high-watermark unchanged; increment consecutive_failures"
+    },
+    {
+      "operation": "MarkFailure(retryable=false)",
+      "precondition": "worker_status=polling and expected cursor matches",
+      "legacy_status_after": "error",
+      "worker_status_after": "error",
+      "checkpoint_effect": "Cursor and high-watermark unchanged; increment consecutive_failures"
+    },
+    {
+      "operation": "MarkStopping",
+      "precondition": "Expected cursor matches",
+      "legacy_status_after": "running",
+      "worker_status_after": "stopping",
+      "checkpoint_effect": "No cursor or high-watermark change"
+    },
+    {
+      "operation": "MarkInactive",
+      "precondition": "Expected cursor matches",
+      "legacy_status_after": "idle",
+      "worker_status_after": "inactive",
+      "checkpoint_effect": "No cursor or high-watermark change"
+    }
+  ],
+  "worker_service_projection": {
+    "unit": "xinsight-feed.service",
+    "process": "xinsight-importer unirouter pull-feed",
+    "database_role": "writer-capable importer role",
+    "reader_service_separation": "xinsight-server remains reader-only",
+    "installation_default": {
+      "load_state": "loaded",
+      "active_state": "inactive",
+      "unit_file_state": "disabled"
+    },
+    "boundary": "Host load/active/enabled/process state is operational product state, not an Event, M0 field, Checkpoint identity or item-linked provenance."
+  },
+  "read_model_projection": {
+    "current_connector_lifecycle_api": null,
+    "current_connector_lifecycle_ui": null,
+    "current_investigation_surfaces": [
+      "execution search",
+      "execution timeline",
+      "event detail",
+      "Capture Gap query",
+      "import provenance and freshness"
+    ],
+    "exact_gap": "Current read surfaces expose accepted evidence and data-quality state, but do not expose adapter_import_states or systemd lifecycle. B9 must preserve this fact; a future lifecycle read model is a product implementation gap, not a current compatibility behavior."
+  },
+  "isolation_rules": {
+    "mutable_state_never_enters": [
+      "shared Event identity or hash",
+      "M0 event identity or hash",
+      "item/event-linked import provenance or its identity"
+    ],
+    "checkpoint_fields": [
+      "activation_cursor",
+      "activation_high_watermark",
+      "cursor_value",
+      "high_watermark",
+      "last_import_started_at",
+      "last_import_completed_at",
+      "last_poll_failed_at",
+      "last_error",
+      "pages_committed",
+      "items_received",
+      "items_committed",
+      "duplicate_noop",
+      "consecutive_failures"
+    ]
+  }
+}

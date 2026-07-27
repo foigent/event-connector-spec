@@ -1,0 +1,80 @@
+{
+  "artifact": "xinsight.portable-connector-identity-to-current-xinsight.v1",
+  "status": "B9_CANDIDATE_NOT_BINDING",
+  "baseline": {
+    "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
+    "xinsight_commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
+    "xinsight_tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8"
+  },
+  "portable_identity": {
+    "connector_id": "foigent.unirouter.completed-execution",
+    "connector_version": "1.0.0",
+    "class": "integration",
+    "direction": "source"
+  },
+  "coverage_binding": {
+    "event_type": "model.request.completed",
+    "source_payload_schema": "unirouter.completed-execution.v1",
+    "shared_payload_schema_candidate": "foigent://events/model/request-completed/v1",
+    "coverage": "Authenticated, admitted, project-scoped requests that reached a durable UniRouter billing terminal.",
+    "excluded": [
+      "pre-admission rejection",
+      "pre-billing rejection"
+    ],
+    "stable_instance_rule": "The Manifest, activation cursor binding and emitted shared identity must use the same exact logical source_instance/producer.instance. A changed value creates a new Connector instance identity domain and is not replay."
+  },
+  "xinsight_local_registry": {
+    "source_system": {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "source_key": "source-system:11111111-1111-1111-1111-111111111111",
+      "source_type": "unirouter",
+      "display_name": "Imported unirouter source",
+      "source_version": "unirouter.completed-execution.v1",
+      "required_status": "active"
+    },
+    "adapter_manifest": {
+      "id": "22222222-2222-4222-8222-222222222224",
+      "adapter_id": "adapter-unirouter:22222222-2222-4222-8222-222222222224",
+      "adapter_version": "unirouter.completed-execution.v1",
+      "source_type": "unirouter",
+      "fidelity_level": "F2",
+      "ingestion_modes": [
+        "api_import"
+      ],
+      "payload_behavior": "metadata_only_default",
+      "idempotency_strategy": "source_ref_event_type_source_event_id",
+      "cursor_strategy": "source_ref",
+      "declared_event_types": [
+        "billing.execution.cancelled",
+        "billing.execution.settled",
+        "gap.capture.detected"
+      ],
+      "required_active": true
+    },
+    "projection_profile": {
+      "id": "xinsight.foigent-envelope-to-m0.unirouter-completed-execution.v1",
+      "input_candidate": "foigent://events/model/request-completed/v1",
+      "output": "xinsight:m0.1"
+    },
+    "durable_worker_binding": {
+      "cursor_key": "unirouter.completed-execution.v1",
+      "registry_key": [
+        "source_system_id",
+        "adapter_manifest_id",
+        "cursor_key"
+      ],
+      "source_instance_column": "adapter_import_states.activation_source_instance"
+    }
+  },
+  "identity_non_substitution_rules": [
+    "Portable connector_id/version never replaces source_system_id.",
+    "Portable connector_id/version never replaces adapter_manifest_id or adapter_id.",
+    "Portable connector_id/version never replaces credential, authorization_ref or source_instance.",
+    "Projection profile and protocol release pins remain outside current M0 event identity, hash, idempotency and item-linked provenance identity.",
+    "The current fixed local UUIDs remain authoritative for M0 persistence compatibility."
+  ],
+  "current_local_registry_limit": {
+    "fact": "The current source_system row is a fixed product-local UniRouter registry row, while producer.instance is embedded in source_ref and durable activation state.",
+    "consequence": "A future multi-instance registry implementation must not silently reuse the same event identity domain for a different producer.instance; that is a future product-local migration decision and is not implemented by this mapping."
+  }
+}

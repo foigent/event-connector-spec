@@ -1,0 +1,429 @@
+{
+  "artifact": "xinsight.model-request-completed-to-m0-m0.1.v1",
+  "status": "B9_CANDIDATE_NOT_BINDING",
+  "baseline": {
+    "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
+    "xinsight_commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
+    "xinsight_tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8"
+  },
+  "projection": {
+    "profile": "xinsight.foigent-envelope-to-m0.unirouter-completed-execution.v1",
+    "input_candidate": "foigent://events/model/request-completed/v1",
+    "input_event_type": "model.request.completed",
+    "output_product": "xinsight",
+    "output_schema": "m0.1",
+    "reference_source_payload_schema": "unirouter.completed-execution.v1",
+    "compatibility_source_instance": "unirouter-development"
+  },
+  "parent_event_projection": [
+    {
+      "shared_path": "producer.product",
+      "m0_path": null,
+      "rule": "Validated as the Reference producer binding; not copied into the current M0 row."
+    },
+    {
+      "shared_path": "producer.instance",
+      "m0_path": "source_ref",
+      "rule": "Preserve exact opaque UTF-8 bytes as the source-instance segment of unirouter:<instance>:completed_execution:<event_id>."
+    },
+    {
+      "shared_path": "event_id",
+      "m0_path": [
+        "source_event_id",
+        "request_id",
+        "correlation.request_id"
+      ],
+      "rule": "Preserve exact request_id bytes; no UUID conversion and no Unicode normalization."
+    },
+    {
+      "shared_path": "event_type",
+      "m0_path": "source_event_type",
+      "rule": "The shared constant model.request.completed selects this projection; current M0 source_event_type remains completed_execution."
+    },
+    {
+      "shared_path": "scope.tenant_ref",
+      "m0_path": null,
+      "rule": "Absent in Reference V1 and not invented in M0."
+    },
+    {
+      "shared_path": "scope.org_ref",
+      "m0_path": [
+        "org_ref",
+        "identity.org_id"
+      ],
+      "rule": "Parse the canonical positive decimal string losslessly and emit current M0 org-<decimal>."
+    },
+    {
+      "shared_path": "scope.project_ref",
+      "m0_path": [
+        "project_ref",
+        "identity.project_id"
+      ],
+      "rule": "Parse the canonical positive decimal string losslessly and emit current M0 project-<decimal>."
+    },
+    {
+      "shared_path": "terminal_at",
+      "m0_path": [
+        "occurred_at",
+        "observed_at"
+      ],
+      "rule": "Parse the shared six-fraction UTC instant and emit the current Go RFC3339Nano form. M0 observed_at is a target-local deterministic terminal_at alias; it is not a parent shared observed_at fact."
+    },
+    {
+      "shared_path": "occurred_at",
+      "m0_path": "occurred_at",
+      "rule": "Must equal terminal_at before projection; it introduces no independent time fact."
+    },
+    {
+      "shared_path": "observed_at",
+      "m0_path": null,
+      "rule": "Parent shared observed_at is prohibited for Reference V1."
+    },
+    {
+      "shared_path": "terminal.status",
+      "m0_path": [
+        "event_type",
+        "severity",
+        "outcome.outcome_status",
+        "outcome.extensions.terminal_status",
+        "raw_source_excerpt.terminal_status"
+      ],
+      "rule": {
+        "settled": {
+          "event_type": "billing.execution.settled",
+          "severity": "info",
+          "outcome_status": "success"
+        },
+        "cancelled": {
+          "event_type": "billing.execution.cancelled",
+          "severity": "warning",
+          "outcome_status": "failure"
+        }
+      }
+    },
+    {
+      "shared_path": "usage.model",
+      "m0_path": "capability.model",
+      "rule": "Preserve exact Source-derived opaque UTF-8 bytes."
+    },
+    {
+      "shared_path": "usage.source",
+      "m0_path": [
+        "usage.usage_source",
+        "raw_source_excerpt.usage_source"
+      ],
+      "rule": "Preserve the validated Source value exactly."
+    },
+    {
+      "shared_path": "usage.authority",
+      "m0_path": [
+        "capability.extensions.usage_authority",
+        "raw_source_excerpt.usage_authority"
+      ],
+      "rule": "Preserve the validated Source value exactly."
+    },
+    {
+      "shared_path": "usage.purpose",
+      "m0_path": [
+        "usage.extensions.usage_purpose",
+        "raw_source_excerpt.usage_purpose"
+      ],
+      "rule": "Preserve the validated Source value exactly."
+    },
+    {
+      "shared_path": "usage.finality",
+      "m0_path": [
+        "usage.usage_confidence",
+        "raw_source_excerpt.usage_finality"
+      ],
+      "rule": "Preserve the validated Source value exactly."
+    },
+    {
+      "shared_path": "usage.contract_version",
+      "m0_path": [
+        "usage.extensions.usage_contract_version",
+        "raw_source_excerpt.usage_contract_version"
+      ],
+      "rule": "Preserve the validated Source value exactly."
+    },
+    {
+      "shared_path": "usage.estimate_version",
+      "m0_path": [
+        "usage.extensions.usage_estimate_version",
+        "raw_source_excerpt.usage_estimate_version"
+      ],
+      "rule": "Preserve when present and nonempty; current compact-map behavior omits an absent or empty optional value."
+    },
+    {
+      "shared_path": "usage.cache_usage_schema",
+      "m0_path": [
+        "usage.extensions.cache_usage_schema",
+        "raw_source_excerpt.cache_usage_schema"
+      ],
+      "rule": "Preserve when nonempty; current compact-map behavior omits an empty Source value."
+    },
+    {
+      "shared_path": "usage.cache_usage_status",
+      "m0_path": [
+        "usage.extensions.cache_usage_status",
+        "raw_source_excerpt.cache_usage_status"
+      ],
+      "rule": "Preserve the validated Source value exactly."
+    },
+    {
+      "shared_path": "usage.prompt_tokens",
+      "m0_path": "usage.prompt_tokens",
+      "rule": "Validate canonical decimal string in 0..9223372036854775807, parse as signed int64 without floating point, emit current M0 JSON integer."
+    },
+    {
+      "shared_path": "usage.completion_tokens",
+      "m0_path": "usage.completion_tokens",
+      "rule": "Validate canonical decimal string in 0..9223372036854775807, parse as signed int64 without floating point, emit current M0 JSON integer."
+    },
+    {
+      "shared_path": "usage.prompt_tokens + usage.completion_tokens",
+      "m0_path": "usage.total_tokens",
+      "rule": "Checked signed-int64 addition; emit current M0 JSON integer."
+    },
+    {
+      "shared_path": "usage.uncached_prompt_tokens",
+      "m0_path": "usage.extensions.uncached_prompt_tokens",
+      "rule": "Lossless canonical-decimal-to-int64 conversion."
+    },
+    {
+      "shared_path": "usage.cache_read_tokens",
+      "m0_path": "usage.extensions.cache_read_tokens",
+      "rule": "Lossless canonical-decimal-to-int64 conversion."
+    },
+    {
+      "shared_path": "usage.cache_creation_tokens",
+      "m0_path": "usage.extensions.cache_creation_tokens",
+      "rule": "Lossless canonical-decimal-to-int64 conversion."
+    },
+    {
+      "shared_path": "money.charged_cost_micros",
+      "m0_path": "usage.cost_micros",
+      "rule": "Preserve the canonical decimal string; no unit conversion or recalculation."
+    },
+    {
+      "shared_path": "money.calculated_cost_micros",
+      "m0_path": [
+        "usage.extensions.calculated_cost_micros",
+        "raw_source_excerpt.calculated_cost_micros"
+      ],
+      "rule": "Preserve the canonical decimal string."
+    },
+    {
+      "shared_path": "money.currency",
+      "m0_path": "usage.currency",
+      "rule": "Exact CNY."
+    },
+    {
+      "shared_path": "money.amount_scale",
+      "m0_path": "usage.amount_scale",
+      "rule": "Exact JSON integer 1000000."
+    },
+    {
+      "shared_path": "money.schema",
+      "m0_path": "usage.money_schema",
+      "rule": "Exact micro-cny.v1."
+    },
+    {
+      "shared_path": "money.pricing_version",
+      "m0_path": [
+        "usage.extensions.pricing_version",
+        "raw_source_excerpt.pricing_version"
+      ],
+      "rule": "Preserve the validated Source value exactly."
+    },
+    {
+      "shared_path": "integrity.source_hash",
+      "m0_path": [
+        "source_event_hash",
+        "import_provenance.source_payload_sha256"
+      ],
+      "rule": "Copy the SHA-256 of exact immutable Source Snapshot bytes; never hash a reserialized Snapshot."
+    },
+    {
+      "shared_path": "source_revision",
+      "m0_path": [
+        "import_provenance.source_revision",
+        "import_provenance.imported_revision"
+      ],
+      "rule": "The immutable revision remains 1 in item-linked import provenance; it is not copied into the M0 event row."
+    },
+    {
+      "shared_path": "source payload schema identity",
+      "m0_path": "source_version",
+      "rule": "Current M0 source_version remains the exact schema name unirouter.completed-execution.v1; it is not the Source revision."
+    },
+    {
+      "shared_path": "timeline_complete",
+      "m0_path": "import_provenance.timeline_complete",
+      "rule": "Exact true for Reference V1; it remains item-linked provenance and does not erase the four Capture Gaps."
+    },
+    {
+      "shared_path": "payload_capture_mode",
+      "m0_path": [
+        "payload_capture_mode",
+        "payload_policy.payload_capture_mode"
+      ],
+      "rule": "Exact metadata_only for the parent terminal event."
+    }
+  ],
+  "current_m0_declared_constants": {
+    "schema_version": "m0.1",
+    "source_system_id": "11111111-1111-1111-1111-111111111111",
+    "adapter_manifest_id": "22222222-2222-4222-8222-222222222224",
+    "source_type": "unirouter",
+    "source_version": "unirouter.completed-execution.v1",
+    "source_event_type": "completed_execution",
+    "stage": "billing",
+    "capture_mode": "api_import",
+    "payload_capture_mode": "metadata_only",
+    "identity.actor_type": "system",
+    "capability.capability_type": "model_call",
+    "payload_policy.redaction_state": "not_applicable"
+  },
+  "m0_identity_and_hash": {
+    "event_id": {
+      "algorithm": "uuid_from_sha256_first_16_bytes_with_uuid_v5_and_rfc4122_variant_bits",
+      "utf8_input_parts_nul_joined": [
+        "xinsight-unirouter-event-v2",
+        "source_system_id",
+        "adapter_manifest_id",
+        "source_ref",
+        "event_type",
+        "source_event_id"
+      ]
+    },
+    "idempotency_key": "adapter-unirouter:<source_system_id>:<source_ref>:<event_type>:<source_event_id>",
+    "database_uniqueness": [
+      "source_system_id",
+      "adapter_manifest_id",
+      "idempotency_key"
+    ],
+    "duplicate_rule": "same local idempotency key and same M0 event_hash is duplicate_noop",
+    "conflict_rule": "same local idempotency key and different M0 event_hash is idempotency_conflict",
+    "event_hash": {
+      "algorithm": "sha256_of_go_encoding_json_object",
+      "prefix": "sha256:",
+      "excluded_fields": [
+        "event_hash",
+        "ingested_at"
+      ],
+      "note": "This target-local hash is not RFC 8785 and is independent from the shared Envelope hash."
+    }
+  },
+  "gap_projection": {
+    "sort_before_projection": "capture_gaps sorted by exact affected_claim/source bytes",
+    "events_per_parent": 4,
+    "m0_event_type": "gap.capture.detected",
+    "m0_stage": "gap",
+    "m0_severity": "warning",
+    "m0_source_event_type": "completed_execution_capture_gap",
+    "m0_payload_capture_mode": "none",
+    "source_event_id": "<event_id>:gap:<affected_claim>",
+    "source_ref": "unirouter:<producer.instance>:completed_execution:<event_id>:gap:<affected_claim>",
+    "observed_at_rule": "Current M0 observed_at is derived from parent terminal_at; no parent shared observed_at is invented.",
+    "raw_source_excerpt": {
+      "capture_gap": "not_available_from_source",
+      "gap_source": "<direct affected_claim>",
+      "reason": "not_available_at_billing_terminal"
+    },
+    "shared_field_provenance": {
+      "affected_claim": "direct",
+      "reason_code": "direct",
+      "gap_id": "derived as <event_id>:gap:<affected_claim>",
+      "parent_event_id": "derived as exact parent event_id",
+      "request_org_project_linkage": "derived from validated parent identity and scope",
+      "observed_at": "derived as exact parent terminal_at",
+      "gap_type": "declared as not_available_from_source",
+      "severity": "declared as warning",
+      "payload_capture_mode": "declared as none"
+    },
+    "current_m0_field_provenance": {
+      "correlation": "direct",
+      "identity": "direct",
+      "payload_policy": "not_applicable",
+      "extensions.capture_gap": "direct"
+    },
+    "first_class_gap_row": {
+      "id_input": "capture_gap:<m0_gap_event_id>",
+      "id_algorithm": "xinsight_db_legacy_deterministic_uuid: format SHA-256 hex as 8-4-(5+hex[13:16])-(8+hex[17:20])-12",
+      "gap_type": "not_available_from_source",
+      "candidate_gap_types": [],
+      "affected_claim": "<direct affected_claim>",
+      "gap_reason": "not_available_at_billing_terminal",
+      "severity": "warning",
+      "recommendation": "review source visibility and adapter coverage",
+      "created_at": "database operational time; excluded from compatibility identity"
+    }
+  },
+  "capture_mode_separation": {
+    "shared_ingestion_capture_mode": {
+      "b8_wire_path_or_enum": null,
+      "rule": "The exact shared B8 field location and enum are not yet authored and are not invented by this product mapping.",
+      "m0_projection": "Current M0 capture_mode remains the distinct product-local ingestion value api_import and remains part of the current M0 hash.",
+      "must_not_be_conflated_with": "payload_capture_mode"
+    },
+    "payload_capture_mode": {
+      "parent": "metadata_only",
+      "gap": "none",
+      "m0_projection": "Copied to both the current M0 scalar and payload_policy group."
+    }
+  },
+  "contracted_pull_provenance": {
+    "integration_mode": "completed_execution_pull",
+    "proof_class": "operator_approved_integration",
+    "assurance_mode": "contracted_pull",
+    "immutable_inputs": [
+      "source_system_id",
+      "adapter_manifest_id",
+      "exact source_payload_sha256",
+      "source_revision=1",
+      "imported_revision=1",
+      "source_terminal_at",
+      "timeline_complete=true"
+    ],
+    "required_empty_fields": [
+      "source_artifact_sha256",
+      "approval_manifest_sha256",
+      "exchange_id",
+      "source_generated_at",
+      "source_watermark",
+      "import_watermark"
+    ],
+    "event_linkage": "All five current M0 events for one accepted Source item link to the same immutable import provenance record."
+  },
+  "mutable_delivery_exclusions": {
+    "fields": [
+      "delivery cursor",
+      "activation cursor",
+      "high-watermark",
+      "page generation time",
+      "page observation time",
+      "fetch time",
+      "receive time",
+      "retry/backoff state",
+      "consumer ingestion time",
+      "poll counters",
+      "service process state"
+    ],
+    "excluded_from": [
+      "shared Event identity",
+      "shared idempotency",
+      "shared Envelope hash",
+      "current M0 event identity",
+      "current M0 event hash",
+      "item/event-linked import provenance",
+      "item/event-linked import provenance identity"
+    ]
+  },
+  "losslessness": {
+    "status": "CONFIRMED_FOR_CURRENT_SETTLED_AND_CANCELLED_SEEDS",
+    "numeric_precondition": "All shared token strings pass the canonical grammar and numeric upper bound before signed-int64 parsing.",
+    "unicode_precondition": "Protocol constants are NFC-validated; Source-derived opaque UTF-8 is preserved byte-for-byte and is not silently normalized.",
+    "no_shared_schema_claim": true
+  }
+}
