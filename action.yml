@@ -10,6 +10,12 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Verify immutable protocol release
+      shell: bash
+      run: |
+        node "$GITHUB_ACTION_PATH/scripts/verify-candidate.mjs"
+        node "$GITHUB_ACTION_PATH/scripts/compare-conformance.mjs"
+        node "$GITHUB_ACTION_PATH/scripts/build-release-manifest.mjs" --check
     - name: Verify protocol release and product pin
       shell: bash
       env:
