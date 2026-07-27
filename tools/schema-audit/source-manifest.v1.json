@@ -9,7 +9,6 @@
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/.gitmodules": "sha256:b4a2963bc20a9f02d67176c5632f17647503fec12eadfb8cf5264b0163c8957f",
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/.golangci.yml": "sha256:aca21170ce3b133731765a13355639b61f5611ddee375018da4f1dd667db0f44",
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/.pre-commit-hooks.yaml": "sha256:2813035df78f20cb817ccc572f61d240bd33d5f429d7d2a9c60124767d7db6d5",
-    "vendor/github.com/santhosh-tekuri/jsonschema/v6/.swp": "sha256:5af4a53d9bfe0e29bcacc1dbce31977b955f807fefb82fb846df4aea2683354f",
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/LICENSE": "sha256:c8858a5a76440bbca484e134cf7df46385d090dd18b2c58e650f939258802e5b",
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/README.md": "sha256:e04f71e6bab7f544a8068b2ff4c71038a4ff78a4f7c0c914fd9fd1235359c9e0",
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/compiler.go": "sha256:70866caca3a796301c74dfb2a963d53809c0b94c3dcbcc7f8ac5f8f480856b76",
