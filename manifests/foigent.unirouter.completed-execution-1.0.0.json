@@ -85,11 +85,11 @@
     "reference_profile": "xinsight.foigent-envelope-to-m0.unirouter-completed-execution.v1",
     "reference_projection_contract": {
       "path": "mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json",
-      "sha256": "sha256:a2d1e312fb9c629a339e943438cf37e5b5863e9ab8611d542988c4cf1095f343"
+      "sha256": "sha256:98becdc87dd87ffb19d62f5d975656e4b3e4b2b08d5436e9981c490ed13e9b42"
     },
     "reference_compatibility_vector_bundle": {
       "path": "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
-      "sha256": "sha256:b3f31ff82e5ca9de5e2d049ac351d4c97d42f47bcfe895b93f092510570414de"
+      "sha256": "sha256:79c1fca9f07e2f1a70a1c83291cd52bca72b423e73841037b463d7de61a606ab"
     },
     "source_revision": "1",
     "timeline_complete": true,

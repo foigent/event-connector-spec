@@ -1,6 +1,6 @@
 {
   "matrix_version": "foigent.connector-compatibility-matrix.v1",
-  "status": "candidate_pending_b6_conformance_and_owner_reconfirmation",
+  "status": "compatible",
   "protocol_version": "1.0.0",
   "connector": {
     "connector_id": "foigent.unirouter.completed-execution",
@@ -13,15 +13,15 @@
     "payload_schema": "unirouter.completed-execution.v1",
     "source_mapping": {
       "path": "mappings/unirouter/source-snapshot-to-model-request-completed.v1.json",
-      "sha256": "sha256:a13a2fa04e0f2ae86c78eb3499795162627aad01cba0e5e0771da130beea2f7c"
+      "sha256": "sha256:340628c75c2f9523e1b0d5187fd6270403b2d29672d523be3ea8085d7abe06cb"
     },
     "lifecycle_mapping": {
       "path": "mappings/unirouter/source-lifecycle-to-shared-axes.v1.json",
-      "sha256": "sha256:fd3a9099c3c9c4bc105d7e231d23181927fcec98fa0b00d13e071cb529be28a2"
+      "sha256": "sha256:95095328ce8495147c0f65ddd3b81a1c8913e57da2e04f2e2c1efe771e47a858"
     },
     "identity_mapping": {
       "path": "mappings/unirouter/connector-identity-to-source-local.v1.json",
-      "sha256": "sha256:53687f61c645b4758392380b97326e1432ca0f71a080b9afb3d16fb615dccf69"
+      "sha256": "sha256:6f30459c063d7a058c93b9e64be3f98c7ccc240fdd024820bcfd8c57c394f98d"
     }
   },
   "consumer_baseline": {
@@ -32,19 +32,19 @@
     "output_schema": "m0.1",
     "projection_contract": {
       "path": "mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json",
-      "sha256": "sha256:a2d1e312fb9c629a339e943438cf37e5b5863e9ab8611d542988c4cf1095f343"
+      "sha256": "sha256:98becdc87dd87ffb19d62f5d975656e4b3e4b2b08d5436e9981c490ed13e9b42"
     },
     "lifecycle_mapping": {
       "path": "mappings/xinsight/connector-lifecycle-to-current-xinsight-v1.json",
-      "sha256": "sha256:8d680462b5547974654f24ff7918b3cbe5e56cc2e2b21749e4ee64747b8595b8"
+      "sha256": "sha256:5fcd361d2c6c71c22fd9ad2b64f54066574568917cfed30b95302bbc8ba5aadf"
     },
     "identity_mapping": {
       "path": "mappings/xinsight/portable-connector-identity-to-current-xinsight-v1.json",
-      "sha256": "sha256:fc23d8a2762b530862089930d0d366cd06c4b5062138136a0a7ba0f1f5a3cdf4"
+      "sha256": "sha256:69627d1f54cf4152fc1b1884d09eb14635bae6cd53ef7c4bdb57e6e3da7566ae"
     },
     "compatibility_vectors": {
       "path": "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
-      "sha256": "sha256:b3f31ff82e5ca9de5e2d049ac351d4c97d42f47bcfe895b93f092510570414de"
+      "sha256": "sha256:79c1fca9f07e2f1a70a1c83291cd52bca72b423e73841037b463d7de61a606ab"
     }
   },
   "compatibility_invariants": [
