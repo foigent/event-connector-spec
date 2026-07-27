@@ -1,2 +1,52 @@
-# event-connector-spec
-Single source of truth for Foigent shared event protocol and Connector conformance governance.
+# Foigent Event & Connector Specification
+
+This private repository is the single editable authority for the Foigent shared event protocol and Connector conformance governance.
+
+## Current status
+
+- Governance authority: established under B7.
+- Joint protocol text: three-party aligned candidate V3, not binding.
+- Phase 1 freeze: not reached.
+- Phase 2 implementation: not authorized.
+- Runtime, credentials, traffic, checkpoints, cursors, and product databases: out of scope.
+
+The first reference integration remains the existing UniRouter completed-execution feed. It is a compatibility baseline and Reference Connector, not the shared protocol authority.
+
+## Authority scope
+
+This repository may contain:
+
+- shared Event Envelope, Batch, Checkpoint, Receipt, error, and lifecycle contracts;
+- immutable release manifests and compatibility mappings;
+- canonical cross-language vectors, Golden fixtures, and negative/replay vectors;
+- Connector SDK conformance contracts and runner specifications;
+- governance decisions and versioning rules.
+
+This repository must not contain:
+
+- product runtime implementations, live credentials, customer data, or deployment state;
+- editable product-local copies of shared protocol definitions;
+- product-specific IAM, routing, billing, analytics, or UI business logic;
+- a universal plugin runtime shared by all products.
+
+Product repositories consume immutable, digest-pinned releases from this authority. Each product retains its own event model, registry identity, execution runtime, and operational lifecycle.
+
+## Current decision lineage
+
+Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`
+
+- Joint Candidate V3 SHA-256: `f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f`
+- UniRouter Source Owner V3 response SHA-256: `494844ef35e63fc1b5f173c024c496087f38bca4ffc936e31226d2d82335cd12`
+- X-Insight Projection Owner V3 response SHA-256: `c670914cdbf117b527d447e58c6adb3658ee361dc2a1bc954b55f2345786ef63`
+- Coordinator disposition SHA-256: `add651b694d2a597deca7b164aa3eb658ecf39188637dd513b0f6b8e6d74dc6b`
+
+These identities record aligned candidate text only. They do not constitute a protocol release.
+
+## Remaining gates
+
+- B6: independent Go and TypeScript canonical/hash/replay vectors.
+- B8: immutable protocol artifacts and release manifest.
+- B9: exact product mapping and compatibility artifacts.
+- Three-party approval of the release candidate.
+
+See [GOVERNANCE.md](GOVERNANCE.md), [CONTRIBUTING.md](CONTRIBUTING.md), and [Decision 0001](docs/decisions/0001-authority-and-governance.md).
