@@ -8,6 +8,8 @@
     "release_manifest_version",
     "protocol_version",
     "authority",
+    "content_digest",
+    "approvals",
     "release_digest",
     "components"
   ],
@@ -42,6 +44,59 @@
     },
     "release_digest": {
       "$ref": "#/$defs/sha256Ref"
+    },
+    "content_digest": {
+      "$ref": "#/$defs/sha256Ref"
+    },
+    "approvals": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "source_domain_owner"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "projection_owner"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "coordinator"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
     },
     "components": {
       "type": "object",
@@ -189,6 +244,34 @@
         },
         "sha256": {
           "$ref": "#/$defs/sha256Ref"
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "status",
+        "reviewed_content_digest",
+        "evidence"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "source_domain_owner",
+            "projection_owner",
+            "coordinator"
+          ]
+        },
+        "status": {
+          "const": "confirmed"
+        },
+        "reviewed_content_digest": {
+          "$ref": "#/$defs/sha256Ref"
+        },
+        "evidence": {
+          "$ref": "#/$defs/component"
         }
       }
     }

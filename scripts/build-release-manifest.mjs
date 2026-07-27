@@ -8,6 +8,20 @@ import { fileURLToPath } from "node:url";
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const outputPath = resolve(root, "releases/v1.0.0/release-manifest.json");
 const mode = process.argv[2] ?? "--check";
+const approvalPaths = [
+  {
+    role: "source_domain_owner",
+    path: "reviews/releases/v1.0.0/source-owner-approval.md",
+  },
+  {
+    role: "projection_owner",
+    path: "reviews/releases/v1.0.0/projection-owner-approval.md",
+  },
+  {
+    role: "coordinator",
+    path: "reviews/releases/v1.0.0/coordinator-approval.md",
+  },
+];
 
 const componentPaths = {
   protocol_spec: "spec/protocol-v1.md",
@@ -88,7 +102,7 @@ const components = Object.fromEntries(
     },
   ]),
 );
-const hashInput = {
+const contentHashInput = {
   release_manifest_version: "foigent.protocol-release-manifest.v1",
   protocol_version: "1.0.0",
   authority: {
@@ -97,6 +111,29 @@ const hashInput = {
     tag: "v1.0.0",
   },
   components,
+};
+const contentDigest = sha256(
+  Buffer.from(canonicalize(contentHashInput), "utf8"),
+);
+
+if (mode === "--content-digest") {
+  process.stdout.write(`${contentDigest}\n`);
+  process.exit(0);
+}
+
+const approvals = approvalPaths.map(({ role, path }) => ({
+  role,
+  status: "confirmed",
+  reviewed_content_digest: contentDigest,
+  evidence: {
+    path,
+    sha256: sha256(readFileSync(resolve(root, path))),
+  },
+}));
+const hashInput = {
+  ...contentHashInput,
+  content_digest: contentDigest,
+  approvals,
 };
 const manifest = {
   ...hashInput,
@@ -120,6 +157,8 @@ if (mode === "--write") {
     `release manifest verified: ${manifest.release_digest}\n`,
   );
 } else {
-  process.stderr.write("usage: build-release-manifest.mjs --write|--check\n");
+  process.stderr.write(
+    "usage: build-release-manifest.mjs --content-digest|--write|--check\n",
+  );
   process.exit(2);
 }

@@ -90,7 +90,44 @@ for (const [name, component] of Object.entries(release.components)) {
     `${name} release component digest mismatch`,
   );
 }
-const { release_digest: releaseDigest, ...releaseHashInput } = release;
+const {
+  release_digest: releaseDigest,
+  content_digest: contentDigest,
+  approvals,
+  ...releaseContentHashInput
+} = release;
+check(
+  contentDigest ===
+    sha256(Buffer.from(canonicalize(releaseContentHashInput), "utf8")),
+  "release content digest mismatch",
+);
+check(
+  Array.isArray(approvals) &&
+    approvals.map((entry) => entry.role).join("\n") ===
+      ["source_domain_owner", "projection_owner", "coordinator"].join("\n"),
+  "release approvals mismatch",
+);
+for (const approval of approvals) {
+  check(approval.status === "confirmed", `${approval.role} is not confirmed`);
+  check(
+    approval.reviewed_content_digest === contentDigest,
+    `${approval.role} reviewed content mismatch`,
+  );
+  const evidencePath = resolve(actionRoot, approval.evidence.path);
+  check(
+    evidencePath.startsWith(`${actionRoot}${sep}`),
+    `${approval.role} evidence escapes action root`,
+  );
+  check(
+    sha256(readFileSync(evidencePath)) === approval.evidence.sha256,
+    `${approval.role} evidence digest mismatch`,
+  );
+}
+const releaseHashInput = {
+  ...releaseContentHashInput,
+  content_digest: contentDigest,
+  approvals,
+};
 check(
   releaseDigest ===
     sha256(Buffer.from(canonicalize(releaseHashInput), "utf8")),
