@@ -45,7 +45,7 @@
         "additionalProperties": false,
         "required": [
           "case_id",
-          "case_class",
+          "case_classes",
           "status",
           "result_kind",
           "result_base64",
@@ -63,10 +63,15 @@
               "fail"
             ]
           },
-          "case_class": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9_]*$",
-            "maxLength": 80
+          "case_classes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "maxLength": 80
+            }
           },
           "result_kind": {
             "enum": [
