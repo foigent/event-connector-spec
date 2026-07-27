@@ -1,0 +1,33 @@
+{
+  "seed_version": "foigent.reference-source-seeds.v1",
+  "source_repository": "https://github.com/foigent/unirouter.git",
+  "source_commit": "bf91ea63a16952bb2925afd5438233cac597dcc1",
+  "source_tree": "ddadc277fbede49fac0cbc1cc561203312432ac3",
+  "schema": {
+    "path": "contracts/completed-execution/v1/unirouter.completed-execution.v1.schema.json",
+    "sha256": "sha256:4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2"
+  },
+  "fixtures": [
+    {
+      "name": "valid-settled",
+      "path": "contracts/completed-execution/v1/fixtures/valid-settled.json",
+      "sha256": "sha256:5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27"
+    },
+    {
+      "name": "valid-cancelled",
+      "path": "contracts/completed-execution/v1/fixtures/valid-cancelled.json",
+      "sha256": "sha256:31cbfeb23968c07d158b591c28efb3dd40cffba1fd6d1fd4202f43d63bfe9f2d"
+    },
+    {
+      "name": "redaction-rejected",
+      "path": "contracts/completed-execution/v1/fixtures/redaction-rejected.json",
+      "sha256": "sha256:c23fd255c139f94e729ecca70622d6e6341cf7a257c21fbccf592964b0e3853e"
+    },
+    {
+      "name": "cursor-expired-error",
+      "path": "contracts/completed-execution/v1/fixtures/error-cursor-expired.json",
+      "sha256": "sha256:9f85ec830e0e61d0ac75656a980793d6d5c4020265d42ed192693659e1540437"
+    }
+  ],
+  "copy_policy": "These are immutable upstream identity pins. The product-owned Source Schema remains authoritative for Source DTO validation; this shared release does not create an editable Source fork."
+}

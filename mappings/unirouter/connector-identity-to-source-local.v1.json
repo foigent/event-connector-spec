@@ -1,0 +1,346 @@
+{
+  "artifact_format": "foigent.source-mapping.v1",
+  "artifact_kind": "unirouter.connector-identity-to-source-local",
+  "release_status": "B9_RELEASE_COMPONENT",
+  "work_item_id": "FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726",
+  "authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "owner_role": "UniRouter Source Domain Owner"
+  },
+  "protocol_text_baseline": {
+    "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
+    "disposition": "incorporated_by_exact_b8_authority_reference"
+  },
+  "source_baseline": {
+    "repository": "https://github.com/foigent/unirouter.git",
+    "commit": "bf91ea63a16952bb2925afd5438233cac597dcc1",
+    "tree": "ddadc277fbede49fac0cbc1cc561203312432ac3"
+  },
+  "b8_authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "commit": "404d1d753801fd32185eea8163d6a8f839c22a89",
+    "tree": "9aa5fe3f0e830631dc355d51c654928f97bdbd88",
+    "binding": "exact_git_object_bytes",
+    "artifact_pins": {
+      "protocol_text": {
+        "path": "spec/protocol-v1.md",
+        "sha256": "sha256:3a0aac41075fde6645c9d07d80416142e4b8de110a0ff429ad96c7df974ed88e"
+      },
+      "connector_manifest_schema": {
+        "path": "schemas/connector-manifest.v1.schema.json",
+        "schema_id": "foigent://schemas/connector-manifest/v1",
+        "sha256": "sha256:a6f43b37477002ab836a4d9ea7c4e462675cd4313f0637c0733cd98675fc0adf"
+      },
+      "reference_connector_manifest": {
+        "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+        "sha256": "sha256:1d8b70dab02900e9d033ed0de9a5ce0c646d3556b80440a67354367eb83091f7"
+      },
+      "event_envelope_schema": {
+        "path": "schemas/event-envelope.v1.schema.json",
+        "schema_id": "foigent://schemas/event-envelope/v1",
+        "sha256": "sha256:6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26"
+      },
+      "event_batch_schema": {
+        "path": "schemas/event-batch.v1.schema.json",
+        "schema_id": "foigent://schemas/event-batch/v1",
+        "sha256": "sha256:8e2133922bcb77cf032309290593665df1bf56cfa47e433dd573d0e42f36eef9"
+      },
+      "connector_checkpoint_schema": {
+        "path": "schemas/connector-checkpoint.v1.schema.json",
+        "schema_id": "foigent://schemas/connector-checkpoint/v1",
+        "sha256": "sha256:8be2fd290d6db8d288a9b10ac6d9aa0b55a66ff21ea0fb55ac0af2d1b66bf800"
+      }
+    }
+  },
+  "source_evidence": [
+    "cmd/uniroute/main.go",
+    "cmd/uniroute/xinsight_feed_control_routes.go",
+    "internal/config/config.go",
+    "internal/completedfeed/contract.go",
+    "internal/completedfeed/control.go",
+    "internal/completedfeed/cursor.go",
+    "internal/middleware/completed_feed_auth.go",
+    "internal/admin/xinsight_feed_connection_handlers.go",
+    "migrations/000043_v1_completed_execution_feed.up.sql",
+    "migrations/000044_v1_xinsight_feed_control.up.sql",
+    "migrations/000045_v1_receiver_feed_credential.up.sql"
+  ],
+  "portable_connector": {
+    "manifest_artifact_key": "reference_connector_manifest",
+    "fields": [
+      {
+        "json_path": "/connector_id",
+        "value": "foigent.unirouter.completed-execution"
+      },
+      {
+        "json_path": "/connector_version",
+        "value": "1.0.0"
+      },
+      {
+        "json_path": "/connector_class",
+        "value": "integration"
+      },
+      {
+        "json_path": "/direction",
+        "value": "source"
+      },
+      {
+        "json_path": "/source_product",
+        "value": "unirouter"
+      },
+      {
+        "json_path": "/event_identity_profile",
+        "value": "foigent.unirouter.model-request-completed-id.v1"
+      },
+      {
+        "json_path": "/supported_source_schemas/0/schema_id",
+        "value": "unirouter.completed-execution.v1"
+      },
+      {
+        "json_path": "/supported_source_schemas/0/sha256",
+        "value": "sha256:4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2"
+      },
+      {
+        "json_path": "/emitted_event_schemas/0/event_type",
+        "value": "model.request.completed"
+      },
+      {
+        "json_path": "/emitted_event_schemas/0/schema_ref",
+        "value": "foigent://events/model/request-completed/v1"
+      },
+      {
+        "json_path": "/emitted_event_schemas/0/schema_version",
+        "value": "1"
+      },
+      {
+        "json_path": "/transport/mode",
+        "value": "https_pull"
+      },
+      {
+        "json_path": "/delivery/guarantee",
+        "value": "at_least_once"
+      },
+      {
+        "json_path": "/bootstrap/mode",
+        "value": "activation_forward"
+      },
+      {
+        "json_path": "/checkpoint/strategy",
+        "value": "opaque_cursor"
+      },
+      {
+        "json_path": "/compatibility/retention",
+        "value": "7d"
+      },
+      {
+        "json_path": "/compatibility/source_revision",
+        "value": "1"
+      },
+      {
+        "json_path": "/payload_policy/payload_capture_mode",
+        "value": "metadata_only"
+      },
+      {
+        "json_path": "/required_capabilities/0",
+        "value": "xinsight.feed.read"
+      }
+    ]
+  },
+  "source_local_identity_mappings": [
+    {
+      "mapping_id": "producer_instance",
+      "source_local_identity": "Config.CompletedExecutionFeedSourceInstance",
+      "target_classification": "shared_wire_identity",
+      "b8_bindings": [
+        {
+          "artifact_key": "event_envelope_schema",
+          "wire_json_path": "/producer/instance",
+          "schema_json_path": "/properties/producer/properties/instance"
+        },
+        {
+          "artifact_key": "event_batch_schema",
+          "wire_json_path": "/producer_instance",
+          "schema_json_path": "/properties/producer_instance"
+        },
+        {
+          "artifact_key": "connector_checkpoint_schema",
+          "wire_json_path": "/producer_instance",
+          "schema_json_path": "/properties/producer_instance"
+        },
+        {
+          "artifact_key": "reference_connector_manifest",
+          "json_path": "/instance_binding"
+        }
+      ],
+      "exact_rule": "Environment input COMPLETED_EXECUTION_FEED_SOURCE_INSTANCE matching ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ when enabled.",
+      "binding": "Exact UTF-8 value appears as FeedPage.source_instance and is included in cursor HMAC domain separation.",
+      "not_equal_to": [
+        "completed_execution_feed_connections primary key",
+        "api_keys.id"
+      ]
+    },
+    {
+      "mapping_id": "project_connection",
+      "source_local_identity": "completed_execution_feed_connections(org_id, project_id)",
+      "target_classification": "product_local_non_wire",
+      "b8_bindings": [],
+      "exact_rule": "Product-local composite primary key and control state.",
+      "binding": "Scopes pause/resume, receiver acknowledgement and last authenticated credential.",
+      "not_equal_to": [
+        "portable connector_id",
+        "producer.instance",
+        "Consumer registry UUID"
+      ]
+    },
+    {
+      "mapping_id": "credential",
+      "source_local_identity": "api_keys.id with purpose=xinsight.feed.read",
+      "target_classification": "product_local_secret_adjacent_identity_non_wire",
+      "b8_bindings": [],
+      "exact_rule": "Product-local project-scoped service credential ID; lifecycle feed_staged, feed_active, feed_revoked or disabled.",
+      "binding": "Purpose, project, exact host network and no allowed models are enforced by the read-route auth gate.",
+      "not_equal_to": [
+        "portable connector_id",
+        "producer.instance",
+        "Consumer credential identity"
+      ]
+    },
+    {
+      "mapping_id": "source_internal_terminal",
+      "source_local_identity": "internal Outbox event_key billing:<settled|cancelled>:<org_id>:<request_id>",
+      "target_classification": "product_local_non_wire",
+      "b8_bindings": [],
+      "exact_rule": "Internal idempotency and materialization key only.",
+      "binding": "Successful processing joins usage journal and Feed materialization; Feed request uniqueness is (org_id, request_id).",
+      "not_equal_to": [
+        "shared /event_id",
+        "shared /identity/idempotency_key",
+        "X-Insight M0 event ID"
+      ]
+    },
+    {
+      "mapping_id": "source_feed_sequence",
+      "source_local_identity": "completed_execution_feed_items.id scoped by org_id/project_id",
+      "target_classification": "product_local_transport_identity_non_wire",
+      "b8_bindings": [],
+      "exact_rule": "Source-local retained ordering and cursor authority.",
+      "binding": "Opaque cursor encodes version, project_id and sequence, then signs with Source instance binding.",
+      "not_equal_to": [
+        "Event identity",
+        "shared idempotency key",
+        "Consumer durable Checkpoint identity"
+      ]
+    }
+  ],
+  "read_surface": {
+    "method": "GET",
+    "route": "/api/v1/integrations/xinsight/completed-executions",
+    "page_schema": "xinsight.completed-execution-feed.v1",
+    "capability": "xinsight.feed.read",
+    "authorization": "Project-scoped service credential, feed_active for active connection; feed_staged accepted only for paused connection; exact host network binding; no model-call authority.",
+    "source_instance_binding": "Same exact configured value binds Feed page producer identity and cursor HMAC domain.",
+    "cursor": "Opaque Source transport token; excluded from Event identity/hash and owned Consumer Checkpoint semantics.",
+    "b8_manifest_bindings": [
+      {
+        "json_path": "/transport/mode",
+        "value": "https_pull"
+      },
+      {
+        "json_path": "/transport/route",
+        "value": "/api/v1/integrations/xinsight/completed-executions"
+      },
+      {
+        "json_path": "/transport/page_schema",
+        "value": "xinsight.completed-execution-feed.v1"
+      },
+      {
+        "json_path": "/required_capabilities/0",
+        "value": "xinsight.feed.read"
+      },
+      {
+        "json_path": "/instance_binding/source_field",
+        "value": "source_instance"
+      },
+      {
+        "json_path": "/instance_binding/envelope_field",
+        "value": "producer.instance"
+      },
+      {
+        "json_path": "/checkpoint/strategy",
+        "value": "opaque_cursor"
+      },
+      {
+        "json_path": "/checkpoint/cursor_ownership",
+        "value": "connector_state_only"
+      }
+    ]
+  },
+  "product_local_control_routes": [
+    {
+      "method": "GET",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}",
+      "operation": "read product-local connection status"
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}/pause",
+      "operation": "pause product-local connection"
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}/resume",
+      "operation": "resume product-local connection"
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}/credentials",
+      "operation": "create staged product-local credential"
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}/credentials/activate",
+      "operation": "activate initial product-local credential"
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}/credentials/{credential_id}/revoke",
+      "operation": "revoke product-local credential and pause connection"
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}/rotation/prepare",
+      "operation": "prepare staged product-local credential rotation"
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}/rotation/activate",
+      "operation": "activate product-local credential rotation"
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/data-exchange/xinsight/connections/{project_id}/rotation/cancel",
+      "operation": "cancel and revoke staged product-local rotation"
+    }
+  ],
+  "identity_exclusions": [
+    "raw credential or verifier",
+    "api_keys.id",
+    "completed_execution_feed_connections row identity",
+    "page cursor or high-watermark",
+    "Feed item sequence",
+    "Connector version",
+    "release digest",
+    "payload hash",
+    "retry attempt",
+    "page generation, fetch, receive or ingestion time"
+  ],
+  "compatibility_invariants": [
+    "Current read route, page Schema and capability remain unchanged.",
+    "Portable identity never grants UniRouter routing, billing, IAM or code-extension authority.",
+    "source_instance remains exact and stable for a logical producer; changing it creates a different identity domain.",
+    "No shared identifier replaces product-local connection, credential, Outbox or Feed sequence identities.",
+    "No credential value, secret, live endpoint host or runtime state is recorded in this artifact."
+  ]
+}

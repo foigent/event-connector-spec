@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://events/model/request-completed/v1",
+  "title": "Foigent Model Request Completed V1 Payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "terminal",
+    "usage",
+    "money",
+    "timeline_complete",
+    "capture_gaps"
+  ],
+  "properties": {
+    "terminal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "settled",
+            "cancelled"
+          ]
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "prompt_tokens",
+        "uncached_prompt_tokens",
+        "cache_read_tokens",
+        "cache_creation_tokens",
+        "completion_tokens",
+        "source",
+        "authority",
+        "purpose",
+        "finality",
+        "contract_version",
+        "cache_usage_schema",
+        "cache_usage_status"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "prompt_tokens": {
+          "$ref": "#/$defs/int64Decimal"
+        },
+        "uncached_prompt_tokens": {
+          "$ref": "#/$defs/int64Decimal"
+        },
+        "cache_read_tokens": {
+          "$ref": "#/$defs/int64Decimal"
+        },
+        "cache_creation_tokens": {
+          "$ref": "#/$defs/int64Decimal"
+        },
+        "completion_tokens": {
+          "$ref": "#/$defs/int64Decimal"
+        },
+        "source": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "authority": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "purpose": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "finality": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "contract_version": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "estimate_version": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "cache_usage_schema": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "cache_usage_status": {
+          "type": "string",
+          "maxLength": 40
+        }
+      }
+    },
+    "money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "currency",
+        "amount_scale",
+        "calculated_cost_micros",
+        "charged_cost_micros",
+        "pricing_version"
+      ],
+      "properties": {
+        "schema": {
+          "const": "micro-cny.v1"
+        },
+        "currency": {
+          "const": "CNY"
+        },
+        "amount_scale": {
+          "const": 1000000
+        },
+        "calculated_cost_micros": {
+          "$ref": "#/$defs/microAmount"
+        },
+        "charged_cost_micros": {
+          "$ref": "#/$defs/microAmount"
+        },
+        "pricing_version": {
+          "type": "string",
+          "maxLength": 80
+        }
+      }
+    },
+    "timeline_complete": {
+      "const": true
+    },
+    "capture_gaps": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/referenceGap"
+            },
+            {
+              "properties": {
+                "affected_claim": {
+                  "const": "call_log"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/referenceGap"
+            },
+            {
+              "properties": {
+                "affected_claim": {
+                  "const": "client_ip_presence"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/referenceGap"
+            },
+            {
+              "properties": {
+                "affected_claim": {
+                  "const": "request_trace"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/referenceGap"
+            },
+            {
+              "properties": {
+                "affected_claim": {
+                  "const": "upstream_error_presence"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "int64Decimal": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[01][0-9]{17}|92[01][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[01][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-7])$",
+      "maxLength": 19
+    },
+    "microAmount": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "maxLength": 19
+    },
+    "referenceGap": {
+      "allOf": [
+        {
+          "$ref": "foigent://schemas/capture-gap/v1"
+        },
+        {
+          "properties": {
+            "gap_type": {
+              "const": "not_available_from_source"
+            },
+            "reason_code": {
+              "const": "not_available_at_billing_terminal"
+            },
+            "severity": {
+              "const": "warning"
+            },
+            "payload_capture_mode": {
+              "const": "none"
+            },
+            "field_provenance": {
+              "const": {
+                "affected_claim": "direct",
+                "reason_code": "direct",
+                "gap_id": "derived",
+                "parent_event_id": "derived",
+                "scope": "derived",
+                "correlation": "derived",
+                "observed_at": "derived",
+                "gap_type": "declared",
+                "severity": "declared",
+                "payload_capture_mode": "declared"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

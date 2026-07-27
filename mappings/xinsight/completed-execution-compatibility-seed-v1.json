@@ -1,0 +1,698 @@
+{
+  "artifact": "xinsight.completed-execution-compatibility-seed.v1",
+  "status": "B9_RELEASE_COMPONENT",
+  "synthetic_only": true,
+  "baseline": {
+    "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
+    "xinsight_commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
+    "xinsight_tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8",
+    "source_schema_sha256": "4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2",
+    "source_schema_bytes": 4089,
+    "b8_authority": {
+      "repository": "https://github.com/foigent/event-connector-spec",
+      "commit": "404d1d753801fd32185eea8163d6a8f839c22a89",
+      "tree": "9aa5fe3f0e830631dc355d51c654928f97bdbd88",
+      "event_envelope_schema": {
+        "path": "schemas/event-envelope.v1.schema.json",
+        "sha256": "sha256:6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26"
+      },
+      "payload_schema": {
+        "path": "schemas/model-request-completed.v1.schema.json",
+        "sha256": "sha256:ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6"
+      },
+      "canonical_vector_bundle": {
+        "path": "vectors/canonical-vector-bundle.v1.json",
+        "sha256": "sha256:98659630f3e1238d2684c2b4cba728334f4bdace67ff033652676d9d505caf33"
+      },
+      "golden_fixture_bundle": {
+        "path": "fixtures/golden-fixture-bundle.v1.json",
+        "sha256": "sha256:b56de610d4444b655e3f700e61ec490caa1fc1d8658db1660192686c0fc1a268"
+      }
+    }
+  },
+  "projection_context": {
+    "source_instance": "unirouter-development",
+    "source_system_id": "11111111-1111-1111-1111-111111111111",
+    "adapter_manifest_id": "22222222-2222-4222-8222-222222222224",
+    "projection_profile": "xinsight.foigent-envelope-to-m0.unirouter-completed-execution.v1",
+    "input_schema_ref": "foigent://events/model/request-completed/v1",
+    "output_schema": "m0.1",
+    "producer_product": "unirouter",
+    "shared_identity": {
+      "profile": "foigent.unirouter.model-request-completed-id.v1",
+      "algorithm": "sha256 of the exact LP-encoded foigent.event-idempotency.v1 identity tuple",
+      "tenant_ref": null
+    },
+    "shared_vector_bindings": {
+      "valid-settled": {
+        "golden_case_id": "reference-settled",
+        "shared_hash_input_path": "fixtures/shared/settled-envelope.hash-input.json",
+        "shared_hash_input_file_sha256": "sha256:1db5dff1e35aecd6aecc775b7d9fdd6a480157d411e71a16a4b39e0751a28cb2",
+        "shared_canonical_bytes": 4596,
+        "shared_identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e763100000009756e69726f7574657200000015756e69726f757465722d646576656c6f706d656e74000000000000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000137265715f666565645f76315f736574746c6564",
+        "shared_idempotency_key": "sha256:c2822f0d940c01de77e2e06af1a5f6e1fd10fc66269be20fceb0939150c17b2e",
+        "shared_envelope_hash": "sha256:0d11f98f981427b7bcf175e82294511ca42981c0ecea8e02f841c3777743d1d2"
+      },
+      "valid-cancelled": {
+        "golden_case_id": "reference-cancelled",
+        "shared_hash_input_path": "fixtures/shared/cancelled-envelope.hash-input.json",
+        "shared_hash_input_file_sha256": "sha256:1b15f2f9f1c86087b140de667b742861e0acc201d7684062568457dcdd057438",
+        "shared_canonical_bytes": 4629,
+        "shared_identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e763100000009756e69726f7574657200000015756e69726f757465722d646576656c6f706d656e74000000000000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000157265715f666565645f76315f63616e63656c6c6564",
+        "shared_idempotency_key": "sha256:d342a560ade558edc557f2cd645a526178958540a012ceabe9ca7047e916796c",
+        "shared_envelope_hash": "sha256:c31445c779ffec9dae8cbc7f1f0344722a4e0fb696a366b2e321f58d0d07fbab"
+      }
+    },
+    "compatibility_boundary": "Shared identity/idempotency/Envelope hash are validated inputs but do not replace current M0 event IDs, local adapter idempotency keys or target-local M0 event hashes."
+  },
+  "seeds": [
+    {
+      "name": "valid-settled",
+      "source_fixture": {
+        "path_in_xinsight": "contracts/completed-execution/v1/fixtures/valid-settled.json",
+        "sha256": "5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27",
+        "bytes": 1196
+      },
+      "source_snapshot_facts": {
+        "schema_version": "unirouter.completed-execution.v1",
+        "request_id": "req_feed_v1_settled",
+        "org_id": 101,
+        "project_id": 202,
+        "terminal": {
+          "status": "settled",
+          "available_at": "2026-07-25T04:05:06Z"
+        },
+        "usage": {
+          "model": "synthetic-model",
+          "prompt_tokens": 8,
+          "uncached_prompt_tokens": 5,
+          "cache_read_tokens": 2,
+          "cache_creation_tokens": 1,
+          "completion_tokens": 3,
+          "source": "provider",
+          "authority": "provider",
+          "purpose": "billing",
+          "finality": "final",
+          "contract_version": "usage.v1",
+          "estimate_version": "",
+          "cache_usage_schema": "cache.v1",
+          "cache_usage_status": "reported"
+        },
+        "money": {
+          "schema": "micro-cny.v1",
+          "currency": "CNY",
+          "amount_scale": 1000000,
+          "calculated_cost_micros": "17",
+          "charged_cost_micros": "17",
+          "pricing_version": "pricing-v1"
+        },
+        "capture_gaps": [
+          {
+            "source": "call_log",
+            "reason": "not_available_at_billing_terminal"
+          },
+          {
+            "source": "request_trace",
+            "reason": "not_available_at_billing_terminal"
+          },
+          {
+            "source": "client_ip_presence",
+            "reason": "not_available_at_billing_terminal"
+          },
+          {
+            "source": "upstream_error_presence",
+            "reason": "not_available_at_billing_terminal"
+          }
+        ]
+      },
+      "shared_projection_facts": {
+        "event_type": "model.request.completed",
+        "event_id": "req_feed_v1_settled",
+        "producer_instance": "unirouter-development",
+        "tenant_ref": null,
+        "org_ref": "101",
+        "project_ref": "202",
+        "terminal_status": "settled",
+        "terminal_at": "2026-07-25T04:05:06.000000Z",
+        "occurred_at": "2026-07-25T04:05:06.000000Z",
+        "observed_at": null,
+        "prompt_tokens": "8",
+        "uncached_prompt_tokens": "5",
+        "cache_read_tokens": "2",
+        "cache_creation_tokens": "1",
+        "completion_tokens": "3",
+        "source_hash": "sha256:5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27",
+        "source_revision": "1",
+        "timeline_complete": true,
+        "payload_capture_mode": "metadata_only",
+        "capture_gaps_sorted": [
+          "call_log",
+          "client_ip_presence",
+          "request_trace",
+          "upstream_error_presence"
+        ]
+      },
+      "m0_events": [
+        {
+          "role": "terminal",
+          "id": "4805a534-a614-5d51-a116-1537e5ba48ba",
+          "event_hash": "sha256:0318866b5d0ecdb6ac9f7fdd0e695f447bcdb9b1ed3dd57c225a1950a76f645a",
+          "event_type": "billing.execution.settled",
+          "source_event_type": "completed_execution",
+          "source_event_id": "req_feed_v1_settled",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_settled",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_settled:billing.execution.settled:req_feed_v1_settled",
+          "import_cursor": "completed_execution:req_feed_v1_settled",
+          "payload_capture_mode": "metadata_only",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "capability": "direct",
+            "usage": "direct",
+            "outcome": "direct",
+            "payload_policy": "declared"
+          }
+        },
+        {
+          "role": "gap:call_log",
+          "id": "faa85223-b1c8-5fc8-be7f-5a5efef2fcb6",
+          "event_hash": "sha256:64e14030ebe55b5c877230b2618ed47e80dc5a2494fd777ed312d6aea27a4c65",
+          "event_type": "gap.capture.detected",
+          "source_event_type": "completed_execution_capture_gap",
+          "source_event_id": "req_feed_v1_settled:gap:call_log",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_settled:gap:call_log",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_settled:gap:call_log:gap.capture.detected:req_feed_v1_settled:gap:call_log",
+          "import_cursor": "gap:call_log",
+          "payload_capture_mode": "none",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "payload_policy": "not_applicable",
+            "extensions": {
+              "capture_gap": "direct"
+            }
+          }
+        },
+        {
+          "role": "gap:client_ip_presence",
+          "id": "ae69fd56-ee75-5bab-b5b3-f094239d4d4b",
+          "event_hash": "sha256:d8ee3f703ebbd49e152eb14f36e253d050bdcbbab2eb64de9625dcdc13b318f3",
+          "event_type": "gap.capture.detected",
+          "source_event_type": "completed_execution_capture_gap",
+          "source_event_id": "req_feed_v1_settled:gap:client_ip_presence",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_settled:gap:client_ip_presence",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_settled:gap:client_ip_presence:gap.capture.detected:req_feed_v1_settled:gap:client_ip_presence",
+          "import_cursor": "gap:client_ip_presence",
+          "payload_capture_mode": "none",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "payload_policy": "not_applicable",
+            "extensions": {
+              "capture_gap": "direct"
+            }
+          }
+        },
+        {
+          "role": "gap:request_trace",
+          "id": "16b110d9-4240-51b3-8b59-6ebc2c4e692f",
+          "event_hash": "sha256:ab5ff4c276c1d982e6037dbb9ad4343144481ef28bbbcba82b285be355e0f993",
+          "event_type": "gap.capture.detected",
+          "source_event_type": "completed_execution_capture_gap",
+          "source_event_id": "req_feed_v1_settled:gap:request_trace",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_settled:gap:request_trace",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_settled:gap:request_trace:gap.capture.detected:req_feed_v1_settled:gap:request_trace",
+          "import_cursor": "gap:request_trace",
+          "payload_capture_mode": "none",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "payload_policy": "not_applicable",
+            "extensions": {
+              "capture_gap": "direct"
+            }
+          }
+        },
+        {
+          "role": "gap:upstream_error_presence",
+          "id": "2f86fbc5-ac47-5358-9834-ca52f4d91ed9",
+          "event_hash": "sha256:584c92345473b37f972f745c2e8fe7f6ff2516ebebaefa56b22e2df3a0626ef4",
+          "event_type": "gap.capture.detected",
+          "source_event_type": "completed_execution_capture_gap",
+          "source_event_id": "req_feed_v1_settled:gap:upstream_error_presence",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_settled:gap:upstream_error_presence",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_settled:gap:upstream_error_presence:gap.capture.detected:req_feed_v1_settled:gap:upstream_error_presence",
+          "import_cursor": "gap:upstream_error_presence",
+          "payload_capture_mode": "none",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "payload_policy": "not_applicable",
+            "extensions": {
+              "capture_gap": "direct"
+            }
+          }
+        }
+      ],
+      "gap_rows": [
+        {
+          "id": "74e50795-3003-5efc-8a98-dd19d8bc5899",
+          "evidence_event_id": "faa85223-b1c8-5fc8-be7f-5a5efef2fcb6",
+          "request_id": "req_feed_v1_settled",
+          "gap_type": "not_available_from_source",
+          "candidate_gap_types": [],
+          "affected_claim": "call_log",
+          "gap_reason": "not_available_at_billing_terminal",
+          "severity": "warning",
+          "recommendation": "review source visibility and adapter coverage"
+        },
+        {
+          "id": "3bc0c29f-8cca-50e8-8a09-1c718758b9d9",
+          "evidence_event_id": "ae69fd56-ee75-5bab-b5b3-f094239d4d4b",
+          "request_id": "req_feed_v1_settled",
+          "gap_type": "not_available_from_source",
+          "candidate_gap_types": [],
+          "affected_claim": "client_ip_presence",
+          "gap_reason": "not_available_at_billing_terminal",
+          "severity": "warning",
+          "recommendation": "review source visibility and adapter coverage"
+        },
+        {
+          "id": "61262359-2e96-5f02-80c6-c220ed8f4b87",
+          "evidence_event_id": "16b110d9-4240-51b3-8b59-6ebc2c4e692f",
+          "request_id": "req_feed_v1_settled",
+          "gap_type": "not_available_from_source",
+          "candidate_gap_types": [],
+          "affected_claim": "request_trace",
+          "gap_reason": "not_available_at_billing_terminal",
+          "severity": "warning",
+          "recommendation": "review source visibility and adapter coverage"
+        },
+        {
+          "id": "bdb22b2b-c200-5fb3-81e4-ca00b418f527",
+          "evidence_event_id": "2f86fbc5-ac47-5358-9834-ca52f4d91ed9",
+          "request_id": "req_feed_v1_settled",
+          "gap_type": "not_available_from_source",
+          "candidate_gap_types": [],
+          "affected_claim": "upstream_error_presence",
+          "gap_reason": "not_available_at_billing_terminal",
+          "severity": "warning",
+          "recommendation": "review source visibility and adapter coverage"
+        }
+      ],
+      "import_provenance": {
+        "id": "bf802b1c-df9c-54a3-82e6-03b691e79afa",
+        "integration_mode": "completed_execution_pull",
+        "proof_class": "operator_approved_integration",
+        "assurance_mode": "contracted_pull",
+        "source_artifact_sha256": "",
+        "source_payload_sha256": "sha256:5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27",
+        "approval_manifest_sha256": "",
+        "exchange_id": "",
+        "source_generated_at": null,
+        "source_terminal_at": "2026-07-25T04:05:06Z",
+        "source_revision": "1",
+        "imported_revision": "1",
+        "source_watermark": "",
+        "import_watermark": "",
+        "timeline_complete": true,
+        "linked_event_ids": [
+          "4805a534-a614-5d51-a116-1537e5ba48ba",
+          "faa85223-b1c8-5fc8-be7f-5a5efef2fcb6",
+          "ae69fd56-ee75-5bab-b5b3-f094239d4d4b",
+          "16b110d9-4240-51b3-8b59-6ebc2c4e692f",
+          "2f86fbc5-ac47-5358-9834-ca52f4d91ed9"
+        ]
+      },
+      "read_model": {
+        "execution_id": "xe1_b36035d5a07fed88b6c23f684f4944270327f70e1a8f7f8db9e3c76fb340fd1b",
+        "request_id": "req_feed_v1_settled",
+        "source_system_id": "11111111-1111-1111-1111-111111111111",
+        "source_type": "unirouter",
+        "source_display_name": "Imported unirouter source",
+        "outcome": "success",
+        "first_effective_at": "2026-07-25T04:05:06Z",
+        "last_effective_at": "2026-07-25T04:05:06Z",
+        "event_count": 5,
+        "gap_count": 4,
+        "has_gaps": true,
+        "payload_capture_modes": [
+          "metadata_only",
+          "none"
+        ],
+        "proof_class": "operator_approved_integration",
+        "assurance_mode": "contracted_pull",
+        "freshness": {
+          "integration_mode": "completed_execution_pull",
+          "sync_state": "gap",
+          "timeline_complete": true,
+          "source_generated_at": null,
+          "source_terminal_at": "2026-07-25T04:05:06Z",
+          "source_revision": "1",
+          "imported_revision": "1",
+          "source_watermark": "",
+          "import_watermark": ""
+        },
+        "trace_ids": [],
+        "timeline_order_when_ingested_at_equal": [
+          "16b110d9-4240-51b3-8b59-6ebc2c4e692f",
+          "2f86fbc5-ac47-5358-9834-ca52f4d91ed9",
+          "4805a534-a614-5d51-a116-1537e5ba48ba",
+          "ae69fd56-ee75-5bab-b5b3-f094239d4d4b",
+          "faa85223-b1c8-5fc8-be7f-5a5efef2fcb6"
+        ],
+        "operational_times_not_pinned": [
+          "ingested_at",
+          "created_at",
+          "last_imported_at",
+          "imported_at",
+          "search_visible_at",
+          "last_successful_sync_at",
+          "gap created_at"
+        ]
+      }
+    },
+    {
+      "name": "valid-cancelled",
+      "source_fixture": {
+        "path_in_xinsight": "contracts/completed-execution/v1/fixtures/valid-cancelled.json",
+        "sha256": "31cbfeb23968c07d158b591c28efb3dd40cffba1fd6d1fd4202f43d63bfe9f2d",
+        "bytes": 1201
+      },
+      "source_snapshot_facts": {
+        "schema_version": "unirouter.completed-execution.v1",
+        "request_id": "req_feed_v1_cancelled",
+        "org_id": 101,
+        "project_id": 202,
+        "terminal": {
+          "status": "cancelled",
+          "available_at": "2026-07-25T04:06:07Z"
+        },
+        "usage": {
+          "model": "synthetic-model",
+          "prompt_tokens": 0,
+          "uncached_prompt_tokens": 0,
+          "cache_read_tokens": 0,
+          "cache_creation_tokens": 0,
+          "completion_tokens": 0,
+          "source": "missing",
+          "authority": "none",
+          "purpose": "provider_evidence",
+          "finality": "missing",
+          "contract_version": "usage.v1",
+          "estimate_version": "",
+          "cache_usage_schema": "",
+          "cache_usage_status": "not_reported"
+        },
+        "money": {
+          "schema": "micro-cny.v1",
+          "currency": "CNY",
+          "amount_scale": 1000000,
+          "calculated_cost_micros": "0",
+          "charged_cost_micros": "0",
+          "pricing_version": "pricing-v1"
+        },
+        "capture_gaps": [
+          {
+            "source": "call_log",
+            "reason": "not_available_at_billing_terminal"
+          },
+          {
+            "source": "request_trace",
+            "reason": "not_available_at_billing_terminal"
+          },
+          {
+            "source": "client_ip_presence",
+            "reason": "not_available_at_billing_terminal"
+          },
+          {
+            "source": "upstream_error_presence",
+            "reason": "not_available_at_billing_terminal"
+          }
+        ]
+      },
+      "shared_projection_facts": {
+        "event_type": "model.request.completed",
+        "event_id": "req_feed_v1_cancelled",
+        "producer_instance": "unirouter-development",
+        "tenant_ref": null,
+        "org_ref": "101",
+        "project_ref": "202",
+        "terminal_status": "cancelled",
+        "terminal_at": "2026-07-25T04:06:07.000000Z",
+        "occurred_at": "2026-07-25T04:06:07.000000Z",
+        "observed_at": null,
+        "prompt_tokens": "0",
+        "uncached_prompt_tokens": "0",
+        "cache_read_tokens": "0",
+        "cache_creation_tokens": "0",
+        "completion_tokens": "0",
+        "source_hash": "sha256:31cbfeb23968c07d158b591c28efb3dd40cffba1fd6d1fd4202f43d63bfe9f2d",
+        "source_revision": "1",
+        "timeline_complete": true,
+        "payload_capture_mode": "metadata_only",
+        "capture_gaps_sorted": [
+          "call_log",
+          "client_ip_presence",
+          "request_trace",
+          "upstream_error_presence"
+        ]
+      },
+      "m0_events": [
+        {
+          "role": "terminal",
+          "id": "b1bf7b19-a0d1-50cb-aa7f-3fe0b5d087a4",
+          "event_hash": "sha256:5fbf54535f992d35f157f884c4b997f905b6f4351e54919927d1b087458c4230",
+          "event_type": "billing.execution.cancelled",
+          "source_event_type": "completed_execution",
+          "source_event_id": "req_feed_v1_cancelled",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:billing.execution.cancelled:req_feed_v1_cancelled",
+          "import_cursor": "completed_execution:req_feed_v1_cancelled",
+          "payload_capture_mode": "metadata_only",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "capability": "direct",
+            "usage": "direct",
+            "outcome": "direct",
+            "payload_policy": "declared"
+          }
+        },
+        {
+          "role": "gap:call_log",
+          "id": "b65ee756-50ec-541e-a264-722226432e3f",
+          "event_hash": "sha256:e4c8e0b7482f7c1dcc61fe3716eefd31d9258de966db333ab67170b68f6af29f",
+          "event_type": "gap.capture.detected",
+          "source_event_type": "completed_execution_capture_gap",
+          "source_event_id": "req_feed_v1_cancelled:gap:call_log",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:gap:call_log",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:gap:call_log:gap.capture.detected:req_feed_v1_cancelled:gap:call_log",
+          "import_cursor": "gap:call_log",
+          "payload_capture_mode": "none",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "payload_policy": "not_applicable",
+            "extensions": {
+              "capture_gap": "direct"
+            }
+          }
+        },
+        {
+          "role": "gap:client_ip_presence",
+          "id": "cd0fc10f-d55d-55b5-aff3-aff2113f574f",
+          "event_hash": "sha256:7e296d27a29310196b1dfa9b221621d91a13d60d04e5cd1e74492cd55220cd33",
+          "event_type": "gap.capture.detected",
+          "source_event_type": "completed_execution_capture_gap",
+          "source_event_id": "req_feed_v1_cancelled:gap:client_ip_presence",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:gap:client_ip_presence",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:gap:client_ip_presence:gap.capture.detected:req_feed_v1_cancelled:gap:client_ip_presence",
+          "import_cursor": "gap:client_ip_presence",
+          "payload_capture_mode": "none",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "payload_policy": "not_applicable",
+            "extensions": {
+              "capture_gap": "direct"
+            }
+          }
+        },
+        {
+          "role": "gap:request_trace",
+          "id": "f10aa91b-ea77-5898-85eb-89c070e3a3a5",
+          "event_hash": "sha256:65661cda523749491642a1d12b7e1238ec0ba2f43619e8cff8cf530daa81189a",
+          "event_type": "gap.capture.detected",
+          "source_event_type": "completed_execution_capture_gap",
+          "source_event_id": "req_feed_v1_cancelled:gap:request_trace",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:gap:request_trace",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:gap:request_trace:gap.capture.detected:req_feed_v1_cancelled:gap:request_trace",
+          "import_cursor": "gap:request_trace",
+          "payload_capture_mode": "none",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "payload_policy": "not_applicable",
+            "extensions": {
+              "capture_gap": "direct"
+            }
+          }
+        },
+        {
+          "role": "gap:upstream_error_presence",
+          "id": "f0594e43-4332-5ff0-8e2f-3ef1c1b54ee4",
+          "event_hash": "sha256:c7fbc46f495bc7e0ed671c2efd9fe3f3b00aee153f3d9ad078092f38a685a994",
+          "event_type": "gap.capture.detected",
+          "source_event_type": "completed_execution_capture_gap",
+          "source_event_id": "req_feed_v1_cancelled:gap:upstream_error_presence",
+          "source_ref": "unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:gap:upstream_error_presence",
+          "idempotency_key": "adapter-unirouter:11111111-1111-1111-1111-111111111111:unirouter:unirouter-development:completed_execution:req_feed_v1_cancelled:gap:upstream_error_presence:gap.capture.detected:req_feed_v1_cancelled:gap:upstream_error_presence",
+          "import_cursor": "gap:upstream_error_presence",
+          "payload_capture_mode": "none",
+          "field_provenance": {
+            "correlation": "direct",
+            "identity": "direct",
+            "payload_policy": "not_applicable",
+            "extensions": {
+              "capture_gap": "direct"
+            }
+          }
+        }
+      ],
+      "gap_rows": [
+        {
+          "id": "e5a2a60f-f512-576d-85dd-2d1936fc508f",
+          "evidence_event_id": "b65ee756-50ec-541e-a264-722226432e3f",
+          "request_id": "req_feed_v1_cancelled",
+          "gap_type": "not_available_from_source",
+          "candidate_gap_types": [],
+          "affected_claim": "call_log",
+          "gap_reason": "not_available_at_billing_terminal",
+          "severity": "warning",
+          "recommendation": "review source visibility and adapter coverage"
+        },
+        {
+          "id": "db524c57-e83b-545d-8f28-a081e27ebb84",
+          "evidence_event_id": "cd0fc10f-d55d-55b5-aff3-aff2113f574f",
+          "request_id": "req_feed_v1_cancelled",
+          "gap_type": "not_available_from_source",
+          "candidate_gap_types": [],
+          "affected_claim": "client_ip_presence",
+          "gap_reason": "not_available_at_billing_terminal",
+          "severity": "warning",
+          "recommendation": "review source visibility and adapter coverage"
+        },
+        {
+          "id": "d3628041-c661-5d09-8bee-7a192acd908b",
+          "evidence_event_id": "f10aa91b-ea77-5898-85eb-89c070e3a3a5",
+          "request_id": "req_feed_v1_cancelled",
+          "gap_type": "not_available_from_source",
+          "candidate_gap_types": [],
+          "affected_claim": "request_trace",
+          "gap_reason": "not_available_at_billing_terminal",
+          "severity": "warning",
+          "recommendation": "review source visibility and adapter coverage"
+        },
+        {
+          "id": "3abba0ce-cca9-59c8-80b0-e1f977c59bf0",
+          "evidence_event_id": "f0594e43-4332-5ff0-8e2f-3ef1c1b54ee4",
+          "request_id": "req_feed_v1_cancelled",
+          "gap_type": "not_available_from_source",
+          "candidate_gap_types": [],
+          "affected_claim": "upstream_error_presence",
+          "gap_reason": "not_available_at_billing_terminal",
+          "severity": "warning",
+          "recommendation": "review source visibility and adapter coverage"
+        }
+      ],
+      "import_provenance": {
+        "id": "bd6d6519-88d2-578e-8aff-1c66932cd4e2",
+        "integration_mode": "completed_execution_pull",
+        "proof_class": "operator_approved_integration",
+        "assurance_mode": "contracted_pull",
+        "source_artifact_sha256": "",
+        "source_payload_sha256": "sha256:31cbfeb23968c07d158b591c28efb3dd40cffba1fd6d1fd4202f43d63bfe9f2d",
+        "approval_manifest_sha256": "",
+        "exchange_id": "",
+        "source_generated_at": null,
+        "source_terminal_at": "2026-07-25T04:06:07Z",
+        "source_revision": "1",
+        "imported_revision": "1",
+        "source_watermark": "",
+        "import_watermark": "",
+        "timeline_complete": true,
+        "linked_event_ids": [
+          "b1bf7b19-a0d1-50cb-aa7f-3fe0b5d087a4",
+          "b65ee756-50ec-541e-a264-722226432e3f",
+          "cd0fc10f-d55d-55b5-aff3-aff2113f574f",
+          "f10aa91b-ea77-5898-85eb-89c070e3a3a5",
+          "f0594e43-4332-5ff0-8e2f-3ef1c1b54ee4"
+        ]
+      },
+      "read_model": {
+        "execution_id": "xe1_f65a66da09f239640e6b2896d954c22de0457b63ffff20912dd9485b2c5f3ae8",
+        "request_id": "req_feed_v1_cancelled",
+        "source_system_id": "11111111-1111-1111-1111-111111111111",
+        "source_type": "unirouter",
+        "source_display_name": "Imported unirouter source",
+        "outcome": "failure",
+        "first_effective_at": "2026-07-25T04:06:07Z",
+        "last_effective_at": "2026-07-25T04:06:07Z",
+        "event_count": 5,
+        "gap_count": 4,
+        "has_gaps": true,
+        "payload_capture_modes": [
+          "metadata_only",
+          "none"
+        ],
+        "proof_class": "operator_approved_integration",
+        "assurance_mode": "contracted_pull",
+        "freshness": {
+          "integration_mode": "completed_execution_pull",
+          "sync_state": "gap",
+          "timeline_complete": true,
+          "source_generated_at": null,
+          "source_terminal_at": "2026-07-25T04:06:07Z",
+          "source_revision": "1",
+          "imported_revision": "1",
+          "source_watermark": "",
+          "import_watermark": ""
+        },
+        "trace_ids": [],
+        "timeline_order_when_ingested_at_equal": [
+          "b1bf7b19-a0d1-50cb-aa7f-3fe0b5d087a4",
+          "b65ee756-50ec-541e-a264-722226432e3f",
+          "cd0fc10f-d55d-55b5-aff3-aff2113f574f",
+          "f0594e43-4332-5ff0-8e2f-3ef1c1b54ee4",
+          "f10aa91b-ea77-5898-85eb-89c070e3a3a5"
+        ],
+        "operational_times_not_pinned": [
+          "ingested_at",
+          "created_at",
+          "last_imported_at",
+          "imported_at",
+          "search_visible_at",
+          "last_successful_sync_at",
+          "gap created_at"
+        ]
+      }
+    }
+  ],
+  "cross_seed_read_model": {
+    "search_order_by_last_effective_at_desc": [
+      "xe1_f65a66da09f239640e6b2896d954c22de0457b63ffff20912dd9485b2c5f3ae8",
+      "xe1_b36035d5a07fed88b6c23f684f4944270327f70e1a8f7f8db9e3c76fb340fd1b"
+    ],
+    "gap_query_order": "ORDER BY created_at, gap id; exact cross-row order is not identity-pinned because created_at is database operational time.",
+    "connector_lifecycle_visibility": "No current investigation API or UI reads adapter_import_states or host service state."
+  },
+  "compatibility_totals": {
+    "m0_events": 10,
+    "m0_terminal_events": 2,
+    "m0_gap_events": 8,
+    "first_class_gap_rows": 8,
+    "import_provenance_records": 2,
+    "events_linked_to_import_provenance": 10
+  }
+}

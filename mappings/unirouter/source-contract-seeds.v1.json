@@ -1,0 +1,206 @@
+{
+  "artifact_format": "foigent.source-mapping.v1",
+  "artifact_kind": "unirouter.source-contract-seeds",
+  "release_status": "B9_RELEASE_COMPONENT",
+  "work_item_id": "FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726",
+  "authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "owner_role": "UniRouter Source Domain Owner"
+  },
+  "protocol_text_baseline": {
+    "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
+    "disposition": "incorporated_by_exact_b8_authority_reference"
+  },
+  "source_baseline": {
+    "repository": "https://github.com/foigent/unirouter.git",
+    "commit": "bf91ea63a16952bb2925afd5438233cac597dcc1",
+    "tree": "ddadc277fbede49fac0cbc1cc561203312432ac3"
+  },
+  "b8_authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "commit": "404d1d753801fd32185eea8163d6a8f839c22a89",
+    "tree": "9aa5fe3f0e830631dc355d51c654928f97bdbd88",
+    "binding": "exact_git_object_bytes",
+    "artifact_pins": {
+      "protocol_text": {
+        "path": "spec/protocol-v1.md",
+        "sha256": "sha256:3a0aac41075fde6645c9d07d80416142e4b8de110a0ff429ad96c7df974ed88e"
+      },
+      "model_request_completed_schema": {
+        "path": "schemas/model-request-completed.v1.schema.json",
+        "schema_id": "foigent://events/model/request-completed/v1",
+        "sha256": "sha256:ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6"
+      },
+      "reference_connector_manifest": {
+        "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+        "sha256": "sha256:1d8b70dab02900e9d033ed0de9a5ce0c646d3556b80440a67354367eb83091f7"
+      },
+      "source_seed_index": {
+        "path": "reference/unirouter/source-seeds.v1.json",
+        "sha256": "sha256:5d75d1b1ddf596ae1b3ab3c2690e652e9f6d1b2aef93755c7553552f71f39981"
+      }
+    }
+  },
+  "source_evidence": [
+    "internal/completedfeed/contract.go",
+    "internal/completedfeed/service.go",
+    "internal/completedfeed/handler.go",
+    "internal/completedfeed/cursor.go",
+    "internal/billing/terminal_materializer.go",
+    "migrations/000027_prd6_durable_internal_outbox.up.sql",
+    "migrations/000043_v1_completed_execution_feed.up.sql",
+    "contracts/completed-execution/v1/unirouter.completed-execution.v1.schema.json",
+    "contracts/completed-execution/v1/fixtures/valid-settled.json",
+    "contracts/completed-execution/v1/fixtures/valid-cancelled.json"
+  ],
+  "seeds": [
+    {
+      "seed_id": "source_schema",
+      "path": "contracts/completed-execution/v1/unirouter.completed-execution.v1.schema.json",
+      "sha256": "4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2",
+      "b8_index_bindings": [
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/schema/path"
+        },
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/schema/sha256"
+        },
+        {
+          "artifact_key": "reference_connector_manifest",
+          "json_path": "/supported_source_schemas/0/sha256"
+        }
+      ],
+      "role": "current Source payload Schema identity"
+    },
+    {
+      "seed_id": "settled_fixture",
+      "path": "contracts/completed-execution/v1/fixtures/valid-settled.json",
+      "sha256": "5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27",
+      "b8_index_bindings": [
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/fixtures/0/path"
+        },
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/fixtures/0/sha256"
+        }
+      ],
+      "role": "current settled Source seed"
+    },
+    {
+      "seed_id": "cancelled_fixture",
+      "path": "contracts/completed-execution/v1/fixtures/valid-cancelled.json",
+      "sha256": "31cbfeb23968c07d158b591c28efb3dd40cffba1fd6d1fd4202f43d63bfe9f2d",
+      "b8_index_bindings": [
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/fixtures/1/path"
+        },
+        {
+          "artifact_key": "source_seed_index",
+          "json_path": "/fixtures/1/sha256"
+        }
+      ],
+      "role": "current cancelled Source seed"
+    }
+  ],
+  "source_type_precision": {
+    "token_counter_go_type": "int",
+    "token_counter_persistence_type": "PostgreSQL INTEGER in usage_finalization_journal",
+    "source_schema_upper_bound": "not declared",
+    "shared_wire": "canonical decimal string in 0..9223372036854775807",
+    "shared_schema_binding": {
+      "artifact_key": "model_request_completed_schema",
+      "json_path": "/$defs/int64Decimal"
+    },
+    "disposition": "Current product-emitted values are a lossless subset of the exact B8 shared range. The B8 mapping does not claim that the current Source JSON Schema declares an int64 maximum."
+  },
+  "boundary_requirements": [
+    {
+      "requirement_id": "request_id_byte_bounds",
+      "requirement": "Accept exact valid non-control UTF-8 at 1 and 64 Source bytes; reject empty, 65-byte and control-character values.",
+      "reason": "Current Go validator uses byte length; JSON Schema maxLength alone is not sufficient evidence for multibyte boundaries."
+    },
+    {
+      "requirement_id": "scope_decimal",
+      "requirement": "Map positive org/project IDs to canonical decimal strings; reject zero, negative, sign, whitespace and leading zero shared forms.",
+      "reason": "Scoped identity is mandatory and lossless."
+    },
+    {
+      "requirement_id": "counter_decimal_boundaries",
+      "requirement": "Cover 0, 2^53-1, 2^53, 9223372036854775807, leading zero, negative, decimal point, exponent, whitespace and max+1.",
+      "reason": "Cross-language decimal-string mapping must not round or coerce."
+    },
+    {
+      "requirement_id": "prompt_partition",
+      "requirement": "Require uncached_prompt_tokens + cache_read_tokens + cache_creation_tokens = prompt_tokens without overflow.",
+      "reason": "Current Source invariant must survive shared mapping."
+    },
+    {
+      "requirement_id": "money_forms",
+      "requirement": "Preserve exact canonical calculated/charged decimal strings, CNY, micro-cny.v1 and amount_scale 1000000; reject sign, leading zero, decimal, exponent and overlength.",
+      "reason": "No recalculation, unit change or floating point."
+    },
+    {
+      "requirement_id": "terminal_time",
+      "requirement": "Cover whole second, nonzero microsecond and offset-to-UTC shared formatting; Source producer truncates to microseconds before Snapshot persistence.",
+      "reason": "Shared formatting changes no Source instant or Snapshot hash."
+    },
+    {
+      "requirement_id": "terminal_status",
+      "requirement": "Accept only settled and cancelled and prove both map to one model.request.completed event family.",
+      "reason": "Terminal discriminator is Source-owned."
+    },
+    {
+      "requirement_id": "gap_set_and_order",
+      "requirement": "Require the four exact Source gaps/reason, reject missing/duplicate/unsupported values, preserve Source bytes/order and independently prove shared affected_claim sorting.",
+      "reason": "Shared canonical order must not rewrite Source Snapshot bytes."
+    },
+    {
+      "requirement_id": "snapshot_hash",
+      "requirement": "Hash exact immutable Source Snapshot bytes and reject any Feed item whose declared snapshot_sha256 differs.",
+      "reason": "Source and Envelope hash domains are separate."
+    },
+    {
+      "requirement_id": "wrapper_binding",
+      "requirement": "Reject mismatch between Feed wrapper and Snapshot request_id, terminal status, terminal instant or revision; require timeline_complete=true.",
+      "reason": "Wrapper facts are integrity/finality bindings."
+    },
+    {
+      "requirement_id": "unicode_boundary",
+      "requirement": "Reject non-NFC protocol constants but preserve exact valid Source opaque UTF-8 bytes without normalization.",
+      "reason": "Exact Source/protocol Unicode boundary."
+    },
+    {
+      "requirement_id": "duplicate_keys",
+      "requirement": "Reject duplicate JSON keys at every depth before ordinary object decoding in the shared mapping/conformance path.",
+      "reason": "Current generated Source bytes contain no duplicate keys, but ordinary Go map/struct decoding is not duplicate-key evidence."
+    },
+    {
+      "requirement_id": "prohibited_raw_fields",
+      "requirement": "Reject prompt, response, authorization, api_key, credential, ip_address and upstream_error raw keys at any depth.",
+      "reason": "Current metadata-only Source policy."
+    },
+    {
+      "requirement_id": "cursor_exclusion",
+      "requirement": "Prove page cursor, high-watermark, generated/fetch/receive time, retry and receiver acknowledgement do not alter Event identity, shared idempotency, Envelope hash or item-linked provenance.",
+      "reason": "Delivery state is outside the Event."
+    },
+    {
+      "requirement_id": "duplicate_and_conflict",
+      "requirement": "Prove same scoped identity/same canonical content is duplicate-no-op and same scoped identity/different content fails closed.",
+      "reason": "Reference V1 never overwrites an accepted event identity."
+    }
+  ],
+  "runtime_nonclaims": [
+    "No live Source data was read.",
+    "No credential, cursor, Checkpoint or database state was read or changed.",
+    "No shared Schema or fixture is created or edited by this Source seed declaration.",
+    "The Source seeds are immutable compatibility inputs; accepted Go and TypeScript B6 conformance evidence remains separately pinned."
+  ]
+}

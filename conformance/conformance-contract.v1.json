@@ -1,0 +1,191 @@
+{
+  "contract_version": "foigent.connector-conformance.v1",
+  "runner": {
+    "invocation": "<runner> --bundle <canonical-vector-bundle.json> --report <report.json>",
+    "stdout": "nonsecret bounded summary only",
+    "report_schema": "foigent://schemas/conformance-report/v1",
+    "exit_codes": {
+      "0": "all cases passed",
+      "2": "invalid bundle or protocol artifact",
+      "3": "conformance mismatch",
+      "4": "runner internal failure"
+    }
+  },
+  "required_independent_implementations": [
+    "go",
+    "typescript"
+  ],
+  "required_case_classes": [
+    "canonical_envelope",
+    "scoped_idempotency",
+    "decimal_boundary",
+    "timestamp_normalization",
+    "protocol_nfc_rejection",
+    "opaque_utf8_preservation",
+    "duplicate_key_rejection",
+    "capture_gap_derivation",
+    "duplicate_noop",
+    "content_conflict",
+    "partial_page_replay",
+    "checkpoint_commit",
+    "cursor_error",
+    "privacy_rejection"
+  ],
+  "comparison": {
+    "case_id": "<vector_section>/<case_id from the canonical vector or Golden fixture bundle>",
+    "case_order": "Emit cases in case_contract array order. Within each section, preserve the source vector array order from the canonical vector bundle or Golden fixture bundle.",
+    "case_classes": "The exact sorted unique class list declared by case_contract for that vector section and case.",
+    "result_encoding": "Every case emits deterministic result bytes. Successful byte-producing cases emit the computed bytes directly. Classifications, expected errors and state transitions emit RFC 8785 canonical JSON bytes of the observed result object.",
+    "result_base64": "RFC 4648 standard base64 with padding over exact result bytes",
+    "result_sha256": "sha256:<lowercase SHA-256 of exact result bytes>",
+    "canonical_bytes": "exact byte equality",
+    "digests": "exact lowercase sha256 reference equality",
+    "errors": "exact category/code/retryability/recovery equality",
+    "reports": "After removing implementation and implementation_version, Go and TypeScript reports have byte-identical RFC 8785 canonical JSON."
+  },
+  "result_byte_contract": {
+    "canonical_envelopes": "Exact RFC 8785 canonical Envelope hash-input bytes after independent Source mapping; integrity.envelope_hash remains absent.",
+    "idempotency": "Exact domain separator plus LP_UTF8 identity input bytes.",
+    "decimal_strings": "RFC 8785 canonical JSON of {\"valid\":<boolean>,\"value\":<exact input string>}.",
+    "timestamps": "RFC 8785 canonical JSON of {\"normalized\":<exact normalized string>,\"valid\":true} for valid cases, otherwise {\"error_code\":<exact code>,\"valid\":false}.",
+    "unicode": "RFC 8785 canonical JSON of {\"utf8_hex\":<lowercase exact UTF-8 hex>,\"valid\":<boolean>} for valid opaque Source values; protocol-controlled cases use {\"valid\":<boolean>}.",
+    "strict_json": "RFC 8785 canonical JSON of {\"error_code\":<exact code>,\"valid\":false}.",
+    "replay": "RFC 8785 canonical JSON of the vector object with case_id removed and remaining keys unchanged.",
+    "negative_source_seeds": "RFC 8785 canonical JSON of expected_error."
+  },
+  "case_contract": [
+    {
+      "vector_section": "canonical_envelopes",
+      "case_id_pattern": "canonical_envelopes/<case_id>",
+      "case_classes": [
+        "canonical_envelope",
+        "capture_gap_derivation"
+      ],
+      "result_kind": "bytes"
+    },
+    {
+      "vector_section": "idempotency",
+      "case_id_pattern": "idempotency/<case_id>",
+      "case_classes": [
+        "scoped_idempotency"
+      ],
+      "result_kind": "bytes"
+    },
+    {
+      "vector_section": "decimal_strings",
+      "case_id_pattern": "decimal_strings/<case_id>",
+      "case_classes": [
+        "decimal_boundary"
+      ],
+      "result_kind": "classification"
+    },
+    {
+      "vector_section": "timestamps",
+      "case_id_pattern": "timestamps/<case_id>",
+      "case_classes": [
+        "timestamp_normalization"
+      ],
+      "result_kind": "classification"
+    },
+    {
+      "vector_section": "unicode",
+      "case_id_pattern": "unicode/<case_id>",
+      "case_classes_by_class": {
+        "protocol_controlled": [
+          "protocol_nfc_rejection"
+        ],
+        "source_opaque": [
+          "opaque_utf8_preservation"
+        ]
+      },
+      "result_kind": "classification"
+    },
+    {
+      "vector_section": "strict_json",
+      "case_id_pattern": "strict_json/<case_id>",
+      "case_classes": [
+        "duplicate_key_rejection"
+      ],
+      "result_kind": "error"
+    },
+    {
+      "vector_section": "replay",
+      "case_id_pattern": "replay/<case_id>",
+      "case_classes_by_case": {
+        "same-identity-same-hash": [
+          "checkpoint_commit",
+          "duplicate_noop"
+        ],
+        "same-identity-different-hash": [
+          "checkpoint_commit",
+          "content_conflict"
+        ],
+        "partial-page-failure": [
+          "checkpoint_commit",
+          "partial_page_replay"
+        ]
+      },
+      "result_kind": "state_transition"
+    },
+    {
+      "vector_section": "negative_source_seeds",
+      "case_id_pattern": "negative_source_seeds/<case_id>",
+      "case_classes_by_case": {
+        "cursor-expired": [
+          "cursor_error"
+        ],
+        "privacy-redaction-rejected": [
+          "privacy_rejection"
+        ]
+      },
+      "result_kind": "error"
+    }
+  ],
+  "envelope_validation_sequence": [
+    "strictly parse Source and shared Golden inputs with duplicate-key rejection",
+    "map Source facts and compare the complete hash-input object to the exact Golden hash input",
+    "canonicalize the hash input with integrity.envelope_hash absent",
+    "compute and insert integrity.envelope_hash",
+    "validate the final Event Envelope and referenced Domain Payload",
+    "remove integrity.envelope_hash and reproduce the exact canonical Golden hash input"
+  ],
+  "vector_section_mapping": {
+    "canonical_envelopes": [
+      "canonical_envelope",
+      "capture_gap_derivation"
+    ],
+    "idempotency": [
+      "scoped_idempotency"
+    ],
+    "decimal_strings": [
+      "decimal_boundary"
+    ],
+    "timestamps": [
+      "timestamp_normalization"
+    ],
+    "unicode": [
+      "protocol_nfc_rejection",
+      "opaque_utf8_preservation"
+    ],
+    "strict_json": [
+      "duplicate_key_rejection"
+    ],
+    "replay": [
+      "duplicate_noop",
+      "content_conflict",
+      "partial_page_replay",
+      "checkpoint_commit"
+    ],
+    "golden_fixture_bundle.negative_source_seeds": [
+      "cursor_error",
+      "privacy_rejection"
+    ]
+  },
+  "safety": {
+    "network": "forbidden",
+    "credentials": "forbidden",
+    "runtime_state": "forbidden",
+    "customer_data": "forbidden",
+    "fixtures": "immutable offline bundle only"
+  }
+}

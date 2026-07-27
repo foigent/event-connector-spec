@@ -1,0 +1,98 @@
+{
+  "manifest_version": "foigent.connector-manifest.v1",
+  "connector_id": "foigent.unirouter.completed-execution",
+  "connector_version": "1.0.0",
+  "connector_class": "integration",
+  "direction": "source",
+  "source_product": "unirouter",
+  "event_identity_profile": "foigent.unirouter.model-request-completed-id.v1",
+  "supported_source_schemas": [
+    {
+      "schema_id": "unirouter.completed-execution.v1",
+      "sha256": "sha256:4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2"
+    }
+  ],
+  "emitted_event_schemas": [
+    {
+      "event_type": "model.request.completed",
+      "schema_ref": "foigent://events/model/request-completed/v1",
+      "schema_version": "1"
+    }
+  ],
+  "transport": {
+    "mode": "https_pull",
+    "route": "/api/v1/integrations/xinsight/completed-executions",
+    "page_schema": "xinsight.completed-execution-feed.v1",
+    "max_items": 50,
+    "max_bytes": 8388608
+  },
+  "delivery": {
+    "guarantee": "at_least_once",
+    "checkpoint_commit": "after_all_items_converge",
+    "conflict": "fail_closed",
+    "empty_page_cursor_advance": "fail_closed"
+  },
+  "bootstrap": {
+    "mode": "activation_forward",
+    "broad_backfill": false
+  },
+  "checkpoint": {
+    "strategy": "opaque_cursor",
+    "cursor_ownership": "connector_state_only"
+  },
+  "coverage": {
+    "included": [
+      "authenticated, admitted, project-scoped requests that reached a durable UniRouter billing terminal"
+    ],
+    "excluded": [
+      "pre-admission request rejection",
+      "pre-billing request rejection"
+    ]
+  },
+  "instance_binding": {
+    "source_field": "source_instance",
+    "envelope_field": "producer.instance",
+    "comparison": "exact_utf8_bytes",
+    "change_semantics": "new_connector_instance_identity_domain"
+  },
+  "payload_policy": {
+    "ingestion_capture_mode": "api_import",
+    "payload_capture_mode": "metadata_only",
+    "raw_payload_present": false
+  },
+  "required_capabilities": [
+    "xinsight.feed.read"
+  ],
+  "declared_capture_gaps": [
+    {
+      "affected_claim": "call_log",
+      "reason_code": "not_available_at_billing_terminal"
+    },
+    {
+      "affected_claim": "client_ip_presence",
+      "reason_code": "not_available_at_billing_terminal"
+    },
+    {
+      "affected_claim": "request_trace",
+      "reason_code": "not_available_at_billing_terminal"
+    },
+    {
+      "affected_claim": "upstream_error_presence",
+      "reason_code": "not_available_at_billing_terminal"
+    }
+  ],
+  "compatibility": {
+    "reference_profile": "xinsight.foigent-envelope-to-m0.unirouter-completed-execution.v1",
+    "reference_projection_contract": {
+      "path": "mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json",
+      "sha256": "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03"
+    },
+    "reference_compatibility_vector_bundle": {
+      "path": "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
+      "sha256": "sha256:5cd40aa6c0256a70ad7317c05e078759685e0469be77a3e960a976adc3158e8e"
+    },
+    "source_revision": "1",
+    "timeline_complete": true,
+    "retention": "7d"
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/release-manifest/v1",
+  "title": "Foigent Event and Connector Protocol Release Manifest V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "release_manifest_version",
+    "protocol_version",
+    "authority",
+    "content_digest",
+    "approvals",
+    "release_digest",
+    "components"
+  ],
+  "properties": {
+    "release_manifest_version": {
+      "const": "foigent.protocol-release-manifest.v1"
+    },
+    "protocol_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "repository_id",
+        "tag"
+      ],
+      "properties": {
+        "repository": {
+          "const": "https://github.com/foigent/event-connector-spec"
+        },
+        "repository_id": {
+          "const": 1313391565
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "release_digest": {
+      "$ref": "#/$defs/sha256Ref"
+    },
+    "content_digest": {
+      "$ref": "#/$defs/sha256Ref"
+    },
+    "approvals": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "source_domain_owner"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "projection_owner"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "coordinator"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_spec",
+        "shared_ci_action",
+        "authority_ci_workflow",
+        "conformance_kit_runner",
+        "release_builder",
+        "implementation_manifest_builder",
+        "candidate_verifier",
+        "conformance_comparator",
+        "product_pin_verifier",
+        "release_manifest_schema",
+        "protocol_pin_schema",
+        "event_envelope_schema",
+        "capture_gap_schema",
+        "domain_catalog",
+        "model_request_completed_schema",
+        "connector_manifest_schema",
+        "connector_lifecycle_schema",
+        "event_batch_schema",
+        "checkpoint_schema",
+        "operation_receipt_schema",
+        "error_schema",
+        "conformance_report_schema",
+        "reference_connector_manifest",
+        "source_projection_contract",
+        "source_lifecycle_mapping",
+        "source_identity_mapping",
+        "reference_projection_contract",
+        "consumer_lifecycle_mapping",
+        "consumer_identity_mapping",
+        "canonical_vector_bundle",
+        "golden_fixture_bundle",
+        "reference_compatibility_vector_bundle",
+        "compatibility_matrix",
+        "conformance_contract",
+        "go_implementation_manifest",
+        "typescript_implementation_manifest",
+        "schema_audit_source_manifest",
+        "go_conformance_report",
+        "typescript_conformance_report"
+      ],
+      "properties": {
+        "protocol_spec": {
+          "$ref": "#/$defs/component"
+        },
+        "shared_ci_action": {
+          "$ref": "#/$defs/component"
+        },
+        "authority_ci_workflow": {
+          "$ref": "#/$defs/component"
+        },
+        "conformance_kit_runner": {
+          "$ref": "#/$defs/component"
+        },
+        "release_builder": {
+          "$ref": "#/$defs/component"
+        },
+        "implementation_manifest_builder": {
+          "$ref": "#/$defs/component"
+        },
+        "candidate_verifier": {
+          "$ref": "#/$defs/component"
+        },
+        "conformance_comparator": {
+          "$ref": "#/$defs/component"
+        },
+        "product_pin_verifier": {
+          "$ref": "#/$defs/component"
+        },
+        "release_manifest_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "protocol_pin_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "event_envelope_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "capture_gap_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "domain_catalog": {
+          "$ref": "#/$defs/component"
+        },
+        "model_request_completed_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "connector_manifest_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "connector_lifecycle_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "event_batch_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "checkpoint_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "operation_receipt_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "error_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "conformance_report_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "reference_connector_manifest": {
+          "$ref": "#/$defs/component"
+        },
+        "source_projection_contract": {
+          "$ref": "#/$defs/component"
+        },
+        "source_lifecycle_mapping": {
+          "$ref": "#/$defs/component"
+        },
+        "source_identity_mapping": {
+          "$ref": "#/$defs/component"
+        },
+        "reference_projection_contract": {
+          "$ref": "#/$defs/component"
+        },
+        "consumer_lifecycle_mapping": {
+          "$ref": "#/$defs/component"
+        },
+        "consumer_identity_mapping": {
+          "$ref": "#/$defs/component"
+        },
+        "canonical_vector_bundle": {
+          "$ref": "#/$defs/component"
+        },
+        "golden_fixture_bundle": {
+          "$ref": "#/$defs/component"
+        },
+        "reference_compatibility_vector_bundle": {
+          "$ref": "#/$defs/component"
+        },
+        "compatibility_matrix": {
+          "$ref": "#/$defs/component"
+        },
+        "conformance_contract": {
+          "$ref": "#/$defs/component"
+        },
+        "go_implementation_manifest": {
+          "$ref": "#/$defs/component"
+        },
+        "typescript_implementation_manifest": {
+          "$ref": "#/$defs/component"
+        },
+        "schema_audit_source_manifest": {
+          "$ref": "#/$defs/component"
+        },
+        "go_conformance_report": {
+          "$ref": "#/$defs/component"
+        },
+        "typescript_conformance_report": {
+          "$ref": "#/$defs/component"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256Ref": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._/-]+$",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256Ref"
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "status",
+        "reviewed_content_digest",
+        "evidence"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "source_domain_owner",
+            "projection_owner",
+            "coordinator"
+          ]
+        },
+        "status": {
+          "const": "confirmed"
+        },
+        "reviewed_content_digest": {
+          "$ref": "#/$defs/sha256Ref"
+        },
+        "evidence": {
+          "$ref": "#/$defs/component"
+        }
+      }
+    }
+  }
+}

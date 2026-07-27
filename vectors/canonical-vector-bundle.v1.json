@@ -1,0 +1,234 @@
+{
+  "bundle_version": "foigent.canonical-vector-bundle.v1",
+  "protocol_version": "1.0.0",
+  "golden_fixture_bundle_path": "fixtures/golden-fixture-bundle.v1.json",
+  "reference_mapping_context": {
+    "producer_product": "unirouter",
+    "producer_instance": "unirouter-development",
+    "connector_id": "foigent.unirouter.completed-execution",
+    "connector_version": "1.0.0",
+    "adapter_fidelity": "F2",
+    "payload_capture_mode": "metadata_only",
+    "raw_payload_present": false,
+    "source_revision": "1",
+    "timeline_complete": true
+  },
+  "canonical_envelopes": [
+    {
+      "case_id": "reference-settled",
+      "source_input_path": "fixtures/source/unirouter/valid-settled.json",
+      "input_path": "fixtures/shared/settled-envelope.hash-input.json",
+      "canonical_bytes": 4596,
+      "envelope_hash": "sha256:0d11f98f981427b7bcf175e82294511ca42981c0ecea8e02f841c3777743d1d2"
+    },
+    {
+      "case_id": "reference-cancelled",
+      "source_input_path": "fixtures/source/unirouter/valid-cancelled.json",
+      "input_path": "fixtures/shared/cancelled-envelope.hash-input.json",
+      "canonical_bytes": 4629,
+      "envelope_hash": "sha256:c31445c779ffec9dae8cbc7f1f0344722a4e0fb696a366b2e321f58d0d07fbab"
+    }
+  ],
+  "idempotency": [
+    {
+      "case_id": "absent-tenant-settled",
+      "producer_product": "unirouter",
+      "producer_instance": "unirouter-development",
+      "tenant_ref": null,
+      "org_ref": "101",
+      "project_ref": "202",
+      "event_type": "model.request.completed",
+      "event_id": "req_feed_v1_settled",
+      "identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e763100000009756e69726f7574657200000015756e69726f757465722d646576656c6f706d656e74000000000000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000137265715f666565645f76315f736574746c6564",
+      "idempotency_key": "sha256:c2822f0d940c01de77e2e06af1a5f6e1fd10fc66269be20fceb0939150c17b2e"
+    },
+    {
+      "case_id": "absent-tenant-cancelled",
+      "producer_product": "unirouter",
+      "producer_instance": "unirouter-development",
+      "tenant_ref": null,
+      "org_ref": "101",
+      "project_ref": "202",
+      "event_type": "model.request.completed",
+      "event_id": "req_feed_v1_cancelled",
+      "identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e763100000009756e69726f7574657200000015756e69726f757465722d646576656c6f706d656e74000000000000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000157265715f666565645f76315f63616e63656c6c6564",
+      "idempotency_key": "sha256:d342a560ade558edc557f2cd645a526178958540a012ceabe9ca7047e916796c"
+    },
+    {
+      "case_id": "present-tenant",
+      "producer_product": "unirouter",
+      "producer_instance": "unirouter-development",
+      "tenant_ref": "7",
+      "org_ref": "101",
+      "project_ref": "202",
+      "event_type": "model.request.completed",
+      "event_id": "req_feed_v1_settled",
+      "identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e763100000009756e69726f7574657200000015756e69726f757465722d646576656c6f706d656e7400000001370000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000137265715f666565645f76315f736574746c6564",
+      "idempotency_key": "sha256:3c1dc7d03faee1b736b8e2705c1fbef8147aac06cdc1593bef969da55303672d"
+    },
+    {
+      "case_id": "opaque-non-nfc-event-id",
+      "producer_product": "unirouter",
+      "producer_instance": "unirouter-development",
+      "tenant_ref": null,
+      "org_ref": "101",
+      "project_ref": "202",
+      "event_type": "model.request.completed",
+      "event_id": "req_é",
+      "event_id_utf8_hex": "7265715f65cc81",
+      "identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e763100000009756e69726f7574657200000015756e69726f757465722d646576656c6f706d656e74000000000000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000077265715f65cc81",
+      "idempotency_key": "sha256:fd256a506369a0fa05dad3ee68f2e577918b97810778e1802d11950112275447"
+    }
+  ],
+  "decimal_strings": [
+    {
+      "case_id": "zero",
+      "value": "0",
+      "valid_int64_counter": true
+    },
+    {
+      "case_id": "max-safe-integer",
+      "value": "9007199254740991",
+      "valid_int64_counter": true
+    },
+    {
+      "case_id": "above-safe-integer",
+      "value": "9007199254740992",
+      "valid_int64_counter": true
+    },
+    {
+      "case_id": "max-int64",
+      "value": "9223372036854775807",
+      "valid_int64_counter": true
+    },
+    {
+      "case_id": "leading-zero",
+      "value": "01",
+      "valid_int64_counter": false
+    },
+    {
+      "case_id": "negative",
+      "value": "-1",
+      "valid_int64_counter": false
+    },
+    {
+      "case_id": "overflow-int64",
+      "value": "9223372036854775808",
+      "valid_int64_counter": false
+    },
+    {
+      "case_id": "decimal-point",
+      "value": "1.0",
+      "valid_int64_counter": false
+    },
+    {
+      "case_id": "exponent",
+      "value": "1e3",
+      "valid_int64_counter": false
+    },
+    {
+      "case_id": "whitespace",
+      "value": " 1",
+      "valid_int64_counter": false
+    }
+  ],
+  "timestamps": [
+    {
+      "case_id": "whole-second",
+      "input_class": "source_mapping",
+      "input": "2026-07-25T04:05:06Z",
+      "normalized": "2026-07-25T04:05:06.000000Z",
+      "valid": true
+    },
+    {
+      "case_id": "offset-to-utc",
+      "input_class": "source_mapping",
+      "input": "2026-07-25T12:05:06.123456+08:00",
+      "normalized": "2026-07-25T04:05:06.123456Z",
+      "valid": true
+    },
+    {
+      "case_id": "nonzero-microsecond",
+      "input_class": "shared_wire",
+      "input": "2026-07-25T04:05:06.000001Z",
+      "normalized": "2026-07-25T04:05:06.000001Z",
+      "valid": true
+    },
+    {
+      "case_id": "sub-microsecond-loss",
+      "input_class": "source_mapping",
+      "input": "2026-07-25T04:05:06.123456789Z",
+      "valid": false,
+      "error_code": "timestamp_precision_loss"
+    },
+    {
+      "case_id": "missing-zone",
+      "input_class": "source_mapping",
+      "input": "2026-07-25T04:05:06",
+      "valid": false,
+      "error_code": "invalid_timestamp"
+    }
+  ],
+  "unicode": [
+    {
+      "case_id": "protocol-nfc",
+      "class": "protocol_controlled",
+      "value": "model.request.completed",
+      "valid": true
+    },
+    {
+      "case_id": "protocol-non-nfc",
+      "class": "protocol_controlled",
+      "value": "model.requést.completed",
+      "valid": false
+    },
+    {
+      "case_id": "opaque-non-nfc",
+      "class": "source_opaque",
+      "value": "req_é",
+      "utf8_hex": "7265715f65cc81",
+      "valid": true
+    }
+  ],
+  "strict_json": [
+    {
+      "case_id": "nested-duplicate-key",
+      "raw_json": "{\"payload\":{\"terminal\":{\"status\":\"settled\",\"status\":\"cancelled\"}}}",
+      "valid": false,
+      "error_code": "duplicate_json_key"
+    }
+  ],
+  "capture_gaps": {
+    "required_order": [
+      "call_log",
+      "client_ip_presence",
+      "request_trace",
+      "upstream_error_presence"
+    ],
+    "reason_code": "not_available_at_billing_terminal",
+    "gap_type": "not_available_from_source",
+    "severity": "warning",
+    "payload_capture_mode": "none"
+  },
+  "replay": [
+    {
+      "case_id": "same-identity-same-hash",
+      "first_outcome": "inserted",
+      "replay_outcome": "duplicate_noop",
+      "checkpoint_advances": true
+    },
+    {
+      "case_id": "same-identity-different-hash",
+      "first_outcome": "inserted",
+      "replay_outcome": "conflict",
+      "checkpoint_advances": false
+    },
+    {
+      "case_id": "partial-page-failure",
+      "first_item": "inserted",
+      "second_item": "retryable_error",
+      "checkpoint_advances": false,
+      "next_attempt_first_item": "duplicate_noop"
+    }
+  ]
+}

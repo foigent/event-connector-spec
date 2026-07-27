@@ -1,0 +1,198 @@
+{
+  "release_manifest_version": "foigent.protocol-release-manifest.v1",
+  "protocol_version": "1.0.0",
+  "authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "tag": "v1.0.0"
+  },
+  "components": {
+    "protocol_spec": {
+      "path": "spec/protocol-v1.md",
+      "sha256": "sha256:11e81980b8dbe0d1332d89f219bfc41a4c7393d0d067337bef50f5bbaf40f3ba"
+    },
+    "shared_ci_action": {
+      "path": "action.yml",
+      "sha256": "sha256:d582bf286035d20fb99d67a35a637a697e62411de8d669340a549142381bdc38"
+    },
+    "authority_ci_workflow": {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "sha256:adcac0b860655ec82d88955fd29f0d5c53134fa5a3279c4a0c996474cf4b920e"
+    },
+    "conformance_kit_runner": {
+      "path": "scripts/run-conformance-kit.sh",
+      "sha256": "sha256:79c2eaaae92fdbc3c8c47ac340c79f10e2001ef158088f858095899d4ad86a60"
+    },
+    "release_builder": {
+      "path": "scripts/build-release-manifest.mjs",
+      "sha256": "sha256:ba525065901dfe63995356fd3a5a22683ef966bef186f900ff26e16d0c5c6eaa"
+    },
+    "implementation_manifest_builder": {
+      "path": "scripts/build-implementation-manifests.mjs",
+      "sha256": "sha256:e159415084a2dac1c67e9b8c1f802102d14e27f659bb612fe86f027e395494cc"
+    },
+    "candidate_verifier": {
+      "path": "scripts/verify-candidate.mjs",
+      "sha256": "sha256:b6b85cf20be7f6cd22c234b17b40b30f899f159ee4b82ad7ecbf0b922d06a78b"
+    },
+    "conformance_comparator": {
+      "path": "scripts/compare-conformance.mjs",
+      "sha256": "sha256:ed20b80680b94e993bec8824514ba3ba752138ec142bf6b84b853c0801df5426"
+    },
+    "product_pin_verifier": {
+      "path": "scripts/verify-product-pin.mjs",
+      "sha256": "sha256:6bf8aae6eb1b6d782fa0c00026c2c05aad2e13813e0e097b981600c906edd070"
+    },
+    "release_manifest_schema": {
+      "path": "schemas/release-manifest.v1.schema.json",
+      "sha256": "sha256:7492f6947a1606609ad0f48e128228dec6ee70a375b40db66c147e5fd4e7cc4f"
+    },
+    "protocol_pin_schema": {
+      "path": "schemas/protocol-pin.v1.schema.json",
+      "sha256": "sha256:5334f2baea56f17df6b56ccc97e1053f65500f77f118fa988aae573171390199"
+    },
+    "event_envelope_schema": {
+      "path": "schemas/event-envelope.v1.schema.json",
+      "sha256": "sha256:6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26"
+    },
+    "capture_gap_schema": {
+      "path": "schemas/capture-gap.v1.schema.json",
+      "sha256": "sha256:1a5be69da99f62033ceadf05f66d45296d1d5f8b662830f77c0fc6af49edaec8"
+    },
+    "domain_catalog": {
+      "path": "catalog/domain-catalog.v1.json",
+      "sha256": "sha256:93d4c55dd181a7e168d17b90bc8527b89e6d2e3c1eac0549bd7a34e1857e3a06"
+    },
+    "model_request_completed_schema": {
+      "path": "schemas/model-request-completed.v1.schema.json",
+      "sha256": "sha256:ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6"
+    },
+    "connector_manifest_schema": {
+      "path": "schemas/connector-manifest.v1.schema.json",
+      "sha256": "sha256:a6f43b37477002ab836a4d9ea7c4e462675cd4313f0637c0733cd98675fc0adf"
+    },
+    "connector_lifecycle_schema": {
+      "path": "schemas/connector-lifecycle.v1.schema.json",
+      "sha256": "sha256:bd5c730587041ddc7ad6f66bca4deca35edf5f9b5b92b761ac53701f37e18d5e"
+    },
+    "event_batch_schema": {
+      "path": "schemas/event-batch.v1.schema.json",
+      "sha256": "sha256:8e2133922bcb77cf032309290593665df1bf56cfa47e433dd573d0e42f36eef9"
+    },
+    "checkpoint_schema": {
+      "path": "schemas/connector-checkpoint.v1.schema.json",
+      "sha256": "sha256:8be2fd290d6db8d288a9b10ac6d9aa0b55a66ff21ea0fb55ac0af2d1b66bf800"
+    },
+    "operation_receipt_schema": {
+      "path": "schemas/operational-receipt.v1.schema.json",
+      "sha256": "sha256:3c3b99e009e208456039d3bfe26d84af7e3f1af23589e7fa62a1e1a61e0fb3c6"
+    },
+    "error_schema": {
+      "path": "schemas/connector-error.v1.schema.json",
+      "sha256": "sha256:f449ba6314f1f730be5a0b188dc6d2cc2704e8f5d84a4eebecac576221e4ca56"
+    },
+    "conformance_report_schema": {
+      "path": "schemas/conformance-report.v1.schema.json",
+      "sha256": "sha256:42048fbf5a5edc2ca4476727563ab41e96a8fb6d3788d446e0e0d7c4154a31a7"
+    },
+    "reference_connector_manifest": {
+      "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+      "sha256": "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79"
+    },
+    "source_projection_contract": {
+      "path": "mappings/unirouter/source-snapshot-to-model-request-completed.v1.json",
+      "sha256": "sha256:5425ab384bebcd9d4a7e81882bfa1bb1700df7cc397863b91f69e2855df12928"
+    },
+    "source_lifecycle_mapping": {
+      "path": "mappings/unirouter/source-lifecycle-to-shared-axes.v1.json",
+      "sha256": "sha256:1618c86e3d8fae206322e1d928b8b5f0401865623b4267f5b685d7ac02b2968f"
+    },
+    "source_identity_mapping": {
+      "path": "mappings/unirouter/connector-identity-to-source-local.v1.json",
+      "sha256": "sha256:0cdbcdcf42658ee12d14ae13ef5d43b54488dca7cec8182055047585eb62e890"
+    },
+    "reference_projection_contract": {
+      "path": "mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json",
+      "sha256": "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03"
+    },
+    "consumer_lifecycle_mapping": {
+      "path": "mappings/xinsight/connector-lifecycle-to-current-xinsight-v1.json",
+      "sha256": "sha256:f1980ad31b1b3be978b39dee854f9e9e1accf99fa266615fe5a43f10dc115503"
+    },
+    "consumer_identity_mapping": {
+      "path": "mappings/xinsight/portable-connector-identity-to-current-xinsight-v1.json",
+      "sha256": "sha256:a14c7ed4fe5475cf4ad50da32731824eb8b85fb249dcd5b4bc5b7556d6b33305"
+    },
+    "canonical_vector_bundle": {
+      "path": "vectors/canonical-vector-bundle.v1.json",
+      "sha256": "sha256:50fc8e8be08c37381611d6423e29780894741fb108fc4569df7c895452e5d4db"
+    },
+    "golden_fixture_bundle": {
+      "path": "fixtures/golden-fixture-bundle.v1.json",
+      "sha256": "sha256:e71eef0cc0a3388d5563eeda0c178b751af34bd856f0bdc2b7dc85b00df75a86"
+    },
+    "reference_compatibility_vector_bundle": {
+      "path": "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
+      "sha256": "sha256:5cd40aa6c0256a70ad7317c05e078759685e0469be77a3e960a976adc3158e8e"
+    },
+    "compatibility_matrix": {
+      "path": "compatibility/foigent-unirouter-completed-execution-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:03fb035134b173165e6a03f348d40a58fe1d28d82c24bacb1dec553c8b769c89"
+    },
+    "conformance_contract": {
+      "path": "conformance/conformance-contract.v1.json",
+      "sha256": "sha256:f3ae834265170ff22088943283fd23dcb562bc2308571ccc722414c2c896dc23"
+    },
+    "go_implementation_manifest": {
+      "path": "implementations/go/implementation-manifest.v1.json",
+      "sha256": "sha256:8db497355a66b70f8ccaa157067b41f1dd4bb0f331f96739bdd67529a8f4f14a"
+    },
+    "typescript_implementation_manifest": {
+      "path": "implementations/typescript/implementation-manifest.v1.json",
+      "sha256": "sha256:5a50aec9c13bbb80c34666fc6191ffd3bf8a5ec00712b8a360bdc620330c3bcc"
+    },
+    "schema_audit_source_manifest": {
+      "path": "tools/schema-audit/source-manifest.v1.json",
+      "sha256": "sha256:92a440ea2113b4904a7fa06f84332b75fffb25629e92e0a683bb050db79e718d"
+    },
+    "go_conformance_report": {
+      "path": "conformance/reports/go-v1.json",
+      "sha256": "sha256:7c1d2c3041bcd5e06a1e5c509992ee9c44ef9d8da4db896630ce0e6c10a2faa7"
+    },
+    "typescript_conformance_report": {
+      "path": "conformance/reports/typescript-v1.json",
+      "sha256": "sha256:8f1129e134959af412e352d32b3919575527506290ecce1ea7b28b011a1352fc"
+    }
+  },
+  "content_digest": "sha256:e2400b992f7cd35a4485c7d7ad3a9151268d7295f9f0c7a3604fde3ec7f89984",
+  "approvals": [
+    {
+      "role": "source_domain_owner",
+      "status": "confirmed",
+      "reviewed_content_digest": "sha256:e2400b992f7cd35a4485c7d7ad3a9151268d7295f9f0c7a3604fde3ec7f89984",
+      "evidence": {
+        "path": "reviews/releases/v1.0.0/source-owner-approval.md",
+        "sha256": "sha256:9f89770695bcaa1de29af191fe15f21c45cf8548615c99f4c4b7784d80810a52"
+      }
+    },
+    {
+      "role": "projection_owner",
+      "status": "confirmed",
+      "reviewed_content_digest": "sha256:e2400b992f7cd35a4485c7d7ad3a9151268d7295f9f0c7a3604fde3ec7f89984",
+      "evidence": {
+        "path": "reviews/releases/v1.0.0/projection-owner-approval.md",
+        "sha256": "sha256:231cc831cb44c68c000cacd517793d795b7075efb3e282ea15df7ac0d469aeb6"
+      }
+    },
+    {
+      "role": "coordinator",
+      "status": "confirmed",
+      "reviewed_content_digest": "sha256:e2400b992f7cd35a4485c7d7ad3a9151268d7295f9f0c7a3604fde3ec7f89984",
+      "evidence": {
+        "path": "reviews/releases/v1.0.0/coordinator-approval.md",
+        "sha256": "sha256:f8fb8862f16b4c899e1e7acb1ec54da3a62f042fe6fe2ae8ce20c4fd57619452"
+      }
+    }
+  ],
+  "release_digest": "sha256:aaeb5b37b94a1fd603048d77b2180fa88be1ddbd6eeea6a1369edf0cea9c5e2b"
+}

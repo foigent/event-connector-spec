@@ -1,0 +1,36 @@
+name: Foigent Event Connector Protocol Pin
+description: Verify a product protocol pin against this immutable protocol release.
+inputs:
+  pin:
+    description: Path to the product-owned protocol pin JSON.
+    required: true
+  product:
+    description: Product identity, either unirouter or xinsight.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Set up Go 1.24.3
+      uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+      with:
+        go-version: 1.24.3
+        cache: false
+    - name: Set up Deno 2.7.13
+      uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+      with:
+        deno-version: v2.7.13
+    - name: Verify immutable protocol release
+      shell: bash
+      run: >-
+        "$GITHUB_ACTION_PATH/scripts/run-conformance-kit.sh"
+        "$GITHUB_ACTION_PATH"
+        "$RUNNER_TEMP/foigent-event-connector-kit"
+    - name: Verify protocol release and product pin
+      shell: bash
+      env:
+        FOIGENT_PROTOCOL_PIN: ${{ inputs.pin }}
+        FOIGENT_PROTOCOL_PRODUCT: ${{ inputs.product }}
+      run: >-
+        node "$GITHUB_ACTION_PATH/scripts/verify-product-pin.mjs"
+        --pin "$FOIGENT_PROTOCOL_PIN"
+        --product "$FOIGENT_PROTOCOL_PRODUCT"
