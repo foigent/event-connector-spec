@@ -33,6 +33,7 @@
   ],
   "comparison": {
     "case_id": "<vector_section>/<case_id from the canonical vector or Golden fixture bundle>",
+    "case_order": "Emit cases in case_contract array order. Within each section, preserve the source vector array order from the canonical vector bundle or Golden fixture bundle.",
     "case_classes": "The exact sorted unique class list declared by case_contract for that vector section and case.",
     "result_encoding": "Every case emits deterministic result bytes. Successful byte-producing cases emit the computed bytes directly. Classifications, expected errors and state transitions emit RFC 8785 canonical JSON bytes of the observed result object.",
     "result_base64": "RFC 4648 standard base64 with padding over exact result bytes",

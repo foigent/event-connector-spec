@@ -148,14 +148,10 @@ function validateReport(report, implementation) {
   if (new Set(ids).size !== ids.length) {
     fail(`${implementation}: duplicate case_id`);
   }
-  if ([...ids].sort().join("\n") !== ids.join("\n")) {
-    fail(`${implementation}: cases are not sorted by case_id`);
-  }
   if (
-    [...expectedCases.keys()].sort().join("\n") !==
-    [...ids].sort().join("\n")
+    [...expectedCases.keys()].join("\n") !== ids.join("\n")
   ) {
-    fail(`${implementation}: report case set mismatch`);
+    fail(`${implementation}: report case set or order mismatch`);
   }
   for (const entry of report.cases) {
     if (entry.status !== "pass") {
