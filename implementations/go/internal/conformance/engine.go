@@ -76,8 +76,8 @@ func loadCandidateInputs(bundlePath string) (candidateInputs, error) {
 		return candidateInputs{}, fmt.Errorf("decode canonical vector bundle: %w", err)
 	}
 	if bundle.BundleVersion != expectedBundleVersion ||
-		bundle.ProtocolCandidate != expectedProtocolCandidate {
-		return candidateInputs{}, errors.New("canonical vector bundle identity is not the exact candidate")
+		bundle.ProtocolVersion != expectedProtocolVersion {
+		return candidateInputs{}, errors.New("canonical vector bundle identity is not the exact protocol release")
 	}
 
 	root := filepath.Clean(filepath.Join(filepath.Dir(absoluteBundle), ".."))
@@ -116,11 +116,11 @@ func loadCandidateInputs(bundlePath string) (candidateInputs, error) {
 		return candidateInputs{}, fmt.Errorf("decode Golden fixture bundle: %w", err)
 	}
 	if golden.BundleVersion != expectedGoldenBundleVersion ||
-		golden.ProtocolCandidate != expectedProtocolCandidate ||
+		golden.ProtocolVersion != expectedProtocolVersion ||
 		golden.ReferenceConnector != expectedReferenceConnector ||
 		golden.SourceSeedIndex.Path != expectedReferenceSourceSeedIndex ||
 		golden.SourceSeedIndex.SourceSchemaSHA256 != expectedSourceSchemaSHA256 {
-		return candidateInputs{}, errors.New("Golden fixture bundle identity is not the exact candidate")
+		return candidateInputs{}, errors.New("Golden fixture bundle identity is not the exact protocol release")
 	}
 
 	sourceSeedPath, err := resolveWithin(root, golden.SourceSeedIndex.Path)

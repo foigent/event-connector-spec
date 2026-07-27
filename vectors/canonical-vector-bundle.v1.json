@@ -1,6 +1,6 @@
 {
   "bundle_version": "foigent.canonical-vector-bundle.v1",
-  "protocol_candidate": "1.0.0-rc.1",
+  "protocol_version": "1.0.0",
   "golden_fixture_bundle_path": "fixtures/golden-fixture-bundle.v1.json",
   "reference_mapping_context": {
     "producer_product": "unirouter",

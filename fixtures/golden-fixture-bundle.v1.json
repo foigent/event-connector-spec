@@ -1,6 +1,6 @@
 {
   "bundle_version": "foigent.golden-fixture-bundle.v1",
-  "protocol_candidate": "1.0.0-rc.1",
+  "protocol_version": "1.0.0",
   "reference_connector": "foigent.unirouter.completed-execution",
   "source_seed_index": {
     "path": "reference/unirouter/source-seeds.v1.json",

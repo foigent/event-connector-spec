@@ -45,15 +45,15 @@ export const PINNED_CANDIDATE_COMMIT = "f737ca27ebd27342d9a8dc421a44507b5a2a60d8
 export const PINNED_PRECISION_ADDENDUM = "30a2abeb4877253557aaa9d9cbd5a6400eb9c6c3";
 export const PINNED_ORDER_ADDENDUM = "191411618714957accbdf0124b64c800e3ae1a4f";
 export const PINNED_VECTOR_SHA256 =
-  "sha256:98659630f3e1238d2684c2b4cba728334f4bdace67ff033652676d9d505caf33";
+  "sha256:50fc8e8be08c37381611d6423e29780894741fb108fc4569df7c895452e5d4db";
 export const PINNED_GOLDEN_SHA256 =
-  "sha256:b56de610d4444b655e3f700e61ec490caa1fc1d8658db1660192686c0fc1a268";
+  "sha256:e71eef0cc0a3388d5563eeda0c178b751af34bd856f0bdc2b7dc85b00df75a86";
 export const PINNED_CONTRACT_SHA256 =
   "sha256:f3ae834265170ff22088943283fd23dcb562bc2308571ccc722414c2c896dc23";
 export const PINNED_REPORT_SCHEMA_SHA256 =
   "sha256:42048fbf5a5edc2ca4476727563ab41e96a8fb6d3788d446e0e0d7c4154a31a7";
 
-const IMPLEMENTATION_VERSION = "foigent-typescript-v1";
+const IMPLEMENTATION_VERSION = "1.0.0+independent.1";
 const REPORT_VERSION = "foigent.conformance-report.v1";
 
 export class ArtifactFailure extends Error {
@@ -826,7 +826,7 @@ function validateBundleHeader(bundle: JsonObject): void {
     bundle,
     [
       "bundle_version",
-      "protocol_candidate",
+      "protocol_version",
       "golden_fixture_bundle_path",
       "reference_mapping_context",
       "canonical_envelopes",
@@ -846,7 +846,7 @@ function validateBundleHeader(bundle: JsonObject): void {
     "foigent.canonical-vector-bundle.v1",
     "bundle_version",
   );
-  requireExact(bundle.protocol_candidate, "1.0.0-rc.1", "protocol_candidate");
+  requireExact(bundle.protocol_version, "1.0.0", "protocol_version");
 }
 
 function validateContractHeader(contract: JsonObject): void {
@@ -881,7 +881,7 @@ function validateGoldenHeader(golden: JsonObject): void {
     golden,
     [
       "bundle_version",
-      "protocol_candidate",
+      "protocol_version",
       "reference_connector",
       "source_seed_index",
       "cases",
@@ -896,9 +896,9 @@ function validateGoldenHeader(golden: JsonObject): void {
     "Golden bundle_version",
   );
   requireExact(
-    golden.protocol_candidate,
-    "1.0.0-rc.1",
-    "Golden protocol_candidate",
+    golden.protocol_version,
+    "1.0.0",
+    "Golden protocol_version",
   );
   requireExact(
     golden.reference_connector,

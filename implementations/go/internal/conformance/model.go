@@ -8,18 +8,18 @@ import (
 )
 
 const (
-	expectedBundleSHA256             = "sha256:98659630f3e1238d2684c2b4cba728334f4bdace67ff033652676d9d505caf33"
-	expectedGoldenBundleSHA256       = "sha256:b56de610d4444b655e3f700e61ec490caa1fc1d8658db1660192686c0fc1a268"
+	expectedBundleSHA256             = "sha256:50fc8e8be08c37381611d6423e29780894741fb108fc4569df7c895452e5d4db"
+	expectedGoldenBundleSHA256       = "sha256:e71eef0cc0a3388d5563eeda0c178b751af34bd856f0bdc2b7dc85b00df75a86"
 	expectedConformanceContractSHA   = "sha256:f3ae834265170ff22088943283fd23dcb562bc2308571ccc722414c2c896dc23"
 	expectedConformanceReportSchema  = "sha256:42048fbf5a5edc2ca4476727563ab41e96a8fb6d3788d446e0e0d7c4154a31a7"
 	expectedSourceSeedIndexSHA256    = "sha256:5d75d1b1ddf596ae1b3ab3c2690e652e9f6d1b2aef93755c7553552f71f39981"
 	expectedSourceSchemaSHA256       = "sha256:4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2"
 	expectedBundleVersion            = "foigent.canonical-vector-bundle.v1"
 	expectedGoldenBundleVersion      = "foigent.golden-fixture-bundle.v1"
-	expectedProtocolCandidate        = "1.0.0-rc.1"
+	expectedProtocolVersion          = "1.0.0"
 	reportVersion                    = "foigent.conformance-report.v1"
 	implementationName               = "go"
-	implementationVersion            = "1.0.0-rc.1+independent.1"
+	implementationVersion            = "1.0.0+independent.1"
 	expectedReferenceConnector       = "foigent.unirouter.completed-execution"
 	expectedReferenceSourceSeedIndex = "reference/unirouter/source-seeds.v1.json"
 )
@@ -33,7 +33,7 @@ const (
 
 type vectorBundle struct {
 	BundleVersion           string                  `json:"bundle_version"`
-	ProtocolCandidate       string                  `json:"protocol_candidate"`
+	ProtocolVersion         string                  `json:"protocol_version"`
 	GoldenFixtureBundlePath string                  `json:"golden_fixture_bundle_path"`
 	ReferenceMappingContext referenceMappingContext `json:"reference_mapping_context"`
 	CanonicalEnvelopes      []canonicalEnvelopeCase `json:"canonical_envelopes"`
@@ -130,7 +130,7 @@ type replayCase struct {
 
 type goldenFixtureBundle struct {
 	BundleVersion       string             `json:"bundle_version"`
-	ProtocolCandidate   string             `json:"protocol_candidate"`
+	ProtocolVersion     string             `json:"protocol_version"`
 	ReferenceConnector  string             `json:"reference_connector"`
 	SourceSeedIndex     sourceSeedIndexRef `json:"source_seed_index"`
 	Cases               []goldenCase       `json:"cases"`
