@@ -427,14 +427,14 @@ class XInsightProjectionArtifactTest(unittest.TestCase):
             "completed-execution-compatibility-seed-v1.json"
         )
 
-    def test_release_candidate_status_and_exact_authority_pins(self):
+    def test_release_component_status_and_exact_authority_pins(self):
         for artifact in (
             self.projection,
             self.lifecycle,
             self.identity,
             self.bundle,
         ):
-            self.assertEqual(artifact["status"], "B9_RELEASE_CANDIDATE")
+            self.assertEqual(artifact["status"], "B9_RELEASE_COMPONENT")
             authority = artifact["baseline"]["b8_authority"]
             self.assertEqual(authority["commit"], EXACT_B8_COMMIT)
             self.assertEqual(authority["tree"], EXACT_B8_TREE)

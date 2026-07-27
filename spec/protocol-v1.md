@@ -1,8 +1,8 @@
 # Foigent Event and Connector Protocol V1
 
-Status: release candidate input; not binding until the immutable release
-manifest, conformance evidence, compatibility artifacts, and three role
-approvals are complete.
+Version: `1.0.0`. Binding authority is the immutable `v1.0.0` release tag and
+its verified release manifest. A working-tree copy of this file is not
+independently authoritative.
 
 ## 1. Architectural boundary
 

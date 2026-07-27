@@ -92,4 +92,8 @@ After bootstrap, protocol semantics must flow through reviewed pull requests.
 
 ## 8. Current boundary
 
-B7 establishes authority and governance only. It does not close B6, B8, or B9, does not freeze Candidate V3, and does not authorize Phase 2 implementation, product code extraction, deployment, credentials, traffic, cursor/checkpoint, or database changes.
+B7 established authority and governance. The separately authorized B6–B9 work
+may publish protocol `1.0.0`, its Conformance Kit, immutable release manifest,
+compatibility mappings, and product CI pins. It does not authorize Phase 2
+runtime extraction, deployment, credentials, traffic, cursor/checkpoint, or
+database changes.

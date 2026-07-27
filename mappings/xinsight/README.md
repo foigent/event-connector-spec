@@ -1,12 +1,12 @@
-# X-Insight B9 release-candidate mappings
+# X-Insight B9 release mappings
 
-Status: `B9_RELEASE_CANDIDATE`
+Status: `B9_RELEASE_COMPONENT`
 
-These Projection Owner artifacts bind the first Reference Connector to the
-exact B8 authority tree while preserving the current X-Insight M0 `m0.1`
-compatibility baseline. They are product-owned mappings and offline evidence;
-they do not redefine shared Schema semantics, authorize a runtime change, or
-replace product-local registry and EvidenceStore identities.
+These Projection Owner release artifacts bind the first Reference Connector
+to the exact B8 authority tree while preserving the current X-Insight M0
+`m0.1` compatibility baseline. They do not redefine shared Schema semantics,
+authorize a runtime change, or replace product-local registry and
+EvidenceStore identities.
 
 Authoritative inputs:
 
@@ -51,9 +51,9 @@ Key boundaries:
 - EventBatch, Checkpoint, OperationalReceipt, retry and service state are
   mutable delivery/operational state and remain outside M0 identity/hash and
   item-linked import provenance;
-- the exact Reference Manifest currently pins the earlier mapping digests.
-  Updating those two compatibility digests after this local B9 commit is a
-  Coordinator release-finalization action, not an M0 semantic change.
+- the released Reference Manifest pins the exact projection and compatibility
+  mapping digests. Those pins remain outside M0 identity/hash and item-linked
+  import provenance.
 
 Offline verification against the exact B8 Git tree:
 

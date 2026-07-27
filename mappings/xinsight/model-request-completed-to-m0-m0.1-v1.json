@@ -1,6 +1,6 @@
 {
   "artifact": "xinsight.model-request-completed-to-m0-m0.1.v1",
-  "status": "B9_RELEASE_CANDIDATE",
+  "status": "B9_RELEASE_COMPONENT",
   "baseline": {
     "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
     "xinsight_commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",

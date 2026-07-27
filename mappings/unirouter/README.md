@@ -1,9 +1,10 @@
-# UniRouter Source B9 Exact Mappings
+# UniRouter Source B9 Release Mappings
 
-Status: `B9_EXACT_B8_RELEASE_CANDIDATE`
+Status: `B9_RELEASE_COMPONENT`
 
-This directory contains the Source Domain Owner mapping from the current
-UniRouter completed-execution Reference Connector to the exact B8 artifacts at:
+This directory contains the released Source Domain Owner mapping from the
+current UniRouter completed-execution Reference Connector to the exact B8
+artifacts at:
 
 - authority repository: `https://github.com/foigent/event-connector-spec`
 - commit: `404d1d753801fd32185eea8163d6a8f839c22a89`

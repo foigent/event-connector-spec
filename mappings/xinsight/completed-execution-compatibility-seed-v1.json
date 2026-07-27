@@ -1,6 +1,6 @@
 {
   "artifact": "xinsight.completed-execution-compatibility-seed.v1",
-  "status": "B9_RELEASE_CANDIDATE",
+  "status": "B9_RELEASE_COMPONENT",
   "synthetic_only": true,
   "baseline": {
     "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",

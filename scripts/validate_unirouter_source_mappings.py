@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate UniRouter Source-owned B9 exact B8 release-candidate mappings."""
+"""Validate UniRouter Source-owned B9 release mappings."""
 
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-FORMAT = "foigent.source-mapping-release-candidate.v1"
-STATUS = "B9_EXACT_B8_RELEASE_CANDIDATE"
+FORMAT = "foigent.source-mapping.v1"
+STATUS = "B9_RELEASE_COMPONENT"
 WORK_ITEM = "FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726"
 AUTHORITY_REPOSITORY = "https://github.com/foigent/event-connector-spec"
 AUTHORITY_REPOSITORY_ID = 1313391565
@@ -97,7 +97,7 @@ ARTIFACT_FILES = {
 COMMON_KEYS = {
     "artifact_format",
     "artifact_kind",
-    "release_candidate_status",
+    "release_status",
     "work_item_id",
     "authority",
     "protocol_text_baseline",
@@ -314,7 +314,7 @@ EXPECTED_CONTROL_ROUTES = {
 
 
 class ValidationError(ValueError):
-    """Raised when a release-candidate mapping fails closed."""
+    """Raised when a release mapping fails closed."""
 
 
 def _reject_duplicate_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -437,8 +437,8 @@ def validate_common(payload: dict[str, Any], expected_kind: str, where: str) -> 
         raise ValidationError(f"{where}: wrong artifact_format")
     if payload["artifact_kind"] != expected_kind:
         raise ValidationError(f"{where}: wrong artifact_kind")
-    if payload["release_candidate_status"] != STATUS:
-        raise ValidationError(f"{where}: wrong release_candidate_status")
+    if payload["release_status"] != STATUS:
+        raise ValidationError(f"{where}: wrong release_status")
     if payload["work_item_id"] != WORK_ITEM:
         raise ValidationError(f"{where}: wrong work_item_id")
     if payload["authority"] != {
@@ -999,7 +999,7 @@ def validate_directory(
 
     result: dict[str, Any] = {
         "status": "ok",
-        "release_candidate_status": STATUS,
+        "release_status": STATUS,
         "artifact_count": len(artifacts),
         "field_mapping_count": len(
             artifacts["source-snapshot-to-model-request-completed.v1.json"]["field_mappings"]
@@ -1034,7 +1034,7 @@ def _default_mapping_dir() -> Path:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Validate UniRouter Source B9 exact B8 release-candidate mappings."
+        description="Validate UniRouter Source B9 release mappings."
     )
     parser.add_argument("--mapping-dir", type=Path, default=_default_mapping_dir())
     parser.add_argument(

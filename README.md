@@ -5,8 +5,12 @@ This private repository is the single editable authority for the Foigent shared 
 ## Current status
 
 - Governance authority: established under B7.
-- Joint protocol text: three-party aligned candidate V3, not binding.
-- Phase 1 freeze: not reached.
+- Protocol version: `1.0.0`.
+- B6 independent Go/TypeScript conformance: complete and byte-identical.
+- B8 shared contracts and reproducible release tooling: complete.
+- B9 UniRouter source and X-Insight projection mappings: complete.
+- Binding identity: only the immutable `v1.0.0` tag and its verified release
+  manifest; other branches and working-tree copies are not authoritative.
 - Phase 2 implementation: not authorized.
 - Runtime, credentials, traffic, checkpoints, cursors, and product databases: out of scope.
 
@@ -40,13 +44,17 @@ Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`
 - X-Insight Projection Owner V3 response SHA-256: `c670914cdbf117b527d447e58c6adb3658ee361dc2a1bc954b55f2345786ef63`
 - Coordinator disposition SHA-256: `add651b694d2a597deca7b164aa3eb658ecf39188637dd513b0f6b8e6d74dc6b`
 
-These identities record aligned candidate text only. They do not constitute a protocol release.
+These identities record the decision lineage incorporated into protocol
+`1.0.0`. The immutable release manifest separately binds the exact released
+artifacts, compatibility evidence, conformance reports, and three role
+approvals.
 
-## Remaining gates
+## Release and consumption gates
 
-- B6: independent Go and TypeScript canonical/hash/replay vectors.
-- B8: immutable protocol artifacts and release manifest.
-- B9: exact product mapping and compatibility artifacts.
-- Three-party approval of the release candidate.
+- the release manifest must verify all component and approval digests;
+- authority CI and the immutable `v1.0.0` tag must identify the same bytes;
+- UniRouter and X-Insight must pin that release and run the shared Conformance
+  Kit in their own CI;
+- Phase 2 remains a separate future decision.
 
 See [GOVERNANCE.md](GOVERNANCE.md), [CONTRIBUTING.md](CONTRIBUTING.md), and [Decision 0001](docs/decisions/0001-authority-and-governance.md).

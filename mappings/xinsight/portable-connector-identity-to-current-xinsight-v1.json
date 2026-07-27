@@ -1,6 +1,6 @@
 {
   "artifact": "xinsight.portable-connector-identity-to-current-xinsight.v1",
-  "status": "B9_RELEASE_CANDIDATE",
+  "status": "B9_RELEASE_COMPONENT",
   "baseline": {
     "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
     "xinsight_commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
@@ -176,9 +176,9 @@
     "The current fixed local UUIDs remain authoritative for M0 persistence compatibility."
   ],
   "release_metadata_boundary": {
-    "fact": "The exact B8 Reference Manifest at the reviewed tree still pins the earlier candidate SHA-256 values for the two X-Insight mapping files.",
-    "owner": "Coordinator release finalization",
-    "rule": "After these B9 release-candidate files are committed, the Coordinator must update Manifest compatibility digests in the final shared release metadata. Those digests remain outside current M0 identity, hash, idempotency and item-linked provenance."
+    "fact": "The released Reference Manifest pins the exact X-Insight projection and compatibility mapping digests, while the protocol release manifest separately pins this identity mapping.",
+    "owner": "protocol release authority",
+    "rule": "All release and mapping digests remain outside current M0 identity, hash, idempotency and item-linked provenance."
   },
   "current_local_registry_limit": {
     "fact": "The current source_system row is a fixed product-local UniRouter registry row, while producer.instance is embedded in source_ref and durable activation state.",

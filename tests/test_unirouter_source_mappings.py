@@ -24,10 +24,10 @@ class UniRouterSourceMappingTests(unittest.TestCase):
             for filename in validator.ARTIFACT_FILES
         }
 
-    def test_repository_release_candidate_mappings_validate(self) -> None:
+    def test_repository_release_mappings_validate(self) -> None:
         result = validator.validate_directory(self.mapping_dir)
         self.assertEqual("ok", result["status"])
-        self.assertEqual(validator.STATUS, result["release_candidate_status"])
+        self.assertEqual(validator.STATUS, result["release_status"])
         self.assertEqual(4, result["artifact_count"])
         self.assertEqual(28, result["field_mapping_count"])
         self.assertEqual(21, result["lifecycle_mapping_count"])

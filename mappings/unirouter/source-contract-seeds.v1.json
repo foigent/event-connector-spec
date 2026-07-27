@@ -1,7 +1,7 @@
 {
-  "artifact_format": "foigent.source-mapping-release-candidate.v1",
+  "artifact_format": "foigent.source-mapping.v1",
   "artifact_kind": "unirouter.source-contract-seeds",
-  "release_candidate_status": "B9_EXACT_B8_RELEASE_CANDIDATE",
+  "release_status": "B9_RELEASE_COMPONENT",
   "work_item_id": "FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726",
   "authority": {
     "repository": "https://github.com/foigent/event-connector-spec",
