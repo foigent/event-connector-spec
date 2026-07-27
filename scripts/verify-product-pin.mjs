@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { lstatSync, readFileSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -66,6 +66,12 @@ function check(condition, message) {
   }
 }
 
+function readReleaseFile(path, label) {
+  const info = lstatSync(path);
+  check(info.isFile() && !info.isSymbolicLink(), `${label} is not a regular file`);
+  return readFileSync(path);
+}
+
 check(
   release.release_manifest_version ===
     "foigent.protocol-release-manifest.v1",
@@ -86,7 +92,7 @@ for (const [name, component] of Object.entries(release.components)) {
     `${name} escapes action root`,
   );
   check(
-    sha256(readFileSync(componentPath)) === component.sha256,
+    sha256(readReleaseFile(componentPath, name)) === component.sha256,
     `${name} release component digest mismatch`,
   );
 }
@@ -119,7 +125,8 @@ for (const approval of approvals) {
     `${approval.role} evidence escapes action root`,
   );
   check(
-    sha256(readFileSync(evidencePath)) === approval.evidence.sha256,
+    sha256(readReleaseFile(evidencePath, `${approval.role} evidence`)) ===
+      approval.evidence.sha256,
     `${approval.role} evidence digest mismatch`,
   );
 }
