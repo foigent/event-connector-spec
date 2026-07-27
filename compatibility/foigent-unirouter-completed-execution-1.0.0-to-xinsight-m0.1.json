@@ -1,0 +1,99 @@
+{
+  "matrix_version": "foigent.connector-compatibility-matrix.v1",
+  "status": "candidate_pending_b6_conformance_and_owner_reconfirmation",
+  "protocol_version": "1.0.0",
+  "connector": {
+    "connector_id": "foigent.unirouter.completed-execution",
+    "connector_version": "1.0.0"
+  },
+  "source_baseline": {
+    "repository": "https://github.com/foigent/unirouter.git",
+    "commit": "bf91ea63a16952bb2925afd5438233cac597dcc1",
+    "tree": "ddadc277fbede49fac0cbc1cc561203312432ac3",
+    "payload_schema": "unirouter.completed-execution.v1",
+    "source_mapping": {
+      "path": "mappings/unirouter/source-snapshot-to-model-request-completed.v1.json",
+      "sha256": "sha256:a13a2fa04e0f2ae86c78eb3499795162627aad01cba0e5e0771da130beea2f7c"
+    },
+    "lifecycle_mapping": {
+      "path": "mappings/unirouter/source-lifecycle-to-shared-axes.v1.json",
+      "sha256": "sha256:fd3a9099c3c9c4bc105d7e231d23181927fcec98fa0b00d13e071cb529be28a2"
+    },
+    "identity_mapping": {
+      "path": "mappings/unirouter/connector-identity-to-source-local.v1.json",
+      "sha256": "sha256:53687f61c645b4758392380b97326e1432ca0f71a080b9afb3d16fb615dccf69"
+    }
+  },
+  "consumer_baseline": {
+    "repository": "https://github.com/foigent/x-insight.git",
+    "commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
+    "tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8",
+    "projection_profile": "xinsight.foigent-envelope-to-m0.unirouter-completed-execution.v1",
+    "output_schema": "m0.1",
+    "projection_contract": {
+      "path": "mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json",
+      "sha256": "sha256:a2d1e312fb9c629a339e943438cf37e5b5863e9ab8611d542988c4cf1095f343"
+    },
+    "lifecycle_mapping": {
+      "path": "mappings/xinsight/connector-lifecycle-to-current-xinsight-v1.json",
+      "sha256": "sha256:8d680462b5547974654f24ff7918b3cbe5e56cc2e2b21749e4ee64747b8595b8"
+    },
+    "identity_mapping": {
+      "path": "mappings/xinsight/portable-connector-identity-to-current-xinsight-v1.json",
+      "sha256": "sha256:fc23d8a2762b530862089930d0d366cd06c4b5062138136a0a7ba0f1f5a3cdf4"
+    },
+    "compatibility_vectors": {
+      "path": "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
+      "sha256": "sha256:b3f31ff82e5ca9de5e2d049ac351d4c97d42f47bcfe895b93f092510570414de"
+    }
+  },
+  "compatibility_invariants": [
+    {
+      "id": "source_bytes_and_hash",
+      "rule": "Source Snapshot bytes and source_hash remain exact and product-owned."
+    },
+    {
+      "id": "one_shared_event",
+      "rule": "Both terminal outcomes use model.request.completed with terminal.status settled or cancelled."
+    },
+    {
+      "id": "scoped_identity",
+      "rule": "Shared identity includes producer, optional tenant, org, project, event type and exact Source request ID."
+    },
+    {
+      "id": "three_hash_domains",
+      "rule": "Source, shared Envelope and X M0 hashes remain independent and separately pinned."
+    },
+    {
+      "id": "existing_m0_output",
+      "rule": "The two Source seeds preserve the existing ten M0 event IDs/hashes, ten local refs/idempotency values, eight Gap rows, two provenance IDs and read-model expectations."
+    },
+    {
+      "id": "delivery_isolation",
+      "rule": "Cursor, high-watermark, page/retry/ingestion state never enters Event or item-linked provenance identity."
+    },
+    {
+      "id": "reference_feed_unchanged",
+      "rule": "The current completed-execution endpoint, page DTO, credential purpose, activation-forward bootstrap and at-least-once checkpoint behavior remain the Reference Connector compatibility path."
+    }
+  ],
+  "known_product_local_differences": [
+    {
+      "id": "m0_projection",
+      "rule": "The shared parent projects to one X terminal event plus four X Gap events; this is a target-local projection and does not add four shared top-level events."
+    },
+    {
+      "id": "deterministic_uuid_variants",
+      "rule": "Current X M0 event IDs and DB Gap/provenance IDs use different historical deterministic UUID variant rules and remain independently pinned."
+    },
+    {
+      "id": "lifecycle_read_surface",
+      "rule": "Current X investigation APIs expose Evidence/Gap/provenance, not the complete shared Connector lifecycle projection."
+    }
+  ],
+  "non_goals": [
+    "No universal plugin runtime.",
+    "No product-local IAM, registry, billing, persistence, analysis or UI replacement.",
+    "No runtime deployment, feed replay, cursor mutation or new live traffic."
+  ]
+}
