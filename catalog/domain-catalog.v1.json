@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "catalog_version": "foigent.domain-catalog.v1",
+  "domains": [
+    {
+      "domain": "model",
+      "owner_role": "source-domain-owner",
+      "event_types": [
+        {
+          "event_type": "model.request.completed",
+          "schema_ref": "foigent://events/model/request-completed/v1",
+          "schema_version": "1",
+          "payload_schema_path": "schemas/model-request-completed.v1.schema.json"
+        }
+      ]
+    }
+  ],
+  "record_schemas": [
+    {
+      "record_type": "capture_gap",
+      "schema_ref": "foigent://schemas/capture-gap/v1",
+      "schema_version": "1",
+      "schema_path": "schemas/capture-gap.v1.schema.json"
+    }
+  ]
+}

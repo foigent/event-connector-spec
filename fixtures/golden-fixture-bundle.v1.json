@@ -1,0 +1,85 @@
+{
+  "bundle_version": "foigent.golden-fixture-bundle.v1",
+  "protocol_candidate": "1.0.0-rc.1",
+  "reference_connector": "foigent.unirouter.completed-execution",
+  "source_seed_index": {
+    "path": "reference/unirouter/source-seeds.v1.json",
+    "source_schema_sha256": "sha256:4ae2897d4f8470c38624dfe21c54d72eaf6d995d2c9578c4420c94d244424fb2"
+  },
+  "cases": [
+    {
+      "case_id": "reference-settled",
+      "source_fixture": {
+        "upstream_path": "contracts/completed-execution/v1/fixtures/valid-settled.json",
+        "release_path": "fixtures/source/unirouter/valid-settled.json",
+        "sha256": "sha256:5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27"
+      },
+      "shared_hash_input": {
+        "path": "fixtures/shared/settled-envelope.hash-input.json",
+        "file_sha256": "sha256:1db5dff1e35aecd6aecc775b7d9fdd6a480157d411e71a16a4b39e0751a28cb2",
+        "envelope_hash_field": "absent"
+      },
+      "expected": {
+        "canonical_bytes": 4596,
+        "envelope_hash": "sha256:0d11f98f981427b7bcf175e82294511ca42981c0ecea8e02f841c3777743d1d2",
+        "idempotency_key": "sha256:c2822f0d940c01de77e2e06af1a5f6e1fd10fc66269be20fceb0939150c17b2e",
+        "terminal_status": "settled",
+        "capture_gap_count": 4
+      }
+    },
+    {
+      "case_id": "reference-cancelled",
+      "source_fixture": {
+        "upstream_path": "contracts/completed-execution/v1/fixtures/valid-cancelled.json",
+        "release_path": "fixtures/source/unirouter/valid-cancelled.json",
+        "sha256": "sha256:31cbfeb23968c07d158b591c28efb3dd40cffba1fd6d1fd4202f43d63bfe9f2d"
+      },
+      "shared_hash_input": {
+        "path": "fixtures/shared/cancelled-envelope.hash-input.json",
+        "file_sha256": "sha256:1b15f2f9f1c86087b140de667b742861e0acc201d7684062568457dcdd057438",
+        "envelope_hash_field": "absent"
+      },
+      "expected": {
+        "canonical_bytes": 4629,
+        "envelope_hash": "sha256:c31445c779ffec9dae8cbc7f1f0344722a4e0fb696a366b2e321f58d0d07fbab",
+        "idempotency_key": "sha256:d342a560ade558edc557f2cd645a526178958540a012ceabe9ca7047e916796c",
+        "terminal_status": "cancelled",
+        "capture_gap_count": 4
+      }
+    }
+  ],
+  "negative_source_seeds": [
+    {
+      "case_id": "privacy-redaction-rejected",
+      "upstream_path": "contracts/completed-execution/v1/fixtures/redaction-rejected.json",
+      "release_path": "fixtures/source/unirouter/redaction-rejected.json",
+      "sha256": "sha256:c23fd255c139f94e729ecca70622d6e6341cf7a257c21fbccf592964b0e3853e",
+      "expected_error": {
+        "error_version": "foigent.connector-error.v1",
+        "category": "privacy",
+        "code": "prohibited_raw_field",
+        "phase": "validate",
+        "operation": "map_source_snapshot",
+        "retryable": false,
+        "safe_message": "Source payload contains a prohibited raw field",
+        "recovery": "operator_repair"
+      }
+    },
+    {
+      "case_id": "cursor-expired",
+      "upstream_path": "contracts/completed-execution/v1/fixtures/error-cursor-expired.json",
+      "release_path": "fixtures/source/unirouter/error-cursor-expired.json",
+      "sha256": "sha256:9f85ec830e0e61d0ac75656a980793d6d5c4020265d42ed192693659e1540437",
+      "expected_error": {
+        "error_version": "foigent.connector-error.v1",
+        "category": "cursor",
+        "code": "completed_execution_feed.cursor_expired",
+        "phase": "fetch",
+        "operation": "fetch_page",
+        "retryable": false,
+        "safe_message": "Cursor is outside the retained replay window",
+        "recovery": "operator_repair"
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/connector-lifecycle/v1",
+  "title": "Foigent Connector Lifecycle V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lifecycle_version",
+    "configuration",
+    "authentication",
+    "transport",
+    "processing",
+    "checkpoint",
+    "health"
+  ],
+  "properties": {
+    "lifecycle_version": {
+      "const": "foigent.connector-lifecycle.v1"
+    },
+    "configuration": {
+      "enum": [
+        "unconfigured",
+        "configured",
+        "retired"
+      ]
+    },
+    "authentication": {
+      "enum": [
+        "absent",
+        "staged",
+        "valid",
+        "revoked",
+        "error"
+      ]
+    },
+    "transport": {
+      "enum": [
+        "stopped",
+        "starting",
+        "ready",
+        "backoff",
+        "error"
+      ]
+    },
+    "processing": {
+      "enum": [
+        "inactive",
+        "idle",
+        "polling",
+        "committing",
+        "backoff",
+        "stopping",
+        "error"
+      ]
+    },
+    "checkpoint": {
+      "enum": [
+        "absent",
+        "bootstrap",
+        "steady",
+        "error"
+      ]
+    },
+    "health": {
+      "enum": [
+        "unknown",
+        "healthy",
+        "degraded",
+        "permanent_error",
+        "stopped",
+        "retired"
+      ]
+    }
+  }
+}

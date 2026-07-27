@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/connector-error/v1",
+  "title": "Foigent Connector Error V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "error_version",
+    "category",
+    "code",
+    "phase",
+    "operation",
+    "retryable",
+    "safe_message",
+    "recovery"
+  ],
+  "properties": {
+    "error_version": {
+      "const": "foigent.connector-error.v1"
+    },
+    "category": {
+      "enum": [
+        "configuration",
+        "authentication",
+        "authorization",
+        "transport",
+        "source",
+        "contract",
+        "privacy",
+        "cursor",
+        "conflict",
+        "persistence",
+        "internal"
+      ]
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "maxLength": 160
+    },
+    "phase": {
+      "enum": [
+        "configure",
+        "activate",
+        "fetch",
+        "decode",
+        "validate",
+        "normalize",
+        "commit",
+        "checkpoint",
+        "status",
+        "shutdown"
+      ]
+    },
+    "operation": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "maxLength": 128
+    },
+    "retryable": {
+      "type": "boolean"
+    },
+    "retry_after_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 300
+    },
+    "safe_message": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "recovery": {
+      "enum": [
+        "automatic_retry",
+        "restart",
+        "reauthorize",
+        "operator_repair",
+        "explicit_resync",
+        "none"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "retryable": {
+            "const": false
+          }
+        },
+        "required": [
+          "retryable"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "retry_after_seconds"
+          ]
+        }
+      }
+    }
+  ]
+}

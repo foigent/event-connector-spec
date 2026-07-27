@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/capture-gap/v1",
+  "title": "Foigent Capture Gap V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gap_id",
+    "parent_event_id",
+    "scope",
+    "correlation",
+    "affected_claim",
+    "gap_type",
+    "reason_code",
+    "severity",
+    "observed_at",
+    "payload_capture_mode",
+    "field_provenance"
+  ],
+  "properties": {
+    "gap_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 220
+    },
+    "parent_event_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "org_ref",
+        "project_ref"
+      ],
+      "properties": {
+        "org_ref": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "project_ref": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      }
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_ref"
+      ],
+      "properties": {
+        "request_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "affected_claim": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "gap_type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "reason_code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ]
+    },
+    "observed_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+      "format": "date-time"
+    },
+    "payload_capture_mode": {
+      "enum": [
+        "none",
+        "metadata_only",
+        "redacted",
+        "full"
+      ]
+    },
+    "field_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "affected_claim",
+        "reason_code",
+        "gap_id",
+        "parent_event_id",
+        "scope",
+        "correlation",
+        "observed_at",
+        "gap_type",
+        "severity",
+        "payload_capture_mode"
+      ],
+      "properties": {
+        "affected_claim": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "reason_code": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "gap_id": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "parent_event_id": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "scope": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "correlation": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "observed_at": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "gap_type": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        },
+        "payload_capture_mode": {
+          "enum": [
+            "direct",
+            "derived",
+            "declared"
+          ]
+        }
+      }
+    }
+  }
+}

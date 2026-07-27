@@ -1,0 +1,207 @@
+{
+  "spec_version": "foigent.event-envelope.v1",
+  "event_id": "req_feed_v1_settled",
+  "event_type": "model.request.completed",
+  "schema_ref": "foigent://events/model/request-completed/v1",
+  "schema_version": "1",
+  "producer": {
+    "product": "unirouter",
+    "instance": "unirouter-development",
+    "connector_id": "foigent.unirouter.completed-execution",
+    "connector_version": "1.0.0"
+  },
+  "scope": {
+    "org_ref": "101",
+    "project_ref": "202"
+  },
+  "subject": {
+    "type": "request",
+    "ref": "req_feed_v1_settled"
+  },
+  "actor": {
+    "type": "system"
+  },
+  "time": {
+    "occurred_at": "2026-07-25T04:05:06.000000Z",
+    "terminal_at": "2026-07-25T04:05:06.000000Z"
+  },
+  "correlation": {
+    "request_ref": "req_feed_v1_settled"
+  },
+  "identity": {
+    "idempotency_key": "sha256:c2822f0d940c01de77e2e06af1a5f6e1fd10fc66269be20fceb0939150c17b2e",
+    "source_revision": "1"
+  },
+  "integrity": {
+    "source_hash": "sha256:5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27"
+  },
+  "data_policy": {
+    "payload_capture_mode": "metadata_only",
+    "raw_payload_present": false
+  },
+  "provenance": {
+    "adapter_fidelity": "F2",
+    "field_groups": {
+      "actor": "declared",
+      "correlation": "direct",
+      "data_policy": "declared",
+      "identity": "direct",
+      "payload.capture_gaps": "direct",
+      "payload.money": "direct",
+      "payload.terminal": "direct",
+      "payload.timeline_complete": "direct",
+      "payload.usage": "direct",
+      "scope": "direct",
+      "subject": "derived",
+      "time.occurred_at": "derived",
+      "time.terminal_at": "direct"
+    }
+  },
+  "payload": {
+    "terminal": {
+      "status": "settled"
+    },
+    "usage": {
+      "model": "synthetic-model",
+      "prompt_tokens": "8",
+      "uncached_prompt_tokens": "5",
+      "cache_read_tokens": "2",
+      "cache_creation_tokens": "1",
+      "completion_tokens": "3",
+      "source": "provider",
+      "authority": "provider",
+      "purpose": "billing",
+      "finality": "final",
+      "contract_version": "usage.v1",
+      "cache_usage_schema": "cache.v1",
+      "cache_usage_status": "reported"
+    },
+    "money": {
+      "schema": "micro-cny.v1",
+      "currency": "CNY",
+      "amount_scale": 1000000,
+      "calculated_cost_micros": "17",
+      "charged_cost_micros": "17",
+      "pricing_version": "pricing-v1"
+    },
+    "timeline_complete": true,
+    "capture_gaps": [
+      {
+        "gap_id": "req_feed_v1_settled:gap:call_log",
+        "parent_event_id": "req_feed_v1_settled",
+        "scope": {
+          "org_ref": "101",
+          "project_ref": "202"
+        },
+        "correlation": {
+          "request_ref": "req_feed_v1_settled"
+        },
+        "affected_claim": "call_log",
+        "gap_type": "not_available_from_source",
+        "reason_code": "not_available_at_billing_terminal",
+        "severity": "warning",
+        "observed_at": "2026-07-25T04:05:06.000000Z",
+        "payload_capture_mode": "none",
+        "field_provenance": {
+          "affected_claim": "direct",
+          "reason_code": "direct",
+          "gap_id": "derived",
+          "parent_event_id": "derived",
+          "scope": "derived",
+          "correlation": "derived",
+          "observed_at": "derived",
+          "gap_type": "declared",
+          "severity": "declared",
+          "payload_capture_mode": "declared"
+        }
+      },
+      {
+        "gap_id": "req_feed_v1_settled:gap:client_ip_presence",
+        "parent_event_id": "req_feed_v1_settled",
+        "scope": {
+          "org_ref": "101",
+          "project_ref": "202"
+        },
+        "correlation": {
+          "request_ref": "req_feed_v1_settled"
+        },
+        "affected_claim": "client_ip_presence",
+        "gap_type": "not_available_from_source",
+        "reason_code": "not_available_at_billing_terminal",
+        "severity": "warning",
+        "observed_at": "2026-07-25T04:05:06.000000Z",
+        "payload_capture_mode": "none",
+        "field_provenance": {
+          "affected_claim": "direct",
+          "reason_code": "direct",
+          "gap_id": "derived",
+          "parent_event_id": "derived",
+          "scope": "derived",
+          "correlation": "derived",
+          "observed_at": "derived",
+          "gap_type": "declared",
+          "severity": "declared",
+          "payload_capture_mode": "declared"
+        }
+      },
+      {
+        "gap_id": "req_feed_v1_settled:gap:request_trace",
+        "parent_event_id": "req_feed_v1_settled",
+        "scope": {
+          "org_ref": "101",
+          "project_ref": "202"
+        },
+        "correlation": {
+          "request_ref": "req_feed_v1_settled"
+        },
+        "affected_claim": "request_trace",
+        "gap_type": "not_available_from_source",
+        "reason_code": "not_available_at_billing_terminal",
+        "severity": "warning",
+        "observed_at": "2026-07-25T04:05:06.000000Z",
+        "payload_capture_mode": "none",
+        "field_provenance": {
+          "affected_claim": "direct",
+          "reason_code": "direct",
+          "gap_id": "derived",
+          "parent_event_id": "derived",
+          "scope": "derived",
+          "correlation": "derived",
+          "observed_at": "derived",
+          "gap_type": "declared",
+          "severity": "declared",
+          "payload_capture_mode": "declared"
+        }
+      },
+      {
+        "gap_id": "req_feed_v1_settled:gap:upstream_error_presence",
+        "parent_event_id": "req_feed_v1_settled",
+        "scope": {
+          "org_ref": "101",
+          "project_ref": "202"
+        },
+        "correlation": {
+          "request_ref": "req_feed_v1_settled"
+        },
+        "affected_claim": "upstream_error_presence",
+        "gap_type": "not_available_from_source",
+        "reason_code": "not_available_at_billing_terminal",
+        "severity": "warning",
+        "observed_at": "2026-07-25T04:05:06.000000Z",
+        "payload_capture_mode": "none",
+        "field_provenance": {
+          "affected_claim": "direct",
+          "reason_code": "direct",
+          "gap_id": "derived",
+          "parent_event_id": "derived",
+          "scope": "derived",
+          "correlation": "derived",
+          "observed_at": "derived",
+          "gap_type": "declared",
+          "severity": "declared",
+          "payload_capture_mode": "declared"
+        }
+      }
+    ]
+  }
+}

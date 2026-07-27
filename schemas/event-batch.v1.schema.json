@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/event-batch/v1",
+  "title": "Foigent Event Batch V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "batch_version",
+    "connector_id",
+    "connector_version",
+    "producer_instance",
+    "generated_at",
+    "events",
+    "next_cursor",
+    "high_watermark",
+    "has_more"
+  ],
+  "properties": {
+    "batch_version": {
+      "const": "foigent.event-batch.v1"
+    },
+    "connector_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "connector_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "producer_instance": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "generated_at": {
+      "$ref": "#/$defs/microsecondTime"
+    },
+    "events": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "$ref": "foigent://schemas/event-envelope/v1"
+      }
+    },
+    "next_cursor": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "high_watermark": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "has_more": {
+      "type": "boolean"
+    }
+  },
+  "$defs": {
+    "microsecondTime": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+      "format": "date-time"
+    }
+  }
+}
