@@ -1,20 +1,69 @@
 {
   "artifact": "xinsight.connector-lifecycle-to-current-xinsight.v1",
-  "status": "B9_CANDIDATE_NOT_BINDING",
+  "status": "B9_RELEASE_CANDIDATE",
   "baseline": {
     "joint_candidate_v3_sha256": "f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f",
     "xinsight_commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
-    "xinsight_tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8"
+    "xinsight_tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8",
+    "b8_authority": {
+      "repository": "https://github.com/foigent/event-connector-spec",
+      "commit": "404d1d753801fd32185eea8163d6a8f839c22a89",
+      "tree": "9aa5fe3f0e830631dc355d51c654928f97bdbd88",
+      "protocol": {
+        "path": "spec/protocol-v1.md",
+        "sha256": "sha256:3a0aac41075fde6645c9d07d80416142e4b8de110a0ff429ad96c7df974ed88e"
+      },
+      "lifecycle_schema": {
+        "path": "schemas/connector-lifecycle.v1.schema.json",
+        "schema_id": "foigent://schemas/connector-lifecycle/v1",
+        "sha256": "sha256:bd5c730587041ddc7ad6f66bca4deca35edf5f9b5b92b761ac53701f37e18d5e"
+      },
+      "checkpoint_schema": {
+        "path": "schemas/connector-checkpoint.v1.schema.json",
+        "schema_id": "foigent://schemas/connector-checkpoint/v1",
+        "sha256": "sha256:8be2fd290d6db8d288a9b10ac6d9aa0b55a66ff21ea0fb55ac0af2d1b66bf800"
+      },
+      "error_schema": {
+        "path": "schemas/connector-error.v1.schema.json",
+        "schema_id": "foigent://schemas/connector-error/v1",
+        "sha256": "sha256:f449ba6314f1f730be5a0b188dc6d2cc2704e8f5d84a4eebecac576221e4ca56"
+      },
+      "event_batch_schema": {
+        "path": "schemas/event-batch.v1.schema.json",
+        "schema_id": "foigent://schemas/event-batch/v1",
+        "sha256": "sha256:8e2133922bcb77cf032309290593665df1bf56cfa47e433dd573d0e42f36eef9"
+      },
+      "operational_receipt_schema": {
+        "path": "schemas/operational-receipt.v1.schema.json",
+        "schema_id": "foigent://schemas/operational-receipt/v1",
+        "sha256": "sha256:3c3b99e009e208456039d3bfe26d84af7e3f1af23589e7fa62a1e1a61e0fb3c6"
+      },
+      "reference_manifest": {
+        "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+        "sha256": "sha256:1d8b70dab02900e9d033ed0de9a5ce0c646d3556b80440a67354367eb83091f7"
+      }
+    }
   },
   "scope": {
     "connector_id": "foigent.unirouter.completed-execution",
     "connector_version": "1.0.0",
     "local_cursor_key": "unirouter.completed-execution.v1",
-    "shared_model_note": "V3 requires orthogonal lifecycle axes. Exact B8 lifecycle enum names and Schemas have not been authored, so this artifact maps axis meanings without inventing shared wire values."
+    "shared_model_note": "The six exact lifecycle axes are defined by foigent://schemas/connector-lifecycle/v1. This projection maps those wire values to current product-local state without adding a seventh combined state or changing current storage."
+  },
+  "shared_document_control": {
+    "json_path": "$.lifecycle_version",
+    "required_value": "foigent.connector-lifecycle.v1",
+    "product_projection": "Validated before axis projection; not persisted as an M0 field."
   },
   "shared_axes_to_current_local_state": [
     {
       "shared_axis": "configuration",
+      "shared_json_path": "$.configuration",
+      "shared_values": [
+        "unconfigured",
+        "configured",
+        "retired"
+      ],
       "local_authority": [
         "source_systems.status",
         "adapter_manifests.active",
@@ -31,6 +80,14 @@
     },
     {
       "shared_axis": "authentication",
+      "shared_json_path": "$.authentication",
+      "shared_values": [
+        "absent",
+        "staged",
+        "valid",
+        "revoked",
+        "error"
+      ],
       "local_authority": [
         "adapter_import_states.authorization_ref",
         "deployment-local credential binding",
@@ -45,6 +102,14 @@
     },
     {
       "shared_axis": "transport",
+      "shared_json_path": "$.transport",
+      "shared_values": [
+        "stopped",
+        "starting",
+        "ready",
+        "backoff",
+        "error"
+      ],
       "local_authority": [
         "worker_status",
         "last_import_started_at",
@@ -62,6 +127,16 @@
     },
     {
       "shared_axis": "processing",
+      "shared_json_path": "$.processing",
+      "shared_values": [
+        "inactive",
+        "idle",
+        "polling",
+        "committing",
+        "backoff",
+        "stopping",
+        "error"
+      ],
       "local_authority": [
         "adapter_import_states.status",
         "adapter_import_states.worker_status",
@@ -76,6 +151,13 @@
     },
     {
       "shared_axis": "checkpoint",
+      "shared_json_path": "$.checkpoint",
+      "shared_values": [
+        "absent",
+        "bootstrap",
+        "steady",
+        "error"
+      ],
       "local_authority": [
         "adapter_import_states.cursor_value",
         "adapter_import_states.high_watermark",
@@ -89,10 +171,19 @@
         "expected-cursor compare-and-set prevents a stale worker from advancing state",
         "items_committed + duplicate_noop must equal items_received"
       ],
-      "loss_or_gap": "Checkpoint is product-local and opaque; no shared Checkpoint Schema exists yet."
+      "loss_or_gap": "The exact shared Checkpoint document exists, but current X-Insight persists its fields in adapter_import_states rather than as a standalone shared JSON document."
     },
     {
       "shared_axis": "health",
+      "shared_json_path": "$.health",
+      "shared_values": [
+        "unknown",
+        "healthy",
+        "degraded",
+        "permanent_error",
+        "stopped",
+        "retired"
+      ],
       "local_authority": [
         "worker_status",
         "last_import_completed_at",
@@ -161,6 +252,106 @@
       "checkpoint_effect": "No cursor or high-watermark change"
     }
   ],
+  "checkpoint_schema_projection": [
+    {
+      "shared_json_path": "$.checkpoint_version",
+      "product_projection": "Validate exact foigent.connector-checkpoint.v1; no current durable column and no M0 field."
+    },
+    {
+      "shared_json_path": "$.connector_id",
+      "product_projection": "Validate against the portable Connector identity; retain current source_system_id and adapter_manifest_id as separate product-local registry identities."
+    },
+    {
+      "shared_json_path": "$.connector_version",
+      "product_projection": "Validate against Manifest connector_version; do not substitute current adapter_version."
+    },
+    {
+      "shared_json_path": "$.producer_instance",
+      "product_projection": "Exact UTF-8 binding to adapter_import_states.activation_source_instance and to Event $.producer.instance."
+    },
+    {
+      "shared_json_path": "$.cursor",
+      "product_projection": "adapter_import_states.cursor_value; mutable connector state only."
+    },
+    {
+      "shared_json_path": "$.high_watermark",
+      "product_projection": "adapter_import_states.high_watermark; mutable connector state only."
+    },
+    {
+      "shared_json_path": "$.phase",
+      "product_projection": "Projected from activation/checkpoint state as bootstrap|steady|error; the exact shared phase is not currently stored in a dedicated column."
+    },
+    {
+      "shared_json_path": "$.updated_at",
+      "product_projection": "Operational checkpoint/status time represented by current worker timestamps; never an Event time, M0 field, hash input or item-linked provenance input."
+    }
+  ],
+  "connector_error_projection": {
+    "schema_paths": [
+      "$.error_version",
+      "$.category",
+      "$.code",
+      "$.phase",
+      "$.operation",
+      "$.retryable",
+      "$.retry_after_seconds",
+      "$.safe_message",
+      "$.recovery"
+    ],
+    "category_values": [
+      "configuration",
+      "authentication",
+      "authorization",
+      "transport",
+      "source",
+      "contract",
+      "privacy",
+      "cursor",
+      "conflict",
+      "persistence",
+      "internal"
+    ],
+    "product_projection": "Current sanitized adapter_import_states.last_error, worker_status and consecutive_failures carry only the product-local durable subset. retryable=true maps to backoff; retryable=false maps to error. retry_after_seconds and recovery remain operational status values, not evidence.",
+    "privacy_and_cursor_rule": "privacy and cursor remain distinct fail-closed categories; neither is collapsed into a generic record label or allowed into Event/M0 identity."
+  },
+  "event_batch_projection": {
+    "control_paths": [
+      "$.batch_version"
+    ],
+    "identity_binding_paths": [
+      "$.connector_id",
+      "$.connector_version",
+      "$.producer_instance"
+    ],
+    "event_input_path": "$.events[*]",
+    "mutable_delivery_paths": [
+      "$.generated_at",
+      "$.next_cursor",
+      "$.high_watermark",
+      "$.has_more"
+    ],
+    "product_projection": "Events are validated and normalized item by item. Batch delivery fields feed page processing and checkpoint/status only; partial-page failure leaves the checkpoint unchanged."
+  },
+  "operational_receipt_projection": {
+    "schema_paths": [
+      "$.receipt_version",
+      "$.operation_id",
+      "$.connector_id",
+      "$.producer_instance",
+      "$.operation",
+      "$.status",
+      "$.counts.received",
+      "$.counts.inserted",
+      "$.counts.duplicate_noop",
+      "$.counts.conflict",
+      "$.counts.rejected",
+      "$.checkpoint_before",
+      "$.checkpoint_after",
+      "$.observed_at",
+      "$.error"
+    ],
+    "product_projection": "Operation receipts map to worker/checkpoint status and counters. They are non-event-linked operational evidence and never enter normalized Event/M0 identity, hash or item-linked import provenance."
+  },
   "worker_service_projection": {
     "unit": "xinsight-feed.service",
     "process": "xinsight-importer unirouter pull-feed",
@@ -171,9 +362,11 @@
       "active_state": "inactive",
       "unit_file_state": "disabled"
     },
+    "classification": "product_local_non_wire",
     "boundary": "Host load/active/enabled/process state is operational product state, not an Event, M0 field, Checkpoint identity or item-linked provenance."
   },
   "read_model_projection": {
+    "classification": "product_local_non_wire",
     "current_connector_lifecycle_api": null,
     "current_connector_lifecycle_ui": null,
     "current_investigation_surfaces": [

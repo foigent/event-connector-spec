@@ -1,6 +1,8 @@
 import hashlib
 import json
+import os
 import re
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -14,11 +16,84 @@ M0_SCHEMA = "m0.1"
 SOURCE_SCHEMA = "unirouter.completed-execution.v1"
 CANONICAL_DECIMAL = re.compile(r"^(0|[1-9][0-9]{0,18})$")
 MAX_INT64 = 9223372036854775807
+EXACT_B8_COMMIT = "404d1d753801fd32185eea8163d6a8f839c22a89"
+EXACT_B8_TREE = "9aa5fe3f0e830631dc355d51c654928f97bdbd88"
+STABLE_COMPATIBILITY_SHA256 = (
+    "d22374a34e4f496cc05f7e56e7538cd2f3fc4bb3d9428cd9ac38883a81a909b5"
+)
+B8_ARTIFACT_SHA256 = {
+    "spec/protocol-v1.md":
+        "3a0aac41075fde6645c9d07d80416142e4b8de110a0ff429ad96c7df974ed88e",
+    "schemas/event-envelope.v1.schema.json":
+        "6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26",
+    "schemas/model-request-completed.v1.schema.json":
+        "ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6",
+    "schemas/capture-gap.v1.schema.json":
+        "1a5be69da99f62033ceadf05f66d45296d1d5f8b662830f77c0fc6af49edaec8",
+    "schemas/connector-lifecycle.v1.schema.json":
+        "bd5c730587041ddc7ad6f66bca4deca35edf5f9b5b92b761ac53701f37e18d5e",
+    "schemas/connector-manifest.v1.schema.json":
+        "a6f43b37477002ab836a4d9ea7c4e462675cd4313f0637c0733cd98675fc0adf",
+    "schemas/connector-checkpoint.v1.schema.json":
+        "8be2fd290d6db8d288a9b10ac6d9aa0b55a66ff21ea0fb55ac0af2d1b66bf800",
+    "schemas/connector-error.v1.schema.json":
+        "f449ba6314f1f730be5a0b188dc6d2cc2704e8f5d84a4eebecac576221e4ca56",
+    "schemas/event-batch.v1.schema.json":
+        "8e2133922bcb77cf032309290593665df1bf56cfa47e433dd573d0e42f36eef9",
+    "schemas/operational-receipt.v1.schema.json":
+        "3c3b99e009e208456039d3bfe26d84af7e3f1af23589e7fa62a1e1a61e0fb3c6",
+    "manifests/foigent.unirouter.completed-execution-1.0.0.json":
+        "1d8b70dab02900e9d033ed0de9a5ce0c646d3556b80440a67354367eb83091f7",
+    "catalog/domain-catalog.v1.json":
+        "93d4c55dd181a7e168d17b90bc8527b89e6d2e3c1eac0549bd7a34e1857e3a06",
+    "vectors/canonical-vector-bundle.v1.json":
+        "98659630f3e1238d2684c2b4cba728334f4bdace67ff033652676d9d505caf33",
+    "fixtures/golden-fixture-bundle.v1.json":
+        "b56de610d4444b655e3f700e61ec490caa1fc1d8658db1660192686c0fc1a268",
+    "conformance/conformance-contract.v1.json":
+        "f3ae834265170ff22088943283fd23dcb562bc2308571ccc722414c2c896dc23",
+    "conformance/reports/go-v1.json":
+        "b80d90f62804b64a49396df51cc98dbdd37378f91f02483b76a2200cd0f9aea2",
+    "conformance/reports/typescript-v1.json":
+        "fb4bbfd8ab14f1175e31bdb28e1240dc9a84e6effcec28c95c59595e87723d57",
+}
 
 
 def load_json(name):
     with (MAPPINGS / name).open(encoding="utf-8") as stream:
         return json.load(stream)
+
+
+def canonical_json_bytes(value):
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
+
+def git_blob(worktree, tree, path):
+    result = subprocess.run(
+        ["git", "-C", str(worktree), "show", f"{tree}:{path}"],
+        check=True,
+        capture_output=True,
+    )
+    return result.stdout
+
+
+def instance_leaf_paths(value, path="$"):
+    if isinstance(value, dict):
+        paths = set()
+        for key, child in value.items():
+            paths.update(instance_leaf_paths(child, f"{path}.{key}"))
+        return paths
+    if isinstance(value, list):
+        paths = set()
+        for child in value:
+            paths.update(instance_leaf_paths(child, f"{path}[*]"))
+        return paths
+    return {path}
 
 
 def adapter_deterministic_uuid(value):
@@ -352,6 +427,47 @@ class XInsightProjectionArtifactTest(unittest.TestCase):
             "completed-execution-compatibility-seed-v1.json"
         )
 
+    def test_release_candidate_status_and_exact_authority_pins(self):
+        for artifact in (
+            self.projection,
+            self.lifecycle,
+            self.identity,
+            self.bundle,
+        ):
+            self.assertEqual(artifact["status"], "B9_RELEASE_CANDIDATE")
+            authority = artifact["baseline"]["b8_authority"]
+            self.assertEqual(authority["commit"], EXACT_B8_COMMIT)
+            self.assertEqual(authority["tree"], EXACT_B8_TREE)
+        review = (
+            ROOT
+            / "reviews"
+            / "2026-07-27-xinsight-projection-owner-b9-candidate.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "PROJECTION_OWNER_B9_RELEASE_CANDIDATE_CONFIRM", review
+        )
+        text = "\n".join(
+            [
+                *(path.read_text(encoding="utf-8")
+                  for path in sorted(MAPPINGS.iterdir())
+                  if path.suffix in {".json", ".md"}),
+                review,
+            ]
+        )
+        for forbidden in (
+            "B9_CANDIDATE_NOT_BINDING",
+            "WAITING_FOR_EXACT_B8",
+            "not yet authored",
+            "not-yet-supplied",
+            "do not yet exist",
+            "no shared Checkpoint Schema exists",
+            "b8_wire_path_or_enum",
+            "no_shared_schema_claim",
+            "\"input_candidate\"",
+            "shared_payload_schema_candidate",
+        ):
+            self.assertNotIn(forbidden, text)
+
     def test_projection_baseline_and_mutable_exclusions(self):
         baseline = self.projection["baseline"]
         self.assertEqual(
@@ -390,45 +506,53 @@ class XInsightProjectionArtifactTest(unittest.TestCase):
         }
         self.assertTrue(
             {
-                "producer.instance",
-                "event_id",
-                "scope.org_ref",
-                "scope.project_ref",
-                "terminal.status",
-                "terminal_at",
-                "usage.model",
-                "usage.prompt_tokens",
-                "usage.completion_tokens",
-                "usage.uncached_prompt_tokens",
-                "usage.cache_read_tokens",
-                "usage.cache_creation_tokens",
-                "usage.source",
-                "usage.authority",
-                "usage.purpose",
-                "usage.finality",
-                "usage.contract_version",
-                "usage.estimate_version",
-                "usage.cache_usage_schema",
-                "usage.cache_usage_status",
-                "money.calculated_cost_micros",
-                "money.charged_cost_micros",
-                "money.pricing_version",
-                "integrity.source_hash",
-                "source_revision",
-                "timeline_complete",
-                "payload_capture_mode",
+                "$.producer.instance",
+                "$.event_id",
+                "$.correlation.request_ref",
+                "$.scope.org_ref",
+                "$.scope.project_ref",
+                "$.payload.terminal.status",
+                "$.time.terminal_at",
+                "$.payload.usage.model",
+                "$.payload.usage.prompt_tokens",
+                "$.payload.usage.completion_tokens",
+                "$.payload.usage.uncached_prompt_tokens",
+                "$.payload.usage.cache_read_tokens",
+                "$.payload.usage.cache_creation_tokens",
+                "$.payload.usage.source",
+                "$.payload.usage.authority",
+                "$.payload.usage.purpose",
+                "$.payload.usage.finality",
+                "$.payload.usage.contract_version",
+                "$.payload.usage.estimate_version",
+                "$.payload.usage.cache_usage_schema",
+                "$.payload.usage.cache_usage_status",
+                "$.payload.money.calculated_cost_micros",
+                "$.payload.money.charged_cost_micros",
+                "$.payload.money.pricing_version",
+                "$.integrity.source_hash",
+                "$.integrity.envelope_hash",
+                "$.identity.source_revision",
+                "$.identity.idempotency_key",
+                "$.payload.timeline_complete",
+                "$.data_policy.payload_capture_mode",
             }.issubset(mapped_paths)
         )
         capture = self.projection["capture_mode_separation"]
-        self.assertIsNone(
-            capture["shared_ingestion_capture_mode"][
-                "b8_wire_path_or_enum"
-            ]
+        self.assertEqual(
+            capture["manifest_ingestion_capture_mode"]["json_path"],
+            "$.payload_policy.ingestion_capture_mode",
         )
         self.assertEqual(
-            capture["payload_capture_mode"]["parent"], "metadata_only"
+            capture["manifest_ingestion_capture_mode"]["value"],
+            "api_import",
         )
-        self.assertEqual(capture["payload_capture_mode"]["gap"], "none")
+        self.assertEqual(
+            capture["payload_capture_mode"]["parent_value"], "metadata_only"
+        )
+        self.assertEqual(
+            capture["payload_capture_mode"]["gap_value"], "none"
+        )
         shared_gap_provenance = self.projection["gap_projection"][
             "shared_field_provenance"
         ]
@@ -457,14 +581,29 @@ class XInsightProjectionArtifactTest(unittest.TestCase):
         self.assertGreaterEqual(
             len(self.identity["identity_non_substitution_rules"]), 5
         )
+        manifest_paths = {
+            path
+            for group in self.identity["manifest_path_bindings"]
+            for path in group["json_paths"]
+        }
+        self.assertIn("$.coverage.included[*]", manifest_paths)
+        self.assertIn("$.coverage.excluded[*]", manifest_paths)
+        self.assertIn("$.instance_binding.comparison", manifest_paths)
+        self.assertIn(
+            "$.payload_policy.ingestion_capture_mode", manifest_paths
+        )
+        self.assertIn(
+            "$.compatibility.reference_projection_contract.sha256",
+            manifest_paths,
+        )
 
     def test_lifecycle_mapping_preserves_orthogonal_axes_and_read_gap(self):
         axes = {
-            item["shared_axis"]
+            item["shared_axis"]: item
             for item in self.lifecycle["shared_axes_to_current_local_state"]
         }
         self.assertEqual(
-            axes,
+            set(axes),
             {
                 "configuration",
                 "authentication",
@@ -473,6 +612,31 @@ class XInsightProjectionArtifactTest(unittest.TestCase):
                 "checkpoint",
                 "health",
             },
+        )
+        expected_values = {
+            "configuration": ["unconfigured", "configured", "retired"],
+            "authentication": [
+                "absent", "staged", "valid", "revoked", "error",
+            ],
+            "transport": [
+                "stopped", "starting", "ready", "backoff", "error",
+            ],
+            "processing": [
+                "inactive", "idle", "polling", "committing", "backoff",
+                "stopping", "error",
+            ],
+            "checkpoint": ["absent", "bootstrap", "steady", "error"],
+            "health": [
+                "unknown", "healthy", "degraded", "permanent_error",
+                "stopped", "retired",
+            ],
+        }
+        for axis, values in expected_values.items():
+            self.assertEqual(axes[axis]["shared_json_path"], f"$.{axis}")
+            self.assertEqual(axes[axis]["shared_values"], values)
+        self.assertEqual(
+            self.lifecycle["shared_document_control"]["required_value"],
+            "foigent.connector-lifecycle.v1",
         )
         self.assertEqual(
             self.lifecycle["read_model_projection"][
@@ -506,6 +670,171 @@ class XInsightProjectionArtifactTest(unittest.TestCase):
             "No cursor or high-watermark change",
             transitions["MarkPollStarted"]["checkpoint_effect"],
         )
+        checkpoint_paths = {
+            item["shared_json_path"]
+            for item in self.lifecycle["checkpoint_schema_projection"]
+        }
+        self.assertEqual(
+            checkpoint_paths,
+            {
+                "$.checkpoint_version",
+                "$.connector_id",
+                "$.connector_version",
+                "$.producer_instance",
+                "$.cursor",
+                "$.high_watermark",
+                "$.phase",
+                "$.updated_at",
+            },
+        )
+        self.assertEqual(
+            self.lifecycle["event_batch_projection"][
+                "mutable_delivery_paths"
+            ],
+            [
+                "$.generated_at",
+                "$.next_cursor",
+                "$.high_watermark",
+                "$.has_more",
+            ],
+        )
+
+    def test_exact_b8_git_tree_artifacts_and_input_coverage(self):
+        reference = os.environ.get("FOIGENT_B8_REFERENCE_WORKTREE")
+        if not reference:
+            self.skipTest("FOIGENT_B8_REFERENCE_WORKTREE not supplied")
+        requested_tree = os.environ.get("FOIGENT_B8_TREE", EXACT_B8_TREE)
+        self.assertEqual(requested_tree, EXACT_B8_TREE)
+        resolved_tree = subprocess.run(
+            [
+                "git", "-C", reference, "rev-parse",
+                f"{EXACT_B8_COMMIT}^{{tree}}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        self.assertEqual(resolved_tree, EXACT_B8_TREE)
+        blobs = {}
+        for path, expected in B8_ARTIFACT_SHA256.items():
+            blob = git_blob(reference, EXACT_B8_TREE, path)
+            blobs[path] = blob
+            self.assertEqual(hashlib.sha256(blob).hexdigest(), expected, path)
+
+        manifest = json.loads(
+            blobs[
+                "manifests/"
+                "foigent.unirouter.completed-execution-1.0.0.json"
+            ]
+        )
+        manifest_leaves = instance_leaf_paths(manifest)
+        manifest_bindings = {
+            path
+            for group in self.identity["manifest_path_bindings"]
+            for path in group["json_paths"]
+        }
+        self.assertEqual(manifest_leaves - manifest_bindings, set())
+        coverage_binding = self.identity["coverage_binding"]
+        self.assertEqual(
+            coverage_binding["included"], manifest["coverage"]["included"][0]
+        )
+        self.assertEqual(
+            coverage_binding["excluded"], manifest["coverage"]["excluded"]
+        )
+        portable = self.identity["portable_identity"]
+        self.assertEqual(portable["connector_id"], manifest["connector_id"])
+        self.assertEqual(
+            portable["connector_version"], manifest["connector_version"]
+        )
+        self.assertEqual(portable["class"], manifest["connector_class"])
+        self.assertEqual(portable["direction"], manifest["direction"])
+
+        settled = json.loads(
+            git_blob(
+                reference,
+                EXACT_B8_TREE,
+                "fixtures/shared/settled-envelope.hash-input.json",
+            )
+        )
+        envelope_leaves = instance_leaf_paths(settled)
+        coverage = self.projection["authoritative_input_coverage"]
+        covered_paths = set().union(
+            coverage["mapped_or_derived_into_current_m0"],
+            coverage["validated_control_only_not_persisted_as_shared_values"],
+            coverage["reference_profile_absent"],
+        )
+
+        def covered(leaf):
+            return any(
+                leaf == path or leaf.startswith(path + ".")
+                for path in covered_paths
+            )
+
+        self.assertEqual(
+            {leaf for leaf in envelope_leaves if not covered(leaf)},
+            set(),
+        )
+
+        vectors = json.loads(
+            blobs["vectors/canonical-vector-bundle.v1.json"]
+        )
+        golden = json.loads(
+            blobs["fixtures/golden-fixture-bundle.v1.json"]
+        )
+        manifest_identity = manifest["event_identity_profile"]
+        context = self.bundle["projection_context"]
+        self.assertEqual(
+            context["shared_identity"]["profile"], manifest_identity
+        )
+        self.assertEqual(
+            context["producer_product"],
+            vectors["reference_mapping_context"]["producer_product"],
+        )
+        canonical = {
+            item["case_id"]: item
+            for item in vectors["canonical_envelopes"]
+        }
+        idempotency = {
+            item["case_id"]: item
+            for item in vectors["idempotency"]
+        }
+        golden_cases = {
+            item["case_id"]: item
+            for item in golden["cases"]
+        }
+        case_bindings = {
+            "valid-settled": (
+                "reference-settled", "absent-tenant-settled"
+            ),
+            "valid-cancelled": (
+                "reference-cancelled", "absent-tenant-cancelled"
+            ),
+        }
+        for seed_name, (golden_id, idempotency_id) in (
+            case_bindings.items()
+        ):
+            binding = context["shared_vector_bindings"][seed_name]
+            self.assertEqual(binding["golden_case_id"], golden_id)
+            self.assertEqual(
+                binding["shared_canonical_bytes"],
+                canonical[golden_id]["canonical_bytes"],
+            )
+            self.assertEqual(
+                binding["shared_envelope_hash"],
+                canonical[golden_id]["envelope_hash"],
+            )
+            self.assertEqual(
+                binding["shared_idempotency_key"],
+                idempotency[idempotency_id]["idempotency_key"],
+            )
+            self.assertEqual(
+                binding["shared_identity_input_hex"],
+                idempotency[idempotency_id]["identity_input_hex"],
+            )
+            self.assertEqual(
+                binding["shared_hash_input_file_sha256"],
+                golden_cases[golden_id]["shared_hash_input"]["file_sha256"],
+            )
 
     def test_exact_m0_event_ids_hashes_refs_and_idempotency(self):
         event_count = 0
@@ -656,11 +985,43 @@ class XInsightProjectionArtifactTest(unittest.TestCase):
             },
         )
         context = self.bundle["projection_context"]
-        self.assertIsNone(context["producer_product"])
-        self.assertIsNone(context["shared_canonical_bytes"])
-        self.assertIsNone(context["shared_identity"])
-        self.assertIsNone(context["shared_idempotency"])
-        self.assertIsNone(context["shared_envelope_hash"])
+        self.assertEqual(context["producer_product"], "unirouter")
+        self.assertEqual(
+            context["shared_identity"]["profile"],
+            "foigent.unirouter.model-request-completed-id.v1",
+        )
+        expected = {
+            "valid-settled": (
+                4596,
+                "sha256:c2822f0d940c01de77e2e06af1a5f6e1fd10fc66269be20fceb0939150c17b2e",
+                "sha256:0d11f98f981427b7bcf175e82294511ca42981c0ecea8e02f841c3777743d1d2",
+            ),
+            "valid-cancelled": (
+                4629,
+                "sha256:d342a560ade558edc557f2cd645a526178958540a012ceabe9ca7047e916796c",
+                "sha256:c31445c779ffec9dae8cbc7f1f0344722a4e0fb696a366b2e321f58d0d07fbab",
+            ),
+        }
+        for name, values in expected.items():
+            vector = context["shared_vector_bindings"][name]
+            self.assertEqual(vector["shared_canonical_bytes"], values[0])
+            self.assertEqual(vector["shared_idempotency_key"], values[1])
+            self.assertEqual(vector["shared_envelope_hash"], values[2])
+
+    def test_compatibility_seed_payload_is_byte_stable(self):
+        stable = {
+            key: self.bundle[key]
+            for key in (
+                "synthetic_only",
+                "seeds",
+                "compatibility_totals",
+                "cross_seed_read_model",
+            )
+        }
+        self.assertEqual(
+            hashlib.sha256(canonical_json_bytes(stable)).hexdigest(),
+            STABLE_COMPATIBILITY_SHA256,
+        )
 
 
 if __name__ == "__main__":

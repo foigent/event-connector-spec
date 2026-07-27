@@ -1,159 +1,173 @@
-# X-Insight Projection Owner — B9 Candidate Evidence
+# X-Insight Projection Owner — B9 Release-Candidate Evidence
 
 Status:
-`PROJECTION_OWNER_B9_CANDIDATE_READY_B6_WAITING_FOR_EXACT_B8_BUNDLE`
+`PROJECTION_OWNER_B9_RELEASE_CANDIDATE_CONFIRM`
 
-This is product-owner candidate evidence for
-`FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`. It is non-binding and does
-not close B6, freeze B8, close B9, authorize Phase 2, or authorize any runtime
-action.
+Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`.
 
-## Reviewed immutable baselines
+This confirmation is limited to the X-Insight Projection/Consumer Owner
+responsibility. It confirms that the exact B8 inputs below can be projected to
+the current X-Insight M0 `m0.1` baseline without changing current evidence
+identity, hash, Gap, provenance or read-model semantics. It does not authorize
+Phase 2, deployment, product-repository mutation or runtime action.
 
-- Joint Candidate V3:
-  `/Users/m4/Desktop/projects/UniRouter-X-Insight Cooperation/decisions/2026-07-27-foigent-event-connector-platform-v1-phase1-joint-decision-candidate-v3.md`
+## Exact baselines reviewed
+
+- protocol authority:
+  `https://github.com/foigent/event-connector-spec`
+- exact integration commit:
+  `404d1d753801fd32185eea8163d6a8f839c22a89`
+- exact integration tree:
+  `9aa5fe3f0e830631dc355d51c654928f97bdbd88`
 - Joint Candidate V3 SHA-256:
   `f52c4a1f21232d3c209ff3de3e4e63da41d53e139e7ef13648db57fe4257311f`
 - X-Insight `origin/main` commit:
   `c27b39f67b0e72de7f60975ff8b0e94dfc05520f`
 - X-Insight `origin/main` tree:
   `16a4930f014c35531b01cc4bd44c25bd29a53ae8`
-- Protocol authority base:
-  `5036659978c74922342c5d59a3c830a35c7ffe3b`
 
-X-Insight evidence was read from exact `origin/main` Git objects. The existing
-X-Insight checkout and runtime were not modified.
+The integration worktree was treated as read-only and every B8 artifact below
+was read from the exact Git tree object, so unrelated working-tree changes
+could not influence this review.
 
-## Candidate artifacts
+## Exact B8 artifact identities
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `mappings/xinsight/README.md` | `c443dc49a95dd95985ac22e65995d10d228298ee2295e27626b840a0ad5dee04` |
-| `mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json` | `a2d1e312fb9c629a339e943438cf37e5b5863e9ab8611d542988c4cf1095f343` |
-| `mappings/xinsight/connector-lifecycle-to-current-xinsight-v1.json` | `8d680462b5547974654f24ff7918b3cbe5e56cc2e2b21749e4ee64747b8595b8` |
-| `mappings/xinsight/portable-connector-identity-to-current-xinsight-v1.json` | `fc23d8a2762b530862089930d0d366cd06c4b5062138136a0a7ba0f1f5a3cdf4` |
-| `mappings/xinsight/completed-execution-compatibility-seed-v1.json` | `b3f31ff82e5ca9de5e2d049ac351d4c97d42f47bcfe895b93f092510570414de` |
-| `tests/test_xinsight_projection_artifacts.py` | `2f56ca286179843682cbe53dcb4e4ac604d422d037fa3f08cb45eae8257cb9b3` |
+| `spec/protocol-v1.md` | `3a0aac41075fde6645c9d07d80416142e4b8de110a0ff429ad96c7df974ed88e` |
+| `schemas/event-envelope.v1.schema.json` | `6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26` |
+| `schemas/model-request-completed.v1.schema.json` | `ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6` |
+| `schemas/capture-gap.v1.schema.json` | `1a5be69da99f62033ceadf05f66d45296d1d5f8b662830f77c0fc6af49edaec8` |
+| `schemas/connector-lifecycle.v1.schema.json` | `bd5c730587041ddc7ad6f66bca4deca35edf5f9b5b92b761ac53701f37e18d5e` |
+| `schemas/connector-manifest.v1.schema.json` | `a6f43b37477002ab836a4d9ea7c4e462675cd4313f0637c0733cd98675fc0adf` |
+| `schemas/connector-checkpoint.v1.schema.json` | `8be2fd290d6db8d288a9b10ac6d9aa0b55a66ff21ea0fb55ac0af2d1b66bf800` |
+| `schemas/connector-error.v1.schema.json` | `f449ba6314f1f730be5a0b188dc6d2cc2704e8f5d84a4eebecac576221e4ca56` |
+| `schemas/event-batch.v1.schema.json` | `8e2133922bcb77cf032309290593665df1bf56cfa47e433dd573d0e42f36eef9` |
+| `schemas/operational-receipt.v1.schema.json` | `3c3b99e009e208456039d3bfe26d84af7e3f1af23589e7fa62a1e1a61e0fb3c6` |
+| `manifests/foigent.unirouter.completed-execution-1.0.0.json` | `1d8b70dab02900e9d033ed0de9a5ce0c646d3556b80440a67354367eb83091f7` |
+| `catalog/domain-catalog.v1.json` | `93d4c55dd181a7e168d17b90bc8527b89e6d2e3c1eac0549bd7a34e1857e3a06` |
+| `vectors/canonical-vector-bundle.v1.json` | `98659630f3e1238d2684c2b4cba728334f4bdace67ff033652676d9d505caf33` |
+| `fixtures/golden-fixture-bundle.v1.json` | `b56de610d4444b655e3f700e61ec490caa1fc1d8658db1660192686c0fc1a268` |
+| `conformance/conformance-contract.v1.json` | `f3ae834265170ff22088943283fd23dcb562bc2308571ccc722414c2c896dc23` |
+| `conformance/reports/go-v1.json` | `b80d90f62804b64a49396df51cc98dbdd37378f91f02483b76a2200cd0f9aea2` |
+| `conformance/reports/typescript-v1.json` | `fb4bbfd8ab14f1175e31bdb28e1240dc9a84e6effcec28c95c59595e87723d57` |
 
-No shared Schema, SDK, Manifest, release manifest, canonical Envelope fixture or
-Conformance implementation was created.
+The accepted B6 reports match `30/30` cases and `14/14` required classes.
 
-## Projection findings
+## Exact projection disposition
 
-### Parent Event and current M0
+### Event, time and numeric semantics
 
-- The shared parent event remains `model.request.completed` with terminal
-  status `settled|cancelled`.
-- Parent shared `observed_at` is absent.
-- Shared `occurred_at` is only a deterministic alias of `terminal_at`.
-- Current M0 `occurred_at` and `observed_at` both remain target-local
-  derivations of the exact Source terminal instant, preserving current hashes.
-- Page generation, fetch, receive and Consumer ingestion times remain outside
-  the Event. Mutable delivery state remains outside M0 identity/hash and
+- `$.time.observed_at` is absent on the Reference parent Event.
+- `$.time.occurred_at` is only a deterministic alias of
+  `$.time.terminal_at`. Current M0 `occurred_at` and `observed_at` remain
+  target-local emissions of that terminal instant.
+- Fetch, receive, batch generation, checkpoint update and Consumer ingestion
+  time remain outside the Event.
+- Token counters remain canonical nonnegative decimal strings on the wire and
+  are losslessly parsed to current signed `int64` M0 values only after grammar
+  and `9223372036854775807` upper-bound validation.
+- Protocol-controlled strings are NFC-validated; Source-derived opaque UTF-8
+  remains byte-preserved and is neither normalized silently nor rejected only
+  for being non-NFC.
+
+### Capture, Gap and provenance semantics
+
+- Connector ingestion capture is the exact Reference Manifest control
+  `$.payload_policy.ingestion_capture_mode=api_import`; it is not Event
+  content.
+- Parent payload capture is Event
+  `$.data_policy.payload_capture_mode=metadata_only`; each Gap uses
+  `$.payload.capture_gaps[*].payload_capture_mode=none`.
+- Each accepted Source item still projects to one terminal M0 event, four
+  first-class Gap M0 events and four first-class Gap rows.
+- Contracted-pull item provenance remains bound only to immutable source
+  payload SHA-256, revision `"1"`, terminal time and
+  `timeline_complete=true`. Source/import watermarks remain empty.
+- Batch cursor, high-watermark, generated/observed/update time, retry state and
+  worker/service state remain Connector checkpoint/status or non-event-linked
+  operational receipt values. They never enter normalized M0 identity/hash or
   item-linked provenance.
-- Canonical decimal-string token counters in
-  `0..9223372036854775807` can be parsed losslessly into the current signed
-  `int64` M0 representation without binary floating point. The two current
-  seeds reproduce their existing M0 bytes and hashes.
 
-### Capture and Gap semantics
+### Identity, lifecycle and local ownership
 
-- The exact shared B8 field location/enum for `ingestion_capture_mode` is not
-  invented. Current M0 `capture_mode=api_import` remains distinct from
-  `payload_capture_mode`.
-- Parent payload capture remains `metadata_only`; Gap payload capture remains
-  `none`.
-- Every Source item still produces one terminal M0 event plus four sorted
-  first-class Gap events and four first-class Gap rows.
-- Shared Gap direct/derived/declared provenance and current M0 field provenance
-  are mapped separately.
-- Contracted-pull provenance remains limited to exact payload SHA, immutable
-  revision `"1"`, terminal time and `timeline_complete=true`.
-  `source_watermark` and `import_watermark` remain empty.
-
-### Identity and lifecycle
-
-- Portable Connector identity maps explicitly to the existing fixed
-  `source_system_id`, `adapter_manifest_id`, projection profile, cursor key and
-  stable `source_instance` activation binding. It replaces none of them.
+- Portable Connector/Manifest identity is bound to the exact
+  `source_instance`/Event `$.producer.instance`/Checkpoint
+  `$.producer_instance` UTF-8 identity domain.
+- Portable identity does not replace current fixed `source_system_id`,
+  `adapter_manifest_id`, projection profile, cursor key, credential binding or
+  authorization reference.
 - Configuration, authentication, transport, processing, checkpoint and health
-  are mapped as separate conceptual axes onto current product-local state.
-- Current investigation APIs and UI do not expose `adapter_import_states` or
-  host service lifecycle. They expose accepted Evidence, Gap and import
-  provenance/read-model state only. A Connector lifecycle read model remains a
-  future X-Insight implementation gap.
+  remain six independent shared axes. Current adapter, worker, service and
+  investigation state is explicitly classified as exact mapped state,
+  derived state, or product-local non-wire state.
+- Current APIs/UI still do not expose a combined Connector lifecycle read
+  model. That remains a future product implementation gap, not a B9
+  compatibility change.
 
-## Exact compatibility result
+## Exact compatibility gate
 
-The synthetic-only settled/cancelled bundle pins and independently recomputes:
+The synthetic settled/cancelled compatibility bundle preserves and
+independently recomputes:
 
 - 10 current M0 event IDs and hashes;
-- all 10 current Source refs, local idempotency keys and import cursors;
+- all 10 Source refs, local idempotency keys and import cursors;
 - 8 first-class Gap row IDs and stable fields;
 - 2 immutable import provenance IDs and all 10 event links;
-- 2 deterministic `xe1_` execution IDs;
-- execution outcome, event/gap counts, payload modes, freshness, timeline and
-  search-order expectations;
-- the exclusion of operational database/ingestion times from identity pins.
+- 2 deterministic execution IDs and all pinned read-model expectations.
 
-One important local compatibility detail is now explicit: current M0 event IDs
-use the adapter package's SHA-256/UUID-v5-style bit masking, while database
-Gap-row and import-provenance IDs use the DB package's legacy deterministic
-formatter that forces the UUID version nibble to `5` and variant nibble to
-`8`. These are separate target-local identity algorithms. A shared SDK must not
-collapse them into one algorithm or put either into shared Event identity.
-
-## Verification
-
-Command:
-
-```text
-python3 -m unittest discover -s tests -p 'test_*.py' -v
-```
-
-Result: `9 tests`, `OK`.
-
-Additional verification:
-
-- `git diff --check`: passed.
-- Exact X-Insight settled fixture: 1196 bytes,
-  SHA-256
-  `5e9eda0a2630d52c5589d38b8ec480604c47c2cc77391b75a57b2a159db6dd27`.
-- Exact X-Insight cancelled fixture: 1201 bytes,
-  SHA-256
-  `31cbfeb23968c07d158b591c28efb3dd40cffba1fd6d1fd4202f43d63bfe9f2d`.
-
-No database, service, worker, endpoint or live-data verification was performed
-or required for this offline candidate.
+The byte-stable compatibility payload comprising `synthetic_only`, `seeds`,
+`compatibility_totals` and `cross_seed_read_model` has SHA-256
+`d22374a34e4f496cc05f7e56e7538cd2f3fc4bb3d9428cd9ac38883a81a909b5`.
+Shared LP idempotency and Envelope hashes are validated separately and do not
+replace current target-local M0 identities or hashes.
 
 ## Semantic conflict assessment
 
-No material conflict with exact V3 was found for the current settled/cancelled
-projection.
+No material Projection Owner conflict was found against the exact B8 tree.
 
-Open dependencies are deliberately fail-closed:
+One release-metadata follow-up remains: the exact Reference Manifest reviewed
+here still contains the earlier candidate SHA-256 pins for the X-Insight
+projection and compatibility mapping files. After this B9 local commit, the
+Coordinator must repin those two Manifest compatibility digests and finalize
+shared release metadata. This is outside Projection Owner scope and does not
+alter Event, M0, Gap, provenance, replay or read-model semantics.
 
-1. Exact B8 Schemas and the coordinator-authored vector bundle are absent.
-2. The exact protocol-controlled `producer.product` value is therefore not
-   invented in this B9 seed.
-3. Shared canonical bytes, LP identity, shared idempotency and Envelope hash
-   remain null in this product compatibility seed.
-4. TypeScript canonicalization and B6 boundary vectors have not started.
-5. The exact B8 location/enum for `ingestion_capture_mode` remains open while
-   its mandatory separation from `payload_capture_mode` is preserved.
-6. B9 remains a candidate until the exact B8 contract and independent B6
-   outputs are reviewed and the mapping/compatibility digests are frozen by
-   the authorized three-party process.
+## Verification boundary
+
+The local commit is gated on:
+
+- JSON parsing for all four X-Insight mapping files;
+- exact-tree SHA-256 verification for every B8 artifact used by the mapping;
+- rejection of prior waiting/unknown-field statuses and disclaimers;
+- byte-stable compatibility payload digest;
+- independent reconstruction of all 10 M0 IDs/hashes, 8 Gap-row IDs, 2
+  provenance IDs and read-model expectations;
+- `git diff --check`.
+
+Recorded offline result:
+
+- full Python discovery: `18 tests`, `OK`, with two unrelated optional
+  Source/Joint path checks skipped because their environment variables were
+  not supplied; the exact B8 tree check was supplied and passed;
+- shared candidate verifier: `2 envelopes`, `4 identities`, passed;
+- all four X-Insight JSON mapping files parsed successfully;
+- `git diff --check`: passed.
+
+No live data, database, service, worker, endpoint, deployment or CI
+verification is required or authorized.
 
 ## Zero mutation
 
 This work:
 
-- changed only the designated authority worktree on
-  `codex/b6-b9-projection`;
-- used only synthetic fixtures and exact Git-object source evidence;
+- changed only the designated authority worktree
+  `/private/tmp/event-connector-spec-b6-typescript-20260727` on
+  `codex/b6-typescript`;
+- used only synthetic fixtures and exact Git-object evidence;
 - did not modify `/Users/m4/Desktop/projects/X-Insight`;
+- did not modify shared B8 Schema, Manifest, protocol, canonical/golden vector,
+  conformance-contract or TypeScript runner pins;
 - did not deploy, start/stop/restart a service, run a worker, send traffic,
-  access credentials, mutate Cursor/Checkpoint, or touch a database;
-- did not push, open a PR or run CI;
-- did not start the independent TypeScript B6 implementation.
+  access credentials, mutate Cursor/Checkpoint or touch a database;
+- did not push, open a PR or run CI.
