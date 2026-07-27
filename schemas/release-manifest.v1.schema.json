@@ -104,7 +104,10 @@
       "required": [
         "protocol_spec",
         "shared_ci_action",
+        "authority_ci_workflow",
+        "conformance_kit_runner",
         "release_builder",
+        "implementation_manifest_builder",
         "candidate_verifier",
         "conformance_comparator",
         "product_pin_verifier",
@@ -133,6 +136,9 @@
         "reference_compatibility_vector_bundle",
         "compatibility_matrix",
         "conformance_contract",
+        "go_implementation_manifest",
+        "typescript_implementation_manifest",
+        "schema_audit_source_manifest",
         "go_conformance_report",
         "typescript_conformance_report"
       ],
@@ -143,7 +149,16 @@
         "shared_ci_action": {
           "$ref": "#/$defs/component"
         },
+        "authority_ci_workflow": {
+          "$ref": "#/$defs/component"
+        },
+        "conformance_kit_runner": {
+          "$ref": "#/$defs/component"
+        },
         "release_builder": {
+          "$ref": "#/$defs/component"
+        },
+        "implementation_manifest_builder": {
           "$ref": "#/$defs/component"
         },
         "candidate_verifier": {
@@ -228,6 +243,15 @@
           "$ref": "#/$defs/component"
         },
         "conformance_contract": {
+          "$ref": "#/$defs/component"
+        },
+        "go_implementation_manifest": {
+          "$ref": "#/$defs/component"
+        },
+        "typescript_implementation_manifest": {
+          "$ref": "#/$defs/component"
+        },
+        "schema_audit_source_manifest": {
           "$ref": "#/$defs/component"
         },
         "go_conformance_report": {

@@ -26,7 +26,11 @@ const approvalPaths = [
 const componentPaths = {
   protocol_spec: "spec/protocol-v1.md",
   shared_ci_action: "action.yml",
+  authority_ci_workflow: ".github/workflows/ci.yml",
+  conformance_kit_runner: "scripts/run-conformance-kit.sh",
   release_builder: "scripts/build-release-manifest.mjs",
+  implementation_manifest_builder:
+    "scripts/build-implementation-manifests.mjs",
   candidate_verifier: "scripts/verify-candidate.mjs",
   conformance_comparator: "scripts/compare-conformance.mjs",
   product_pin_verifier: "scripts/verify-product-pin.mjs",
@@ -65,6 +69,12 @@ const componentPaths = {
   compatibility_matrix:
     "compatibility/foigent-unirouter-completed-execution-1.0.0-to-xinsight-m0.1.json",
   conformance_contract: "conformance/conformance-contract.v1.json",
+  go_implementation_manifest:
+    "implementations/go/implementation-manifest.v1.json",
+  typescript_implementation_manifest:
+    "implementations/typescript/implementation-manifest.v1.json",
+  schema_audit_source_manifest:
+    "tools/schema-audit/source-manifest.v1.json",
   go_conformance_report: "conformance/reports/go-v1.json",
   typescript_conformance_report:
     "conformance/reports/typescript-v1.json",
