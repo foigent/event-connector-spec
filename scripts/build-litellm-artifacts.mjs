@@ -648,13 +648,14 @@ const manifest = {
   },
   coverage: {
     included: [
-      "authenticated LiteLLM spend-log rows finalized at least 60 seconds before poll time",
+      "authenticated LiteLLM spend-log rows durably visible within complete poll windows whose startTime is at or before the actual inclusive second-precision upstream end_date=floor_second(floor_microsecond(poll time minus 60 seconds)); same-second rows above that query bound remain eligible for a later overlapping poll",
       "bounded complete HTTP windows with at most 2000 unique request IDs",
       "at most 8 MiB cumulative response bytes per complete poll window",
     ],
     excluded: [
       "retention, logging or emission of prompt, response, proxy request, API key, user, end-user and IP payloads",
-      "rows inserted later than the finalization delay with startTime older than the committed checkpoint",
+      "rows that become durably visible only after the committed checkpoint has advanced past their startTime, including long-running requests or delayed Source writes beyond the 60-second start-time fence",
+      "zero-loss coverage for requests of arbitrary duration without a Source watermark ordered by terminal visibility",
       "windows whose complete pagination cannot be proven",
     ],
   },

@@ -1,6 +1,6 @@
 # Foigent Event and Connector Protocol V1
 
-Version: `1.1.0`. Binding authority is the immutable `v1.1.0` release tag and
+Version: `1.1.1`. Binding authority is the immutable `v1.1.1` release tag and
 its verified release manifest. A working-tree copy of this file is not
 independently authoritative.
 
@@ -64,17 +64,57 @@ miss. Source-reported spend is a canonical decimal-string USD observation; it
 is not Foigent billing authority and must not populate X-Insight top-level CNY
 cost fields.
 
-The Connector uses a 60-second finalization delay. Every bounded query window
-must be fetched completely, must contain no more than 20 pages and 2,000 unique
-request IDs, must stay within 8 MiB cumulative response bytes, must not be
-total-capped, and must satisfy unique count equals reported total. The
-Connector sorts the complete window locally by exact
+The Connector uses a 60-second **start-time eligibility fence**, not an
+`endTime` or terminal-visibility watermark. At poll time `T`, it computes the
+internal fence `F = floor_microsecond(T - 60s)`. The pinned
+`GET /spend/logs/v2` endpoint accepts only its SQL-style second-precision time
+grammar, so the actual inclusive upstream query bound is
+`startTime <= Q`, where `Q = floor_second(F)` and the request carries
+`end_date=Q`. This transport-boundary rounding does not claim microsecond
+Source-query precision.
+
+Rows with `Q < startTime <= F` are deferred, not discarded. A successful poll
+can advance the durable Checkpoint only to the greatest `startTime` actually
+returned, which cannot exceed `Q`; the next poll sends a lower bound rounded
+down from that Checkpoint to a whole second and then applies the exact
+microsecond Checkpoint plus boundary-request-ID selection locally. Therefore
+same-second rows above `Q` remain eligible for a later overlapping poll.
+
+Every selected row must already be durably visible to `GET /spend/logs/v2`
+when the bounded window is fetched. Source `endTime` is the terminal Event
+time but is not part of Source row selection or Checkpoint ordering. The
+historical `finalized_through` name in the frozen Checkpoint vectors denotes
+the internal start-time fence `F` only; it does not assert that
+`endTime <= T - 60s` or that the upstream query accepts microseconds.
+
+Every bounded query window must be fetched completely, must contain no more
+than 20 pages and 2,000 unique request IDs, must stay within 8 MiB cumulative
+response bytes, must not be total-capped, and must satisfy unique count equals
+reported total. The Connector sorts the complete window locally by exact
 `(startTime, request_id UTF-8 bytes)` before projection. Incomplete, capped,
 over-limit, duplicate-conflicting, or unstable windows fail closed.
 
-Activation is forward-only. Rows materialized after finalization with
-`startTime` older than the committed boundary are outside Connector V1
-coverage; no broad historical backfill is implied.
+Activation is forward-only. A long-running request whose `startTime` is older
+than the fence and whose `endTime` is recent is accepted as soon as its row is
+durably visible only if the committed Checkpoint has not advanced past that
+`startTime` (or equals it and the request ID is absent from the boundary set).
+If a later-starting visible row has already advanced the Checkpoint beyond
+that request's `startTime`, the late-visible row is outside Connector V1
+coverage. The same rule applies to any delayed Source write.
+
+Lossless coverage therefore requires the Source-side invariant that no row
+with `startTime < C` remains non-visible when the Connector commits a new
+Checkpoint `C`. A sufficient bounded condition is that request duration plus
+terminal write delay never exceeds 60 seconds, together with a complete stable
+pagination snapshot. LiteLLM V1 provides no terminal-visibility watermark that
+proves this invariant for requests of arbitrary duration, so Connector V1
+does not claim zero-loss coverage for arbitrary-duration requests and implies
+no broad historical backfill. Adding only an `endTime <= T - 60s` predicate
+would not repair this limitation because the pinned upstream endpoint still
+selects rows by `startTime`; a future lossless design requires a Source cursor
+ordered by terminal visibility (for example `(endTime|created_at, request_id)`)
+or an explicitly bounded overlap derived from an enforced duration/write-lag
+limit.
 
 ## 3. Event identity and idempotency
 
@@ -327,3 +367,9 @@ Protocol `1.1.0` is additive to `1.0.0`: it adds the LiteLLM Source schema,
 compatibility evidence, and conformance vectors. It does not alter the
 UniRouter completed-execution Reference V1 bytes or X-Insight M0 compatibility
 seeds.
+
+Protocol `1.1.1` is an immutable erratum over `1.1.0`. It corrects the
+LiteLLM coverage wording to match the already released
+`litellm_start_time_boundary_v1` algorithm and `late-older-row-excluded`
+conformance vector. It changes no Checkpoint algorithm, Schema, Source/Event
+mapping, Golden identity/hash, vector result, or product-local M0 contract.

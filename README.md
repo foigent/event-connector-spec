@@ -5,15 +5,17 @@ This private repository is the single editable authority for the Foigent shared 
 ## Current status
 
 - Governance authority: established under B7.
-- Protocol version: `1.1.0`.
+- Protocol version: `1.1.1`.
 - B6 independent Go/TypeScript conformance: complete and byte-identical.
 - B8 shared contracts and reproducible release tooling: complete.
 - B9 UniRouter source and X-Insight projection mappings: complete.
-- Binding identity: only the immutable `v1.1.0` tag and its verified release
+- Binding identity: only the immutable `v1.1.1` tag and its verified release
   manifest; other branches and working-tree copies are not authoritative.
 - Phase 2A and the completed-execution Reference runtime adoption are closed.
-- The additive LiteLLM Connector contract and Conformance Kit are included in
-  `1.1.0`; product-local runtime adoption remains independently isolated.
+- The additive LiteLLM Connector contract and Conformance Kit were introduced
+  in `1.1.0`; `1.1.1` is a coverage-wording erratum that preserves their exact
+  algorithms, Schemas, mappings, Golden identities/hashes, and vectors.
+  Product-local runtime adoption remains independently isolated.
 - Runtime credentials, live traffic, checkpoints, cursors, and product
   databases are never protocol-repository content.
 
@@ -59,7 +61,7 @@ approvals.
 ## Release and consumption gates
 
 - the release manifest must verify all component and approval digests;
-- authority CI and the immutable `v1.1.0` tag must identify the same bytes;
+- authority CI and the immutable `v1.1.1` tag must identify the same bytes;
 - UniRouter and X-Insight must pin that release and run the shared Conformance
   Kit in their own CI;
 - every product runtime remains separately authorized, deployed, and operated.
