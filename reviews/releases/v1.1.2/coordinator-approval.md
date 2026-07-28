@@ -12,23 +12,30 @@ Reviewed authority state:
 
 - repository: `https://github.com/foigent/event-connector-spec`
 - repository ID: `1313391565`
-- candidate commit: `f3e3bc2db008ba075401d8e0c062e628b0a35c32`
-- candidate tree: `23174dbf39f4b8138f7beb3733122229f2657ccb`
+- candidate commit: `45b03dbeffe59d170828863e6c1902cd0a5e5443`
+- candidate tree: `9c779273142ddb702383198f80e4b4f91ef6656b`
 - protocol version: `1.1.2`
 - reviewed content digest:
-  `sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c`
+  `sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813`
 - Source Domain Owner approval SHA-256:
-  `63e63ae0b7ff44859310758d1bba9ddd29930859a7607db7ac0e3db24002a935`
+  `0f4dc90c4b0896e90cac860504cbced07b95d60470ae90cacce5163ca1840395`
 - Projection Owner approval SHA-256:
-  `2e7152ad9b8df5e444628a2e8e4430f81347fb19405ef4262cba11cb4814496a`
+  `964e96ef9c6c16e548c7746a56c0ed1a1dcff80bd5945e7246efec2ee034c0ca`
 
 ## Disposition
 
 Semantic conflict: `NONE_IDENTIFIED`
 
-The Coordinator independently reviewed the exact 18-file candidate against
-immutable protocol `1.1.1` and reproduced its commit, tree and content digest.
-Protocol `1.1.2` adds one pinned LiteLLM `v1.93.0`
+The Coordinator independently reviewed the exact two-file release-truth
+correction over merged main
+`500f465ec8d1182f464fdc2ef3fcc6511deaa814` and reproduced its commit, tree
+and content digest. `README.md` and `spec/protocol-v1.md` now describe
+`1.1.2` as the stable protocol version whose binding authority is only the
+immutable `v1.1.2` tag and its verified release manifest. No protocol,
+Connector, projection or runtime semantic changes are introduced.
+
+The previously reviewed compatibility evidence remains applicable. Protocol
+`1.1.2` adds one pinned LiteLLM `v1.93.0`
 `GET /spend/logs/v2` compatibility rule: only the exact upstream string
 `"None"` maps to the existing normalized `cache_status="unknown"`.
 
@@ -41,8 +48,9 @@ other unrecognized string continue to fail closed as `invalid_cache_hit`.
 
 The Coordinator confirmed:
 
-- exact candidate commit, tree, content digest, and the two independent
-  candidate-bound Owner approvals above;
+- exact candidate commit, tree, content digest, the exact two-file
+  release-truth diff, and the two independent candidate-bound Owner approvals
+  above;
 - byte-exact preservation of all protected Schemas, Source/Event and X-Insight
   M0 mappings, compatibility contracts, Source and shared hash-input fixtures,
   canonical vectors, Checkpoint algorithm, operational receipts, identity,
@@ -55,8 +63,9 @@ The Coordinator confirmed:
 - candidate content digest reconstruction;
 - Schema audit, Python verification, Go test/vet/build, TypeScript
   typecheck/tests/build, and 30-case cross-language conformance; and
-- GitHub Actions run `30397542814`, whose only failure was the intentional
-  pre-assembly absence of the three final approval records.
+- GitHub Actions run `30399053454`, whose only failure was the intentional
+  stale three-role approval and release-manifest binding before this final
+  assembly.
 
 No Source Schema, Event Envelope, X-Insight M0 event ID or hash, product-local
 idempotency key, normalized Golden result, Gap identity, provenance identity,

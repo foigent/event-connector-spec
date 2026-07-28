@@ -5,16 +5,15 @@ This private repository is the single editable authority for the Foigent shared 
 ## Current status
 
 - Governance authority: established under B7.
-- Protocol release candidate: `1.1.2`.
+- Protocol version: `1.1.2`.
 - B6 independent Go/TypeScript conformance: complete and byte-identical.
 - B8 shared contracts and reproducible release tooling: complete.
 - B9 UniRouter source and X-Insight projection mappings: complete.
-- Binding identity remains the immutable `v1.1.1` tag and its verified release
-  manifest until a separately approved `v1.1.2` tag exists; branches and
-  working-tree copies are not authoritative.
+- Binding identity: only the immutable `v1.1.2` tag and its verified release
+  manifest; branches and working-tree copies are not authoritative.
 - Phase 2A and the completed-execution Reference runtime adoption are closed.
 - The additive LiteLLM Connector contract and Conformance Kit were introduced
-  in `1.1.0`; `1.1.1` is a coverage-wording erratum. Candidate `1.1.2`
+  in `1.1.0`; `1.1.1` is a coverage-wording erratum. Protocol `1.1.2`
   additionally recognizes the pinned LiteLLM writer's exact string `"None"`
   as the existing normalized cache state `unknown`, while preserving all
   Source/Event Schemas, identities, hashes, cursors, provenance and M0 output.
