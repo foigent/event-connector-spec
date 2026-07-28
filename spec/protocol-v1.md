@@ -1,9 +1,8 @@
 # Foigent Event and Connector Protocol V1
 
-Release candidate version: `1.1.2`. Binding authority remains the immutable
-`v1.1.1` release tag and its verified release manifest until the separately
-approved `v1.1.2` release tag exists. A branch or working-tree copy of this
-file is not independently authoritative.
+Version: `1.1.2`. Binding authority is the immutable `v1.1.2` release tag and
+its verified release manifest. A working-tree copy of this file is not
+independently authoritative.
 
 ## 1. Architectural boundary
 
@@ -375,7 +374,7 @@ LiteLLM coverage wording to match the already released
 conformance vector. It changes no Checkpoint algorithm, Schema, Source/Event
 mapping, Golden identity/hash, vector result, or product-local M0 contract.
 
-Protocol candidate `1.1.2` adds one pinned upstream compatibility rule for
+Protocol `1.1.2` adds one pinned upstream compatibility rule for
 LiteLLM `v1.93.0` `/spend/logs/v2`: the writer's exact string value `"None"`
 for `cache_hit` maps to the existing normalized `cache_status="unknown"`.
 JSON `null` and the empty string retain their existing `unknown` semantics.
