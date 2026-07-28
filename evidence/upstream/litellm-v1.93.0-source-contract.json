@@ -7,7 +7,7 @@
   },
   "reviewed_files": [
     {
-      "path": "litellm/proxy/management_endpoints/spend_management_endpoints.py",
+      "path": "litellm/proxy/spend_tracking/spend_management_endpoints.py",
       "sha256": "sha256:335a05f966ed2dbe375755517545efd58f14a9162155867ad2a71416c456fd07"
     },
     {
