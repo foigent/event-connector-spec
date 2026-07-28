@@ -20,7 +20,7 @@
     "completion_tokens": "nonnegative int64 -> canonical decimal string",
     "total_tokens": "nonnegative int64 -> canonical decimal string and exact prompt+completion sum",
     "spend": "parse exact JSON numeric token as nonnegative decimal and emit canonical reported_spend",
-    "cache_hit": "JSON true or string True -> hit; JSON false or string False -> miss; JSON null or empty string -> unknown; all other values reject",
+    "cache_hit": "JSON true or string True -> hit; JSON false or string False -> miss; JSON null, empty string or exact string None -> unknown; lowercase none, string null and all other values reject",
     "currency": "declared exact USD"
   },
   "privacy_boundary": {

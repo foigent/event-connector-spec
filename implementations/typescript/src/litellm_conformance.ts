@@ -18,12 +18,12 @@ import {
 import { buildIdempotencyInput } from "./protocol.ts";
 
 const BUNDLE_SHA256 =
-  "sha256:44681fdec12476284e3c88f8aab710e04bcd35456007e829ae5199421df995d4";
+  "sha256:9997bcade1f65f613e2176266a35b43aef64547c3ed4ba87e61de94080803dc7";
 const GOLDEN_SHA256 =
-  "sha256:6b76fb2bf90e94f57dff5307ab4852e623be0180e277c96ea62a89ce6b6bab98";
+  "sha256:c7500da0cbbc045f47c2000dd824e403195f6ade2753b12c319418d3a7df939c";
 const BUNDLE_VERSION = "foigent.litellm-connector-vector-bundle.v1";
 const GOLDEN_VERSION = "foigent.litellm-golden-fixture-bundle.v1";
-const PROTOCOL_VERSION = "1.1.0";
+const PROTOCOL_VERSION = "1.1.2";
 const CONNECTOR_ID = "foigent.litellm.spend-logs";
 
 export class LiteLLMArtifactFailure extends Error {
@@ -81,6 +81,7 @@ export async function createLiteLLMConformanceReport(
     ...await canonicalCases(inputs),
     ...identityCases(inputs),
     ...decimalCases(inputs),
+    ...cacheStatusCases(inputs),
     ...checkpointCases(inputs),
     ...replayCases(inputs),
     ...await negativeCases(inputs),
@@ -106,13 +107,13 @@ export async function createLiteLLMConformanceReport(
   const report: JsonObject = {
     report_version: "foigent.conformance-report.v1",
     implementation: "typescript",
-    implementation_version: "1.1.0+litellm.1",
+    implementation_version: "1.1.2+litellm.1",
     bundle_sha256: BUNDLE_SHA256,
     status: allFailures.length === 0 ? "pass" : "fail",
     cases,
   };
-  if (cases.length !== 20) {
-    throw new LiteLLMArtifactFailure(`expected 20 cases, got ${cases.length}`);
+  if (cases.length !== 30) {
+    throw new LiteLLMArtifactFailure(`expected 30 cases, got ${cases.length}`);
   }
   return { report, reportBytes: canonicalBytes(report), failures: allFailures };
 }
@@ -266,6 +267,70 @@ function decimalCases(inputs: Inputs): Observation[] {
       return observation;
     },
   );
+}
+
+function cacheStatusCases(inputs: Inputs): Observation[] {
+  return asArray(
+    inputs.bundle.upstream_cache_status,
+    "upstream_cache_status",
+  ).map((value) => {
+    const vector = asObject(value, "cache_hit vector");
+    const classified = normalizeLiteLLMCacheHit(vector.input);
+    const output: JsonObject = { valid: classified.valid };
+    if (classified.valid) {
+      output.normalized = classified.normalized!;
+    } else {
+      output.error_code = classified.errorCode!;
+    }
+    const observation: Observation = {
+      id: `upstream_cache_status/${asString(vector.case_id, "cache_hit case_id")}`,
+      classes: ["upstream_source_mapping"],
+      kind: "classification",
+      result: canonicalBytes(output),
+      failures: [],
+    };
+    const expectedValid = asBoolean(vector.valid, "cache_hit valid");
+    check(
+      observation,
+      classified.valid === expectedValid,
+      "cache_hit validity mismatch",
+    );
+    if (expectedValid) {
+      check(
+        observation,
+        classified.normalized ===
+          asString(vector.normalized, "cache_hit normalized"),
+        "cache_hit normalization mismatch",
+      );
+    } else {
+      check(
+        observation,
+        classified.errorCode ===
+          asString(vector.error_code, "cache_hit error_code"),
+        "cache_hit error mismatch",
+      );
+    }
+    return observation;
+  });
+}
+
+function normalizeLiteLLMCacheHit(
+  input: JsonValue | undefined,
+): {
+  valid: boolean;
+  normalized?: "hit" | "miss" | "unknown";
+  errorCode?: string;
+} {
+  if (input === null || input === "" || input === "None") {
+    return { valid: true, normalized: "unknown" };
+  }
+  if (input === true || input === "True") {
+    return { valid: true, normalized: "hit" };
+  }
+  if (input === false || input === "False") {
+    return { valid: true, normalized: "miss" };
+  }
+  return { valid: false, errorCode: "invalid_cache_hit" };
 }
 
 function checkpointCases(inputs: Inputs): Observation[] {
