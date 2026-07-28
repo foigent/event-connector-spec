@@ -1,0 +1,256 @@
+{
+  "bundle_version": "foigent.litellm-connector-vector-bundle.v1",
+  "protocol_version": "1.1.0",
+  "golden_fixture_bundle_path": "fixtures/litellm-golden-fixture-bundle.v1.json",
+  "mapping_context": {
+    "producer_product": "litellm",
+    "producer_instance": "litellm-development",
+    "connector_id": "foigent.litellm.spend-logs",
+    "connector_version": "1.0.0",
+    "tenant_ref": null,
+    "org_ref": "101",
+    "project_ref": "202",
+    "adapter_fidelity": "F1",
+    "payload_capture_mode": "metadata_only",
+    "raw_payload_present": false,
+    "source_revision": "1",
+    "timeline_complete": true
+  },
+  "canonical_envelopes": [
+    {
+      "case_id": "litellm-succeeded",
+      "source_input_path": "fixtures/source/litellm/valid-succeeded.json",
+      "input_path": "fixtures/shared/litellm-succeeded-envelope.hash-input.json",
+      "canonical_bytes": 4663,
+      "envelope_hash": "sha256:0c595fcb3066288b16d6fc12e375912d0bcb421ba27c7a442d6b22d898a5e5a7"
+    },
+    {
+      "case_id": "litellm-failed",
+      "source_input_path": "fixtures/source/litellm/valid-failed.json",
+      "input_path": "fixtures/shared/litellm-failed-envelope.hash-input.json",
+      "canonical_bytes": 4652,
+      "envelope_hash": "sha256:8c95fe0461c9372b033554f2828782eb136ebaa2ffa2e1e55111a4d2493df78a"
+    },
+    {
+      "case_id": "litellm-cache-hit",
+      "source_input_path": "fixtures/source/litellm/valid-cache-hit.json",
+      "input_path": "fixtures/shared/litellm-cache-hit-envelope.hash-input.json",
+      "canonical_bytes": 4690,
+      "envelope_hash": "sha256:38fa662294774e04d56977d4582a9824a07fafd99464fb55ebb737066d4ddfe0"
+    }
+  ],
+  "idempotency": [
+    {
+      "case_id": "litellm-succeeded",
+      "producer_product": "litellm",
+      "producer_instance": "litellm-development",
+      "tenant_ref": null,
+      "org_ref": "101",
+      "project_ref": "202",
+      "event_type": "model.request.completed",
+      "event_id": "litellm_req_success_001",
+      "identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e7631000000076c6974656c6c6d000000136c6974656c6c6d2d646576656c6f706d656e74000000000000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000176c6974656c6c6d5f7265715f737563636573735f303031",
+      "idempotency_key": "sha256:ba906ad95206034be58b9b8801fa8c3f176fa2f188c8443b31d37962f172f235"
+    },
+    {
+      "case_id": "litellm-failed",
+      "producer_product": "litellm",
+      "producer_instance": "litellm-development",
+      "tenant_ref": null,
+      "org_ref": "101",
+      "project_ref": "202",
+      "event_type": "model.request.completed",
+      "event_id": "litellm_req_failure_001",
+      "identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e7631000000076c6974656c6c6d000000136c6974656c6c6d2d646576656c6f706d656e74000000000000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000176c6974656c6c6d5f7265715f6661696c7572655f303031",
+      "idempotency_key": "sha256:69e2b4ad8345ac51281ef50635a00d102e7691ba52c93c438304323873ec4ec6"
+    },
+    {
+      "case_id": "litellm-cache-hit",
+      "producer_product": "litellm",
+      "producer_instance": "litellm-development",
+      "tenant_ref": null,
+      "org_ref": "101",
+      "project_ref": "202",
+      "event_type": "model.request.completed",
+      "event_id": "litellm_req_cache_hit_001",
+      "identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e7631000000076c6974656c6c6d000000136c6974656c6c6d2d646576656c6f706d656e74000000000000000331303100000003323032000000176d6f64656c2e726571756573742e636f6d706c65746564000000196c6974656c6c6d5f7265715f63616368655f6869745f303031",
+      "idempotency_key": "sha256:d2faccb46ffb9aca9804a27b7438224606026229dee5a1f8e9dc3ff0545a41c4"
+    }
+  ],
+  "canonical_decimals": [
+    {
+      "case_id": "zero",
+      "input": "0",
+      "canonical": "0",
+      "valid": true
+    },
+    {
+      "case_id": "trim-trailing-zeroes",
+      "input": "1.2300",
+      "canonical": "1.23",
+      "valid": true
+    },
+    {
+      "case_id": "positive-exponent",
+      "input": "1.2e-7",
+      "canonical": "0.00000012",
+      "valid": true
+    },
+    {
+      "case_id": "negative",
+      "input": "-0.1",
+      "error_code": "negative_reported_spend",
+      "valid": false
+    },
+    {
+      "case_id": "nonfinite",
+      "input": "NaN",
+      "error_code": "invalid_reported_spend",
+      "valid": false
+    }
+  ],
+  "checkpoint": [
+    {
+      "case_id": "activation-forward-fence",
+      "previous": null,
+      "finalized_through": "2026-07-28T01:00:00.000000Z",
+      "rows": [],
+      "expected_next": {
+        "last_start_time": "2026-07-28T01:00:00.000000Z",
+        "boundary_request_ids": []
+      },
+      "accepted_request_ids": [],
+      "checkpoint_advances": true
+    },
+    {
+      "case_id": "same-timestamp-boundary-expands",
+      "previous": {
+        "last_start_time": "2026-07-28T01:02:03.123456Z",
+        "boundary_request_ids": [
+          "a"
+        ]
+      },
+      "finalized_through": "2026-07-28T01:03:00.000000Z",
+      "rows": [
+        {
+          "request_id": "a",
+          "start_time": "2026-07-28T01:02:03.123456Z"
+        },
+        {
+          "request_id": "b",
+          "start_time": "2026-07-28T01:02:03.123456Z"
+        }
+      ],
+      "expected_next": {
+        "last_start_time": "2026-07-28T01:02:03.123456Z",
+        "boundary_request_ids": [
+          "a",
+          "b"
+        ]
+      },
+      "accepted_request_ids": [
+        "b"
+      ],
+      "checkpoint_advances": true
+    },
+    {
+      "case_id": "same-timestamp-boundary-utf8-order",
+      "previous": {
+        "last_start_time": "2026-07-28T01:02:03.123456Z",
+        "boundary_request_ids": []
+      },
+      "finalized_through": "2026-07-28T01:03:00.000000Z",
+      "rows": [
+        {
+          "request_id": "𐀀",
+          "start_time": "2026-07-28T01:02:04.000000Z"
+        },
+        {
+          "request_id": "",
+          "start_time": "2026-07-28T01:02:04.000000Z"
+        }
+      ],
+      "expected_next": {
+        "last_start_time": "2026-07-28T01:02:04.000000Z",
+        "boundary_request_ids": [
+          "",
+          "𐀀"
+        ]
+      },
+      "accepted_request_ids": [
+        "",
+        "𐀀"
+      ],
+      "checkpoint_advances": true
+    },
+    {
+      "case_id": "late-older-row-excluded",
+      "previous": {
+        "last_start_time": "2026-07-28T01:02:03.123456Z",
+        "boundary_request_ids": [
+          "a"
+        ]
+      },
+      "finalized_through": "2026-07-28T01:03:00.000000Z",
+      "rows": [
+        {
+          "request_id": "late",
+          "start_time": "2026-07-28T01:02:02.999999Z"
+        }
+      ],
+      "expected_next": {
+        "last_start_time": "2026-07-28T01:02:03.123456Z",
+        "boundary_request_ids": [
+          "a"
+        ]
+      },
+      "accepted_request_ids": [],
+      "checkpoint_advances": false
+    },
+    {
+      "case_id": "unique-total-mismatch",
+      "previous": {
+        "last_start_time": "2026-07-28T01:02:03.123456Z",
+        "boundary_request_ids": [
+          "a"
+        ]
+      },
+      "finalized_through": "2026-07-28T01:03:00.000000Z",
+      "rows": [
+        {
+          "request_id": "b",
+          "start_time": "2026-07-28T01:02:04.000000Z"
+        },
+        {
+          "request_id": "b",
+          "start_time": "2026-07-28T01:02:04.000000Z"
+        }
+      ],
+      "source_total": 2,
+      "error_code": "incomplete_paginated_snapshot",
+      "accepted_request_ids": [],
+      "checkpoint_advances": false
+    }
+  ],
+  "replay": [
+    {
+      "case_id": "same-identity-same-hash",
+      "first_outcome": "inserted",
+      "replay_outcome": "duplicate_noop",
+      "checkpoint_advances": true
+    },
+    {
+      "case_id": "same-identity-different-hash",
+      "first_outcome": "inserted",
+      "replay_outcome": "conflict",
+      "checkpoint_advances": false
+    },
+    {
+      "case_id": "partial-batch-failure",
+      "first_item": "inserted",
+      "second_item": "retryable_error",
+      "checkpoint_advances": false,
+      "next_attempt_first_item": "duplicate_noop"
+    }
+  ]
+}

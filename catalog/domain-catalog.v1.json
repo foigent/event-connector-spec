@@ -11,6 +11,12 @@
           "schema_ref": "foigent://events/model/request-completed/v1",
           "schema_version": "1",
           "payload_schema_path": "schemas/model-request-completed.v1.schema.json"
+        },
+        {
+          "event_type": "model.request.completed",
+          "schema_ref": "foigent://events/model/request-completed/v2",
+          "schema_version": "2",
+          "payload_schema_path": "schemas/model-request-completed.v2.schema.json"
         }
       ]
     }
@@ -21,6 +27,12 @@
       "schema_ref": "foigent://schemas/capture-gap/v1",
       "schema_version": "1",
       "schema_path": "schemas/capture-gap.v1.schema.json"
+    },
+    {
+      "record_type": "litellm_spend_log",
+      "schema_ref": "foigent://sources/litellm/spend-log/v1",
+      "schema_version": "1",
+      "schema_path": "schemas/litellm-spend-log.v1.schema.json"
     }
   ]
 }

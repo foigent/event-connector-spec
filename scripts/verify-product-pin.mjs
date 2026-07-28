@@ -77,12 +77,15 @@ check(
     "foigent.protocol-release-manifest.v1",
   "invalid release manifest",
 );
-check(release.protocol_version === "1.0.0", "unexpected protocol version");
+check(
+  release.protocol_version === pin.protocol_version,
+  "unexpected protocol version",
+);
 check(
   release.authority.repository ===
       "https://github.com/foigent/event-connector-spec" &&
     release.authority.repository_id === 1313391565 &&
-    release.authority.tag === "v1.0.0",
+    release.authority.tag === `v${release.protocol_version}`,
   "unexpected release authority",
 );
 for (const [name, component] of Object.entries(release.components)) {
@@ -160,6 +163,11 @@ const expectedByProduct = {
     "source_identity_mapping",
     "canonical_vector_bundle",
     "conformance_contract",
+    "litellm_connector_manifest",
+    "litellm_upstream_source_mapping",
+    "litellm_compatibility_matrix",
+    "litellm_conformance_contract",
+    "litellm_vector_bundle",
   ],
   xinsight: [
     "shared_ci_action",
@@ -169,6 +177,15 @@ const expectedByProduct = {
     "reference_compatibility_vector_bundle",
     "canonical_vector_bundle",
     "conformance_contract",
+    "model_request_completed_v2_schema",
+    "litellm_source_schema",
+    "litellm_connector_manifest",
+    "litellm_upstream_source_mapping",
+    "litellm_source_projection_contract",
+    "litellm_reference_projection_contract",
+    "litellm_compatibility_matrix",
+    "litellm_conformance_contract",
+    "litellm_vector_bundle",
   ],
 };
 const expected = expectedByProduct[pin.product];

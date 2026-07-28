@@ -1,11 +1,11 @@
 {
   "manifest_version": "foigent.tool-source-manifest.v1",
-  "protocol_version": "1.0.0",
+  "protocol_version": "1.1.0",
   "tool": "schema-audit",
   "files": {
     "go.mod": "sha256:3bba2739319a8dd4659dbd2f648c5de216ad1a2d16c6be1881b173b59ebe4908",
     "go.sum": "sha256:63c93a009db9ad922511c645e7216a59837b8c33aec5f77a8fab84ba01d0a13d",
-    "main.go": "sha256:c48031156690ab039a6d743501d127b1fca0cfe5778e8e0ebc7b5b7acce75fce",
+    "main.go": "sha256:dd3f37648730bf8e4dd2449299776b8939ed2e4c10cea33e5207000895bc1b1f",
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/.gitmodules": "sha256:b4a2963bc20a9f02d67176c5632f17647503fec12eadfb8cf5264b0163c8957f",
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/.golangci.yml": "sha256:aca21170ce3b133731765a13355639b61f5611ddee375018da4f1dd667db0f44",
     "vendor/github.com/santhosh-tekuri/jsonschema/v6/.pre-commit-hooks.yaml": "sha256:2813035df78f20cb817ccc572f61d240bd33d5f429d7d2a9c60124767d7db6d5",

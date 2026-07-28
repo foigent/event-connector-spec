@@ -1,0 +1,16 @@
+{
+  "schema_version": "foigent.litellm.spend-log.v1",
+  "request_id": "litellm_req_success_001",
+  "status": "succeeded",
+  "start_time": "2026-07-28T01:02:03.123456Z",
+  "end_time": "2026-07-28T01:02:04.654321Z",
+  "model": "gpt-4o-mini",
+  "model_group": "general",
+  "provider": "openai",
+  "prompt_tokens": "12",
+  "completion_tokens": "8",
+  "total_tokens": "20",
+  "reported_spend": "0.00001234",
+  "currency": "USD",
+  "cache_status": "miss"
+}

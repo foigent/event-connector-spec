@@ -1,0 +1,39 @@
+{
+  "contract_version": "foigent.litellm-conformance-contract.v1",
+  "protocol_version": "1.1.0",
+  "connector_id": "foigent.litellm.spend-logs",
+  "bundle": "vectors/litellm-connector-vector-bundle.v1.json",
+  "report_schema": "foigent://schemas/conformance-report/v1",
+  "required_independent_implementations": [
+    "go",
+    "typescript"
+  ],
+  "required_case_classes": [
+    "bounded_complete_window",
+    "canonical_decimal",
+    "canonical_envelope",
+    "capture_gap_derivation",
+    "checkpoint_commit",
+    "content_conflict",
+    "duplicate_noop",
+    "partial_page_replay",
+    "privacy_rejection",
+    "same_timestamp_boundary",
+    "scoped_idempotency"
+  ],
+  "result_contract": {
+    "canonical_envelopes": "exact RFC 8785 Envelope hash-input bytes with integrity.envelope_hash absent",
+    "idempotency": "exact domain separator plus LP_UTF8 scoped identity bytes",
+    "canonical_decimals": "canonical JSON classification of exact Source number lexemes",
+    "checkpoint": "canonical JSON of accepted request IDs and next durable Checkpoint or fail-closed error",
+    "replay": "canonical JSON of duplicate, conflict and partial-batch convergence",
+    "negative_source_seeds": "canonical Connector Error JSON"
+  },
+  "safety": {
+    "network": "forbidden",
+    "credentials": "forbidden",
+    "runtime_state": "forbidden",
+    "customer_data": "forbidden",
+    "fixtures": "immutable offline bundle only"
+  }
+}
