@@ -1,6 +1,6 @@
 {
   "bundle_version": "foigent.litellm-connector-vector-bundle.v1",
-  "protocol_version": "1.1.0",
+  "protocol_version": "1.1.2",
   "golden_fixture_bundle_path": "fixtures/litellm-golden-fixture-bundle.v1.json",
   "mapping_context": {
     "producer_product": "litellm",
@@ -106,6 +106,68 @@
       "case_id": "nonfinite",
       "input": "NaN",
       "error_code": "invalid_reported_spend",
+      "valid": false
+    }
+  ],
+  "upstream_cache_status": [
+    {
+      "case_id": "json-null",
+      "input": null,
+      "normalized": "unknown",
+      "valid": true
+    },
+    {
+      "case_id": "empty-string",
+      "input": "",
+      "normalized": "unknown",
+      "valid": true
+    },
+    {
+      "case_id": "exact-none-string",
+      "input": "None",
+      "normalized": "unknown",
+      "valid": true
+    },
+    {
+      "case_id": "json-true",
+      "input": true,
+      "normalized": "hit",
+      "valid": true
+    },
+    {
+      "case_id": "exact-true-string",
+      "input": "True",
+      "normalized": "hit",
+      "valid": true
+    },
+    {
+      "case_id": "json-false",
+      "input": false,
+      "normalized": "miss",
+      "valid": true
+    },
+    {
+      "case_id": "exact-false-string",
+      "input": "False",
+      "normalized": "miss",
+      "valid": true
+    },
+    {
+      "case_id": "lowercase-none-rejected",
+      "input": "none",
+      "error_code": "invalid_cache_hit",
+      "valid": false
+    },
+    {
+      "case_id": "lowercase-null-rejected",
+      "input": "null",
+      "error_code": "invalid_cache_hit",
+      "valid": false
+    },
+    {
+      "case_id": "other-string-rejected",
+      "input": "unexpected",
+      "error_code": "invalid_cache_hit",
       "valid": false
     }
   ],

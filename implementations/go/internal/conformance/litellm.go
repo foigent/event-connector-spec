@@ -16,25 +16,26 @@ import (
 )
 
 const (
-	liteLLMBundleSHA256       = "sha256:44681fdec12476284e3c88f8aab710e04bcd35456007e829ae5199421df995d4"
-	liteLLMGoldenSHA256       = "sha256:6b76fb2bf90e94f57dff5307ab4852e623be0180e277c96ea62a89ce6b6bab98"
+	liteLLMBundleSHA256       = "sha256:9997bcade1f65f613e2176266a35b43aef64547c3ed4ba87e61de94080803dc7"
+	liteLLMGoldenSHA256       = "sha256:c7500da0cbbc045f47c2000dd824e403195f6ade2753b12c319418d3a7df939c"
 	liteLLMBundleVersion      = "foigent.litellm-connector-vector-bundle.v1"
 	liteLLMGoldenVersion      = "foigent.litellm-golden-fixture-bundle.v1"
-	liteLLMProtocolVersion    = "1.1.0"
+	liteLLMProtocolVersion    = "1.1.2"
 	liteLLMConnectorID        = "foigent.litellm.spend-logs"
-	liteLLMImplementationVers = "1.1.0+litellm.1"
+	liteLLMImplementationVers = "1.1.2+litellm.1"
 )
 
 type liteLLMVectorBundle struct {
-	BundleVersion           string                  `json:"bundle_version"`
-	ProtocolVersion         string                  `json:"protocol_version"`
-	GoldenFixtureBundlePath string                  `json:"golden_fixture_bundle_path"`
-	MappingContext          liteLLMMappingContext   `json:"mapping_context"`
-	CanonicalEnvelopes      []canonicalEnvelopeCase `json:"canonical_envelopes"`
-	Idempotency             []idempotencyCase       `json:"idempotency"`
-	CanonicalDecimals       []liteLLMDecimalCase    `json:"canonical_decimals"`
-	Checkpoint              []liteLLMCheckpointCase `json:"checkpoint"`
-	Replay                  []replayCase            `json:"replay"`
+	BundleVersion           string                   `json:"bundle_version"`
+	ProtocolVersion         string                   `json:"protocol_version"`
+	GoldenFixtureBundlePath string                   `json:"golden_fixture_bundle_path"`
+	MappingContext          liteLLMMappingContext    `json:"mapping_context"`
+	CanonicalEnvelopes      []canonicalEnvelopeCase  `json:"canonical_envelopes"`
+	Idempotency             []idempotencyCase        `json:"idempotency"`
+	CanonicalDecimals       []liteLLMDecimalCase     `json:"canonical_decimals"`
+	UpstreamCacheStatus     []liteLLMCacheStatusCase `json:"upstream_cache_status"`
+	Checkpoint              []liteLLMCheckpointCase  `json:"checkpoint"`
+	Replay                  []replayCase             `json:"replay"`
 }
 
 type liteLLMMappingContext struct {
@@ -83,6 +84,14 @@ type liteLLMDecimalCase struct {
 	Canonical string `json:"canonical,omitempty"`
 	ErrorCode string `json:"error_code,omitempty"`
 	Valid     bool   `json:"valid"`
+}
+
+type liteLLMCacheStatusCase struct {
+	CaseID     string `json:"case_id"`
+	Input      any    `json:"input"`
+	Normalized string `json:"normalized,omitempty"`
+	ErrorCode  string `json:"error_code,omitempty"`
+	Valid      bool   `json:"valid"`
 }
 
 type liteLLMCheckpoint struct {
@@ -184,10 +193,11 @@ func loadLiteLLMInputs(bundlePath string) (liteLLMInputs, error) {
 }
 
 func runLiteLLMCases(inputs liteLLMInputs) []caseObservation {
-	observations := make([]caseObservation, 0, 20)
+	observations := make([]caseObservation, 0, 30)
 	observations = append(observations, runLiteLLMCanonicalCases(inputs)...)
 	observations = append(observations, runLiteLLMIdentityCases(inputs.bundle)...)
 	observations = append(observations, runLiteLLMDecimalCases(inputs.bundle)...)
+	observations = append(observations, runLiteLLMCacheStatusCases(inputs.bundle)...)
 	observations = append(observations, runLiteLLMCheckpointCases(inputs.bundle)...)
 	observations = append(observations, runLiteLLMReplayCases(inputs.bundle)...)
 	observations = append(observations, runLiteLLMNegativeCases(inputs)...)
@@ -314,6 +324,59 @@ func runLiteLLMDecimalCases(bundle liteLLMVectorBundle) []caseObservation {
 		result = append(result, observation)
 	}
 	return result
+}
+
+func runLiteLLMCacheStatusCases(bundle liteLLMVectorBundle) []caseObservation {
+	result := make([]caseObservation, 0, len(bundle.UpstreamCacheStatus))
+	for _, vector := range bundle.UpstreamCacheStatus {
+		normalized, code, valid := normalizeLiteLLMCacheHit(vector.Input)
+		observed := map[string]any{"valid": valid}
+		if valid {
+			observed["normalized"] = normalized
+		} else {
+			observed["error_code"] = code
+		}
+		bytes, err := canonicalizeValue(observed)
+		observation := caseObservation{
+			id:      "upstream_cache_status/" + vector.CaseID,
+			classes: []string{"upstream_source_mapping"},
+			kind:    "classification",
+			result:  bytes,
+		}
+		if err != nil {
+			observation.failures = append(observation.failures, err.Error())
+		}
+		addFailure(&observation.failures, valid == vector.Valid, "cache_hit validity mismatch")
+		if valid {
+			addFailure(&observation.failures, normalized == vector.Normalized, "cache_hit normalization mismatch")
+		} else {
+			addFailure(&observation.failures, code == vector.ErrorCode, "cache_hit error mismatch")
+		}
+		result = append(result, observation)
+	}
+	return result
+}
+
+func normalizeLiteLLMCacheHit(input any) (string, string, bool) {
+	switch value := input.(type) {
+	case nil:
+		return "unknown", "", true
+	case bool:
+		if value {
+			return "hit", "", true
+		}
+		return "miss", "", true
+	case string:
+		switch value {
+		case "True":
+			return "hit", "", true
+		case "False":
+			return "miss", "", true
+		case "", "None":
+			return "unknown", "", true
+		}
+	}
+	return "", "invalid_cache_hit", false
 }
 
 func runLiteLLMCheckpointCases(bundle liteLLMVectorBundle) []caseObservation {
@@ -905,7 +968,7 @@ func validateLiteLLMReport(generated report) error {
 		generated.Implementation != implementationName ||
 		generated.BundleSHA256 != liteLLMBundleSHA256 ||
 		(generated.Status != "pass" && generated.Status != "fail") ||
-		len(generated.Cases) != 20 {
+		len(generated.Cases) != 30 {
 		return errors.New("invalid LiteLLM report header or case count")
 	}
 	ids := make(map[string]struct{}, len(generated.Cases))

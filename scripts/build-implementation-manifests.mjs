@@ -21,7 +21,7 @@ const artifacts = [
     identity: {
       manifest_version:
         "foigent.conformance-implementation-manifest.v1",
-      protocol_version: "1.1.0",
+      protocol_version: "1.1.2",
       implementation: "go",
     },
   },
@@ -32,7 +32,7 @@ const artifacts = [
     identity: {
       manifest_version:
         "foigent.conformance-implementation-manifest.v1",
-      protocol_version: "1.1.0",
+      protocol_version: "1.1.2",
       implementation: "typescript",
     },
   },
@@ -42,7 +42,7 @@ const artifacts = [
     outputName: "source-manifest.v1.json",
     identity: {
       manifest_version: "foigent.tool-source-manifest.v1",
-      protocol_version: "1.1.0",
+      protocol_version: "1.1.2",
       tool: "schema-audit",
     },
   },

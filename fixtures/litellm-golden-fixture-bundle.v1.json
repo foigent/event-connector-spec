@@ -1,6 +1,6 @@
 {
   "bundle_version": "foigent.litellm-golden-fixture-bundle.v1",
-  "protocol_version": "1.1.0",
+  "protocol_version": "1.1.2",
   "connector": "foigent.litellm.spend-logs",
   "cases": [
     {

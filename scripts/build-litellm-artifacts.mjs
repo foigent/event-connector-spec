@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const mode = process.argv[2] ?? "--check";
-const protocolVersion = "1.1.0";
+const protocolVersion = "1.1.2";
 const context = {
   producer_product: "litellm",
   producer_instance: "litellm-development",
@@ -37,6 +37,68 @@ const cases = [
     case_id: "litellm-cache-hit",
     source_path: "fixtures/source/litellm/valid-cache-hit.json",
     shared_path: "fixtures/shared/litellm-cache-hit-envelope.hash-input.json",
+  },
+];
+const upstreamCacheStatus = [
+  {
+    case_id: "json-null",
+    input: null,
+    normalized: "unknown",
+    valid: true,
+  },
+  {
+    case_id: "empty-string",
+    input: "",
+    normalized: "unknown",
+    valid: true,
+  },
+  {
+    case_id: "exact-none-string",
+    input: "None",
+    normalized: "unknown",
+    valid: true,
+  },
+  {
+    case_id: "json-true",
+    input: true,
+    normalized: "hit",
+    valid: true,
+  },
+  {
+    case_id: "exact-true-string",
+    input: "True",
+    normalized: "hit",
+    valid: true,
+  },
+  {
+    case_id: "json-false",
+    input: false,
+    normalized: "miss",
+    valid: true,
+  },
+  {
+    case_id: "exact-false-string",
+    input: "False",
+    normalized: "miss",
+    valid: true,
+  },
+  {
+    case_id: "lowercase-none-rejected",
+    input: "none",
+    error_code: "invalid_cache_hit",
+    valid: false,
+  },
+  {
+    case_id: "lowercase-null-rejected",
+    input: "null",
+    error_code: "invalid_cache_hit",
+    valid: false,
+  },
+  {
+    case_id: "other-string-rejected",
+    input: "unexpected",
+    error_code: "invalid_cache_hit",
+    valid: false,
   },
 ];
 
@@ -332,6 +394,78 @@ if (!["--write", "--check"].includes(mode)) {
   throw new Error("usage: build-litellm-artifacts.mjs --write|--check");
 }
 
+writeOrCheck(
+  "mappings/litellm/spend-logs-v2-to-sanitized-source.v1.json",
+  {
+    mapping_version: "foigent.upstream-to-source-mapping.v1",
+    mapping_id:
+      "foigent.litellm.spend-logs-v2-to-sanitized-source.v1",
+    upstream: {
+      product: "litellm",
+      version: "v1.93.0",
+      route: "/spend/logs/v2",
+      response_data_path: "data[]",
+    },
+    output_schema: "foigent://sources/litellm/spend-log/v1",
+    allowlisted_fields: {
+      request_id: "exact valid UTF-8 bytes",
+      status:
+        "null or success -> succeeded; failure -> failed; all other values reject",
+      startTime:
+        "parse as UTC instant and emit start_time at exact microsecond precision",
+      endTime:
+        "parse as UTC instant and emit end_time at exact microsecond precision",
+      model: "exact valid UTF-8 bytes",
+      model_group:
+        "exact valid UTF-8 bytes when nonempty, otherwise absent",
+      custom_llm_provider:
+        "provider exact valid UTF-8 bytes when nonempty, otherwise absent",
+      prompt_tokens: "nonnegative int64 -> canonical decimal string",
+      completion_tokens: "nonnegative int64 -> canonical decimal string",
+      total_tokens:
+        "nonnegative int64 -> canonical decimal string and exact prompt+completion sum",
+      spend:
+        "parse exact JSON numeric token as nonnegative decimal and emit canonical reported_spend",
+      cache_hit:
+        "JSON true or string True -> hit; JSON false or string False -> miss; JSON null, empty string or exact string None -> unknown; lowercase none, string null and all other values reject",
+      currency: "declared exact USD",
+    },
+    privacy_boundary: {
+      raw_response_retention: "forbidden",
+      raw_response_logging: "forbidden",
+      unknown_field_copy: "forbidden",
+      explicitly_discarded_fields: [
+        "api_key",
+        "user",
+        "end_user",
+        "requester_ip_address",
+        "metadata",
+        "messages",
+        "response",
+        "proxy_server_request",
+        "cache_key",
+        "session_id",
+        "team_id",
+        "organization_id",
+      ],
+      sanitized_record_validation: "strict unknown-field rejection",
+    },
+    page_invariants: {
+      page_size: 100,
+      maximum_pages: 20,
+      maximum_unique_request_ids: 2000,
+      maximum_cumulative_response_bytes: 8388608,
+      total_is_capped: false,
+      all_pages_same_total_and_shape: true,
+      unique_request_id_count_equals_total: true,
+      local_order: [
+        "startTime ascending",
+        "request_id exact UTF-8 bytes ascending",
+      ],
+    },
+  },
+);
+
 const builtCases = [];
 for (const item of cases) {
   const sourceBytes = readFileSync(resolve(root, item.source_path));
@@ -448,6 +582,7 @@ const vectors = {
       valid: false,
     },
   ],
+  upstream_cache_status: upstreamCacheStatus,
   checkpoint: [
     {
       case_id: "activation-forward-fence",

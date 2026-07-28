@@ -1,0 +1,270 @@
+{
+  "release_manifest_version": "foigent.protocol-release-manifest.v1",
+  "protocol_version": "1.1.2",
+  "authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565,
+    "tag": "v1.1.2"
+  },
+  "components": {
+    "protocol_spec": {
+      "path": "spec/protocol-v1.md",
+      "sha256": "sha256:07a9d4fce4089a4019f86ddcf2953ebec30739a2b591d241a95fd5ac558df36d"
+    },
+    "shared_ci_action": {
+      "path": "action.yml",
+      "sha256": "sha256:d582bf286035d20fb99d67a35a637a697e62411de8d669340a549142381bdc38"
+    },
+    "authority_ci_workflow": {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "sha256:adcac0b860655ec82d88955fd29f0d5c53134fa5a3279c4a0c996474cf4b920e"
+    },
+    "conformance_kit_runner": {
+      "path": "scripts/run-conformance-kit.sh",
+      "sha256": "sha256:98afa5b6c964df78a80a7aaf7488899f76d21123f0f867ab3a83fc6af9a43214"
+    },
+    "release_builder": {
+      "path": "scripts/build-release-manifest.mjs",
+      "sha256": "sha256:2a37f17e2ec4abbfc753fba650023b8e8ca8f09307c3a663210efd9a09c34e83"
+    },
+    "implementation_manifest_builder": {
+      "path": "scripts/build-implementation-manifests.mjs",
+      "sha256": "sha256:b171e4e8e7110d0046cebb73347599929e7ff1fa6e2f8b3f9b2be74d158e28f8"
+    },
+    "candidate_verifier": {
+      "path": "scripts/verify-candidate.mjs",
+      "sha256": "sha256:b6b85cf20be7f6cd22c234b17b40b30f899f159ee4b82ad7ecbf0b922d06a78b"
+    },
+    "conformance_comparator": {
+      "path": "scripts/compare-conformance.mjs",
+      "sha256": "sha256:ed20b80680b94e993bec8824514ba3ba752138ec142bf6b84b853c0801df5426"
+    },
+    "product_pin_verifier": {
+      "path": "scripts/verify-product-pin.mjs",
+      "sha256": "sha256:c62b7ef169a53827cbb1be4dd6d14737e354a0a32f1250ef4fb66e3359c37fbe"
+    },
+    "release_manifest_schema": {
+      "path": "schemas/release-manifest.v1.schema.json",
+      "sha256": "sha256:d32190dba69982d02ad0d817a8f0bac9f3e73fe066a25769c36079edd072735c"
+    },
+    "protocol_pin_schema": {
+      "path": "schemas/protocol-pin.v1.schema.json",
+      "sha256": "sha256:d186f37c5ea7e090f21bb1a6962ec65f07342d60198f35952b0d224e0bc57e60"
+    },
+    "event_envelope_schema": {
+      "path": "schemas/event-envelope.v1.schema.json",
+      "sha256": "sha256:6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26"
+    },
+    "capture_gap_schema": {
+      "path": "schemas/capture-gap.v1.schema.json",
+      "sha256": "sha256:1a5be69da99f62033ceadf05f66d45296d1d5f8b662830f77c0fc6af49edaec8"
+    },
+    "domain_catalog": {
+      "path": "catalog/domain-catalog.v1.json",
+      "sha256": "sha256:0a8a1bcc27991bd22f6766574f9a8ba44f6702ac4a94f91dfc199862b41bf2b1"
+    },
+    "model_request_completed_schema": {
+      "path": "schemas/model-request-completed.v1.schema.json",
+      "sha256": "sha256:ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6"
+    },
+    "model_request_completed_v2_schema": {
+      "path": "schemas/model-request-completed.v2.schema.json",
+      "sha256": "sha256:75e5af3fe8a433054988c6afa3faf5a9a9fbe03a300c8d1d5a869912ecd9154e"
+    },
+    "litellm_source_schema": {
+      "path": "schemas/litellm-spend-log.v1.schema.json",
+      "sha256": "sha256:bc6360ac33f17f57dc7845b8d6dc413736a635d6e1fb14b16dde1a9ae8ea0949"
+    },
+    "connector_manifest_schema": {
+      "path": "schemas/connector-manifest.v1.schema.json",
+      "sha256": "sha256:59c405086310d0dfb2aaff37e55d73853e04319e6ccf659c66f98d8ba704a205"
+    },
+    "connector_lifecycle_schema": {
+      "path": "schemas/connector-lifecycle.v1.schema.json",
+      "sha256": "sha256:bd5c730587041ddc7ad6f66bca4deca35edf5f9b5b92b761ac53701f37e18d5e"
+    },
+    "event_batch_schema": {
+      "path": "schemas/event-batch.v1.schema.json",
+      "sha256": "sha256:8e2133922bcb77cf032309290593665df1bf56cfa47e433dd573d0e42f36eef9"
+    },
+    "checkpoint_schema": {
+      "path": "schemas/connector-checkpoint.v1.schema.json",
+      "sha256": "sha256:8be2fd290d6db8d288a9b10ac6d9aa0b55a66ff21ea0fb55ac0af2d1b66bf800"
+    },
+    "operation_receipt_schema": {
+      "path": "schemas/operational-receipt.v1.schema.json",
+      "sha256": "sha256:3c3b99e009e208456039d3bfe26d84af7e3f1af23589e7fa62a1e1a61e0fb3c6"
+    },
+    "error_schema": {
+      "path": "schemas/connector-error.v1.schema.json",
+      "sha256": "sha256:f449ba6314f1f730be5a0b188dc6d2cc2704e8f5d84a4eebecac576221e4ca56"
+    },
+    "conformance_report_schema": {
+      "path": "schemas/conformance-report.v1.schema.json",
+      "sha256": "sha256:42048fbf5a5edc2ca4476727563ab41e96a8fb6d3788d446e0e0d7c4154a31a7"
+    },
+    "reference_connector_manifest": {
+      "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+      "sha256": "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79"
+    },
+    "litellm_connector_manifest": {
+      "path": "manifests/foigent.litellm.spend-logs-1.0.0.json",
+      "sha256": "sha256:86a10565a8c66abe5b31d6c39e853cebf5e9b90721d6784ea0bf7c28d2c20693"
+    },
+    "litellm_source_signature_evidence": {
+      "path": "evidence/upstream/litellm-v1.93.0-cosign-verify.json",
+      "sha256": "sha256:c2c51730dcac31dce3a1779eaebfddeddb03457fd15dea1847e1e7431048224b"
+    },
+    "litellm_source_signature_public_key": {
+      "path": "evidence/upstream/litellm-cosign.pub",
+      "sha256": "sha256:ff8869bf14ba9d10af7b64b9d479543b44daec0165e715753c43ff8a998f6dd3"
+    },
+    "litellm_source_contract_evidence": {
+      "path": "evidence/upstream/litellm-v1.93.0-source-contract.json",
+      "sha256": "sha256:ae009f584642ae524e259d840e34bb21ef9f2acf19d616edc67a8d5791ab0ae8"
+    },
+    "source_projection_contract": {
+      "path": "mappings/unirouter/source-snapshot-to-model-request-completed.v1.json",
+      "sha256": "sha256:5425ab384bebcd9d4a7e81882bfa1bb1700df7cc397863b91f69e2855df12928"
+    },
+    "source_lifecycle_mapping": {
+      "path": "mappings/unirouter/source-lifecycle-to-shared-axes.v1.json",
+      "sha256": "sha256:1618c86e3d8fae206322e1d928b8b5f0401865623b4267f5b685d7ac02b2968f"
+    },
+    "source_identity_mapping": {
+      "path": "mappings/unirouter/connector-identity-to-source-local.v1.json",
+      "sha256": "sha256:0cdbcdcf42658ee12d14ae13ef5d43b54488dca7cec8182055047585eb62e890"
+    },
+    "reference_projection_contract": {
+      "path": "mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json",
+      "sha256": "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03"
+    },
+    "litellm_source_projection_contract": {
+      "path": "mappings/litellm/spend-log-to-model-request-completed.v2.json",
+      "sha256": "sha256:d687643d6d1aa87801a2587d6fe936372b67975d5de423f614d97d3833bc0830"
+    },
+    "litellm_upstream_source_mapping": {
+      "path": "mappings/litellm/spend-logs-v2-to-sanitized-source.v1.json",
+      "sha256": "sha256:f2ea79fcd2ae198e964168ce31e8f71aeba44bc5d3930afbcef57f3c4ea1eb7b"
+    },
+    "litellm_reference_projection_contract": {
+      "path": "mappings/xinsight/model-request-completed-v2-to-m0-m0.1-litellm-v1.json",
+      "sha256": "sha256:72bb90b6a5ddf0f44f7773a7378c0f7f458438f9fc1363d31a65602c0547f088"
+    },
+    "consumer_lifecycle_mapping": {
+      "path": "mappings/xinsight/connector-lifecycle-to-current-xinsight-v1.json",
+      "sha256": "sha256:f1980ad31b1b3be978b39dee854f9e9e1accf99fa266615fe5a43f10dc115503"
+    },
+    "consumer_identity_mapping": {
+      "path": "mappings/xinsight/portable-connector-identity-to-current-xinsight-v1.json",
+      "sha256": "sha256:a14c7ed4fe5475cf4ad50da32731824eb8b85fb249dcd5b4bc5b7556d6b33305"
+    },
+    "canonical_vector_bundle": {
+      "path": "vectors/canonical-vector-bundle.v1.json",
+      "sha256": "sha256:50fc8e8be08c37381611d6423e29780894741fb108fc4569df7c895452e5d4db"
+    },
+    "litellm_vector_bundle": {
+      "path": "vectors/litellm-connector-vector-bundle.v1.json",
+      "sha256": "sha256:9997bcade1f65f613e2176266a35b43aef64547c3ed4ba87e61de94080803dc7"
+    },
+    "golden_fixture_bundle": {
+      "path": "fixtures/golden-fixture-bundle.v1.json",
+      "sha256": "sha256:e71eef0cc0a3388d5563eeda0c178b751af34bd856f0bdc2b7dc85b00df75a86"
+    },
+    "litellm_golden_fixture_bundle": {
+      "path": "fixtures/litellm-golden-fixture-bundle.v1.json",
+      "sha256": "sha256:c7500da0cbbc045f47c2000dd824e403195f6ade2753b12c319418d3a7df939c"
+    },
+    "reference_compatibility_vector_bundle": {
+      "path": "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
+      "sha256": "sha256:5cd40aa6c0256a70ad7317c05e078759685e0469be77a3e960a976adc3158e8e"
+    },
+    "compatibility_matrix": {
+      "path": "compatibility/foigent-unirouter-completed-execution-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:03fb035134b173165e6a03f348d40a58fe1d28d82c24bacb1dec553c8b769c89"
+    },
+    "litellm_compatibility_matrix": {
+      "path": "compatibility/foigent-litellm-spend-logs-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:3b0a2c5e3bfa89dc060299fa0b4351edcd33d92b2702cf95c99b1f26b51dd4ec"
+    },
+    "conformance_contract": {
+      "path": "conformance/conformance-contract.v1.json",
+      "sha256": "sha256:f3ae834265170ff22088943283fd23dcb562bc2308571ccc722414c2c896dc23"
+    },
+    "litellm_conformance_contract": {
+      "path": "conformance/litellm-conformance-contract.v1.json",
+      "sha256": "sha256:1863e2f72c9dcd7e65a18a4ce42cd463a16749c5ee3e5f420936ed2ebef199a5"
+    },
+    "litellm_artifact_builder": {
+      "path": "scripts/build-litellm-artifacts.mjs",
+      "sha256": "sha256:3975ddf1aacd7c2ad6fac5dad569004b6066b61de6d260ef78b75ec0ad01423e"
+    },
+    "litellm_upstream_evidence_verifier": {
+      "path": "scripts/verify-litellm-upstream-evidence.mjs",
+      "sha256": "sha256:c2c58c55640d7eefd36476fad77341489ce2576a9f4ffd2ee766382309eaa32f"
+    },
+    "litellm_conformance_comparator": {
+      "path": "scripts/compare-litellm-conformance.mjs",
+      "sha256": "sha256:da30b59e4cd1d46872a66c9cc43f963ac59741a16acc4f16ad7df3079526ed46"
+    },
+    "go_implementation_manifest": {
+      "path": "implementations/go/implementation-manifest.v1.json",
+      "sha256": "sha256:3c13c4f5e936fdaf1607ce0e15a6f2750d0152150472d70233e4bab2d2fd674d"
+    },
+    "typescript_implementation_manifest": {
+      "path": "implementations/typescript/implementation-manifest.v1.json",
+      "sha256": "sha256:6ecd818efd7b6b3555171cc3bac3dc0275cf45b36fac9ae6be9ed5fe95c92fff"
+    },
+    "schema_audit_source_manifest": {
+      "path": "tools/schema-audit/source-manifest.v1.json",
+      "sha256": "sha256:9dbe9e409f81b59370d53af1663ae28c392efe98310d295ff3ac54a616ebfd2b"
+    },
+    "go_conformance_report": {
+      "path": "conformance/reports/go-v1.json",
+      "sha256": "sha256:7c1d2c3041bcd5e06a1e5c509992ee9c44ef9d8da4db896630ce0e6c10a2faa7"
+    },
+    "go_litellm_conformance_report": {
+      "path": "conformance/reports/go-litellm-v1.json",
+      "sha256": "sha256:76a99ad15da60658b40cd4b505e4a5ad1e4f64f8ad86bac497d66092c8096ab5"
+    },
+    "typescript_conformance_report": {
+      "path": "conformance/reports/typescript-v1.json",
+      "sha256": "sha256:8f1129e134959af412e352d32b3919575527506290ecce1ea7b28b011a1352fc"
+    },
+    "typescript_litellm_conformance_report": {
+      "path": "conformance/reports/typescript-litellm-v1.json",
+      "sha256": "sha256:a63bdceaa8bad86ed4c90d95ff5d8d2a48094429e9862b1e8c491b43040fa2f3"
+    }
+  },
+  "content_digest": "sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c",
+  "approvals": [
+    {
+      "role": "source_domain_owner",
+      "status": "confirmed",
+      "reviewed_content_digest": "sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c",
+      "evidence": {
+        "path": "reviews/releases/v1.1.2/source-owner-approval.md",
+        "sha256": "sha256:63e63ae0b7ff44859310758d1bba9ddd29930859a7607db7ac0e3db24002a935"
+      }
+    },
+    {
+      "role": "projection_owner",
+      "status": "confirmed",
+      "reviewed_content_digest": "sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c",
+      "evidence": {
+        "path": "reviews/releases/v1.1.2/projection-owner-approval.md",
+        "sha256": "sha256:2e7152ad9b8df5e444628a2e8e4430f81347fb19405ef4262cba11cb4814496a"
+      }
+    },
+    {
+      "role": "coordinator",
+      "status": "confirmed",
+      "reviewed_content_digest": "sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c",
+      "evidence": {
+        "path": "reviews/releases/v1.1.2/coordinator-approval.md",
+        "sha256": "sha256:c3b78c12a48993998023d41b7fa82d35174c91d3c0b5fa7d85fad585858c032b"
+      }
+    }
+  ],
+  "release_digest": "sha256:477cb3b4c35d32682b12e1d63c17bb87bfe515f98fdddc5d07dbce2dc19ea5c8"
+}

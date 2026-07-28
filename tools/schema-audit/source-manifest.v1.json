@@ -1,6 +1,6 @@
 {
   "manifest_version": "foigent.tool-source-manifest.v1",
-  "protocol_version": "1.1.0",
+  "protocol_version": "1.1.2",
   "tool": "schema-audit",
   "files": {
     "go.mod": "sha256:3bba2739319a8dd4659dbd2f648c5de216ad1a2d16c6be1881b173b59ebe4908",

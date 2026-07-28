@@ -48,6 +48,9 @@ const expected = [
   ...bundle.canonical_decimals.map((item) =>
     `canonical_decimals/${item.case_id}`
   ),
+  ...bundle.upstream_cache_status.map((item) =>
+    `upstream_cache_status/${item.case_id}`
+  ),
   ...bundle.checkpoint.map((item) => `checkpoint/${item.case_id}`),
   ...bundle.replay.map((item) => `replay/${item.case_id}`),
   ...golden.negative_source_seeds.map((item) =>
