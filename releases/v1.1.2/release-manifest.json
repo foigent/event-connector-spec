@@ -9,7 +9,7 @@
   "components": {
     "protocol_spec": {
       "path": "spec/protocol-v1.md",
-      "sha256": "sha256:07a9d4fce4089a4019f86ddcf2953ebec30739a2b591d241a95fd5ac558df36d"
+      "sha256": "sha256:56e0bf210f110839403ab653936ffc9fb41236b39846f697d8536c816ed2c45f"
     },
     "shared_ci_action": {
       "path": "action.yml",
@@ -236,35 +236,35 @@
       "sha256": "sha256:a63bdceaa8bad86ed4c90d95ff5d8d2a48094429e9862b1e8c491b43040fa2f3"
     }
   },
-  "content_digest": "sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c",
+  "content_digest": "sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813",
   "approvals": [
     {
       "role": "source_domain_owner",
       "status": "confirmed",
-      "reviewed_content_digest": "sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c",
+      "reviewed_content_digest": "sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813",
       "evidence": {
         "path": "reviews/releases/v1.1.2/source-owner-approval.md",
-        "sha256": "sha256:63e63ae0b7ff44859310758d1bba9ddd29930859a7607db7ac0e3db24002a935"
+        "sha256": "sha256:0f4dc90c4b0896e90cac860504cbced07b95d60470ae90cacce5163ca1840395"
       }
     },
     {
       "role": "projection_owner",
       "status": "confirmed",
-      "reviewed_content_digest": "sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c",
+      "reviewed_content_digest": "sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813",
       "evidence": {
         "path": "reviews/releases/v1.1.2/projection-owner-approval.md",
-        "sha256": "sha256:2e7152ad9b8df5e444628a2e8e4430f81347fb19405ef4262cba11cb4814496a"
+        "sha256": "sha256:964e96ef9c6c16e548c7746a56c0ed1a1dcff80bd5945e7246efec2ee034c0ca"
       }
     },
     {
       "role": "coordinator",
       "status": "confirmed",
-      "reviewed_content_digest": "sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c",
+      "reviewed_content_digest": "sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813",
       "evidence": {
         "path": "reviews/releases/v1.1.2/coordinator-approval.md",
-        "sha256": "sha256:c3b78c12a48993998023d41b7fa82d35174c91d3c0b5fa7d85fad585858c032b"
+        "sha256": "sha256:71f873d2a1fb831b0654f911bfb4b223feb762762518c56a3728c4c23e20bd6b"
       }
     }
   ],
-  "release_digest": "sha256:477cb3b4c35d32682b12e1d63c17bb87bfe515f98fdddc5d07dbce2dc19ea5c8"
+  "release_digest": "sha256:0b414d5d59e5a7ca5c05505cb58d7992c544537da1c84a57256ec205618d9cd1"
 }

@@ -11,20 +11,27 @@ Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`
 Reviewed authority state:
 
 - repository: `https://github.com/foigent/event-connector-spec`
-- candidate commit: `f3e3bc2db008ba075401d8e0c062e628b0a35c32`
-- candidate tree: `23174dbf39f4b8138f7beb3733122229f2657ccb`
+- candidate commit: `45b03dbeffe59d170828863e6c1902cd0a5e5443`
+- candidate tree: `9c779273142ddb702383198f80e4b4f91ef6656b`
 - protocol version: `1.1.2`
 - reviewed content digest:
-  `sha256:60c063bee465d341de4dc1c640ec5555b78985be8d20e528c168f41373ccb60c`
+  `sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813`
 
 ## Disposition
 
 Semantic conflict: `NONE_IDENTIFIED`
 
-The Projection Owner independently reviewed the exact 18-file candidate
-against immutable protocol `1.1.1`. It adds one pinned LiteLLM `v1.93.0`
-upstream lexical compatibility rule: only the exact string `"None"` maps to
-the existing normalized `cache_status="unknown"`.
+The Projection Owner independently reviewed the exact two-file release-truth
+correction over the already approved protocol `1.1.2` component candidate.
+`README.md` and `spec/protocol-v1.md` now describe `1.1.2` as the stable
+protocol version whose binding authority is only the immutable `v1.1.2` tag
+and its verified release manifest, replacing the transitional candidate and
+`v1.1.1`-binding wording. No protocol or projection semantic changes.
+
+The previously reviewed compatibility evidence remains applicable. Protocol
+`1.1.2` adds one pinned LiteLLM `v1.93.0` upstream lexical compatibility rule:
+only the exact string `"None"` maps to the existing normalized
+`cache_status="unknown"`.
 
 JSON `null` and the empty string preserve their existing `unknown` semantics.
 JSON booleans and exact strings `"True"` and `"False"` preserve their existing
@@ -64,9 +71,11 @@ remains separately isolated and authorized.
 This approval covers only the exact candidate and content digest above. Any
 component-byte change requires a new content digest and new three-role review.
 
-The current Draft PR intentionally lacks the three final `v1.1.2` approval
-records and immutable release manifest. It must remain merge-held until final
-release assembly is added and exact-head authority CI is green.
+The current Draft PR intentionally leaves the immutable release manifest stale
+until all three final `v1.1.2` approval records are rebound to this exact
+candidate and the manifest is reproducibly regenerated. It must remain
+merge-held until final release assembly is complete and exact-head authority
+CI is green.
 
 This approval does not authorize or claim product code changes, runtime
 deployment, credentials, live LiteLLM access, traffic, database changes,
