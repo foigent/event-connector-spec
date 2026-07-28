@@ -18,7 +18,7 @@ import {
 import { buildIdempotencyInput } from "./protocol.ts";
 
 const BUNDLE_SHA256 =
-  "sha256:a090c3e0f093354e8134b38e8e6d3c56016bbb5b2fbf30dcde1b888f081b9c59";
+  "sha256:44681fdec12476284e3c88f8aab710e04bcd35456007e829ae5199421df995d4";
 const GOLDEN_SHA256 =
   "sha256:6b76fb2bf90e94f57dff5307ab4852e623be0180e277c96ea62a89ce6b6bab98";
 const BUNDLE_VERSION = "foigent.litellm-connector-vector-bundle.v1";
@@ -111,8 +111,8 @@ export async function createLiteLLMConformanceReport(
     status: allFailures.length === 0 ? "pass" : "fail",
     cases,
   };
-  if (cases.length !== 19) {
-    throw new LiteLLMArtifactFailure(`expected 19 cases, got ${cases.length}`);
+  if (cases.length !== 20) {
+    throw new LiteLLMArtifactFailure(`expected 20 cases, got ${cases.length}`);
   }
   return { report, reportBytes: canonicalBytes(report), failures: allFailures };
 }
@@ -675,7 +675,7 @@ function observeCheckpoint(
       ...accepted.filter((row) => row.startTime === maxTime).map((row) =>
         row.requestId
       ),
-    ].sort();
+    ].sort(compareUtf8);
     next = {
       last_start_time: maxTime,
       boundary_request_ids: [...new Set(ids)],

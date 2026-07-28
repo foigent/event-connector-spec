@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	liteLLMBundleSHA256       = "sha256:a090c3e0f093354e8134b38e8e6d3c56016bbb5b2fbf30dcde1b888f081b9c59"
+	liteLLMBundleSHA256       = "sha256:44681fdec12476284e3c88f8aab710e04bcd35456007e829ae5199421df995d4"
 	liteLLMGoldenSHA256       = "sha256:6b76fb2bf90e94f57dff5307ab4852e623be0180e277c96ea62a89ce6b6bab98"
 	liteLLMBundleVersion      = "foigent.litellm-connector-vector-bundle.v1"
 	liteLLMGoldenVersion      = "foigent.litellm-golden-fixture-bundle.v1"
@@ -184,7 +184,7 @@ func loadLiteLLMInputs(bundlePath string) (liteLLMInputs, error) {
 }
 
 func runLiteLLMCases(inputs liteLLMInputs) []caseObservation {
-	observations := make([]caseObservation, 0, 19)
+	observations := make([]caseObservation, 0, 20)
 	observations = append(observations, runLiteLLMCanonicalCases(inputs)...)
 	observations = append(observations, runLiteLLMIdentityCases(inputs.bundle)...)
 	observations = append(observations, runLiteLLMDecimalCases(inputs.bundle)...)
@@ -905,7 +905,7 @@ func validateLiteLLMReport(generated report) error {
 		generated.Implementation != implementationName ||
 		generated.BundleSHA256 != liteLLMBundleSHA256 ||
 		(generated.Status != "pass" && generated.Status != "fail") ||
-		len(generated.Cases) != 19 {
+		len(generated.Cases) != 20 {
 		return errors.New("invalid LiteLLM report header or case count")
 	}
 	ids := make(map[string]struct{}, len(generated.Cases))

@@ -114,7 +114,7 @@
     },
     "reference_compatibility_vector_bundle": {
       "path": "vectors/litellm-connector-vector-bundle.v1.json",
-      "sha256": "sha256:a090c3e0f093354e8134b38e8e6d3c56016bbb5b2fbf30dcde1b888f081b9c59"
+      "sha256": "sha256:44681fdec12476284e3c88f8aab710e04bcd35456007e829ae5199421df995d4"
     },
     "source_revision": "1",
     "timeline_complete": true,

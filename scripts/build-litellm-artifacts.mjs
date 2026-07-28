@@ -486,6 +486,30 @@ const vectors = {
       checkpoint_advances: true,
     },
     {
+      case_id: "same-timestamp-boundary-utf8-order",
+      previous: {
+        last_start_time: "2026-07-28T01:02:03.123456Z",
+        boundary_request_ids: [],
+      },
+      finalized_through: "2026-07-28T01:03:00.000000Z",
+      rows: [
+        {
+          request_id: "\u{10000}",
+          start_time: "2026-07-28T01:02:04.000000Z",
+        },
+        {
+          request_id: "\uE000",
+          start_time: "2026-07-28T01:02:04.000000Z",
+        },
+      ],
+      expected_next: {
+        last_start_time: "2026-07-28T01:02:04.000000Z",
+        boundary_request_ids: ["\uE000", "\u{10000}"],
+      },
+      accepted_request_ids: ["\uE000", "\u{10000}"],
+      checkpoint_advances: true,
+    },
+    {
       case_id: "late-older-row-excluded",
       previous: {
         last_start_time: "2026-07-28T01:02:03.123456Z",
