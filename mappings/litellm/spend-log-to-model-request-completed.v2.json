@@ -1,0 +1,52 @@
+{
+  "mapping_version": "foigent.source-to-event-mapping.v1",
+  "mapping_id": "foigent.litellm.spend-log-to-model-request-completed.v2",
+  "source_schema": "foigent://sources/litellm/spend-log/v1",
+  "event_type": "model.request.completed",
+  "event_schema": "foigent://events/model/request-completed/v2",
+  "identity": {
+    "event_id": "source.request_id exact UTF-8 bytes",
+    "source_revision": "1",
+    "idempotency_profile": "foigent.event-idempotency.v1",
+    "scope": "configured Foigent tenant/org/project binding"
+  },
+  "time": {
+    "terminal_at": "source.end_time",
+    "occurred_at": "deterministic alias of source.end_time",
+    "source_start_time": "retained only in source record and product-local extensions"
+  },
+  "payload": {
+    "terminal.status": "source.status",
+    "usage.model": "source.model",
+    "usage.model_group": "source.model_group when present",
+    "usage.provider": "source.provider when present",
+    "usage.prompt_tokens": "source.prompt_tokens",
+    "usage.completion_tokens": "source.completion_tokens",
+    "usage.total_tokens": "source.total_tokens",
+    "usage.cache_status": "source.cache_status",
+    "reported_money.amount": "source.reported_spend",
+    "reported_money.currency": "source.currency",
+    "timeline_complete": true
+  },
+  "capture_gaps": [
+    "billing_authority",
+    "business_outcome",
+    "downstream_side_effects",
+    "routing_decision"
+  ],
+  "hash_domains": {
+    "source_hash": "exact canonical sanitized SourceRecord bytes",
+    "envelope_hash": "RFC 8785 Envelope hash input with integrity.envelope_hash absent",
+    "excluded": [
+      "page",
+      "page_size",
+      "total",
+      "total_pages",
+      "total_is_capped",
+      "checkpoint",
+      "fetch_time",
+      "ingestion_time",
+      "retry_state"
+    ]
+  }
+}

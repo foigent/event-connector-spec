@@ -6,20 +6,20 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const outputPath = resolve(root, "releases/v1.0.0/release-manifest.json");
+const outputPath = resolve(root, "releases/v1.1.0/release-manifest.json");
 const mode = process.argv[2] ?? "--check";
 const approvalPaths = [
   {
     role: "source_domain_owner",
-    path: "reviews/releases/v1.0.0/source-owner-approval.md",
+    path: "reviews/releases/v1.1.0/source-owner-approval.md",
   },
   {
     role: "projection_owner",
-    path: "reviews/releases/v1.0.0/projection-owner-approval.md",
+    path: "reviews/releases/v1.1.0/projection-owner-approval.md",
   },
   {
     role: "coordinator",
-    path: "reviews/releases/v1.0.0/coordinator-approval.md",
+    path: "reviews/releases/v1.1.0/coordinator-approval.md",
   },
 ];
 
@@ -41,6 +41,9 @@ const componentPaths = {
   domain_catalog: "catalog/domain-catalog.v1.json",
   model_request_completed_schema:
     "schemas/model-request-completed.v1.schema.json",
+  model_request_completed_v2_schema:
+    "schemas/model-request-completed.v2.schema.json",
+  litellm_source_schema: "schemas/litellm-spend-log.v1.schema.json",
   connector_manifest_schema: "schemas/connector-manifest.v1.schema.json",
   connector_lifecycle_schema: "schemas/connector-lifecycle.v1.schema.json",
   event_batch_schema: "schemas/event-batch.v1.schema.json",
@@ -50,6 +53,14 @@ const componentPaths = {
   conformance_report_schema: "schemas/conformance-report.v1.schema.json",
   reference_connector_manifest:
     "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+  litellm_connector_manifest:
+    "manifests/foigent.litellm.spend-logs-1.0.0.json",
+  litellm_source_signature_evidence:
+    "evidence/upstream/litellm-v1.93.0-cosign-verify.json",
+  litellm_source_signature_public_key:
+    "evidence/upstream/litellm-cosign.pub",
+  litellm_source_contract_evidence:
+    "evidence/upstream/litellm-v1.93.0-source-contract.json",
   source_projection_contract:
     "mappings/unirouter/source-snapshot-to-model-request-completed.v1.json",
   source_lifecycle_mapping:
@@ -58,17 +69,36 @@ const componentPaths = {
     "mappings/unirouter/connector-identity-to-source-local.v1.json",
   reference_projection_contract:
     "mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json",
+  litellm_source_projection_contract:
+    "mappings/litellm/spend-log-to-model-request-completed.v2.json",
+  litellm_upstream_source_mapping:
+    "mappings/litellm/spend-logs-v2-to-sanitized-source.v1.json",
+  litellm_reference_projection_contract:
+    "mappings/xinsight/model-request-completed-v2-to-m0-m0.1-litellm-v1.json",
   consumer_lifecycle_mapping:
     "mappings/xinsight/connector-lifecycle-to-current-xinsight-v1.json",
   consumer_identity_mapping:
     "mappings/xinsight/portable-connector-identity-to-current-xinsight-v1.json",
   canonical_vector_bundle: "vectors/canonical-vector-bundle.v1.json",
+  litellm_vector_bundle:
+    "vectors/litellm-connector-vector-bundle.v1.json",
   golden_fixture_bundle: "fixtures/golden-fixture-bundle.v1.json",
+  litellm_golden_fixture_bundle:
+    "fixtures/litellm-golden-fixture-bundle.v1.json",
   reference_compatibility_vector_bundle:
     "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
   compatibility_matrix:
     "compatibility/foigent-unirouter-completed-execution-1.0.0-to-xinsight-m0.1.json",
+  litellm_compatibility_matrix:
+    "compatibility/foigent-litellm-spend-logs-1.0.0-to-xinsight-m0.1.json",
   conformance_contract: "conformance/conformance-contract.v1.json",
+  litellm_conformance_contract:
+    "conformance/litellm-conformance-contract.v1.json",
+  litellm_artifact_builder: "scripts/build-litellm-artifacts.mjs",
+  litellm_upstream_evidence_verifier:
+    "scripts/verify-litellm-upstream-evidence.mjs",
+  litellm_conformance_comparator:
+    "scripts/compare-litellm-conformance.mjs",
   go_implementation_manifest:
     "implementations/go/implementation-manifest.v1.json",
   typescript_implementation_manifest:
@@ -76,8 +106,12 @@ const componentPaths = {
   schema_audit_source_manifest:
     "tools/schema-audit/source-manifest.v1.json",
   go_conformance_report: "conformance/reports/go-v1.json",
+  go_litellm_conformance_report:
+    "conformance/reports/go-litellm-v1.json",
   typescript_conformance_report:
     "conformance/reports/typescript-v1.json",
+  typescript_litellm_conformance_report:
+    "conformance/reports/typescript-litellm-v1.json",
 };
 
 function sha256(bytes) {
@@ -118,11 +152,11 @@ const components = Object.fromEntries(
 );
 const contentHashInput = {
   release_manifest_version: "foigent.protocol-release-manifest.v1",
-  protocol_version: "1.0.0",
+  protocol_version: "1.1.0",
   authority: {
     repository: "https://github.com/foigent/event-connector-spec",
     repository_id: 1313391565,
-    tag: "v1.0.0",
+    tag: "v1.1.0",
   },
   components,
 };

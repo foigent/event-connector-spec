@@ -1,13 +1,15 @@
 {
   "manifest_version": "foigent.conformance-implementation-manifest.v1",
-  "protocol_version": "1.0.0",
+  "protocol_version": "1.1.0",
   "implementation": "typescript",
   "files": {
     ".gitignore": "sha256:020c2606e8ed484089c2083e0be438b9d0736bee1558a6b76af0d58bd23f69cf",
     "README.md": "sha256:1796c5b124ecec83fc54ff47d7a45598946e3d2336677063f8b4ba5526df2393",
-    "deno.json": "sha256:985d6c6f2810a27b61607fd94b3a1a9423ad823f6b9d73bc58910c3aa028a33c",
+    "deno.json": "sha256:62c13b4c7921566050f15f8b57cf412c64d425db4b0cb048bac748dc2657bd1f",
     "src/conformance.ts": "sha256:410e0e37304ec8b3ea78463295f55f0e3a50a5015aa139ec600e447ec1cc14ba",
     "src/json.ts": "sha256:8cb99cbae47fb8764f650d8c00426f1268f78bf575808c2ecd0eb875cbd23cef",
+    "src/litellm_conformance.ts": "sha256:134d88a04ebc5d13f6bfc288552e2e6585175df5fd4926d3adfa84237a804d11",
+    "src/litellm_runner.ts": "sha256:19f8c4d6f7124b43f5ac93ae658964b8c8b3d86d63148f8bc447d0ff85d5c403",
     "src/protocol.ts": "sha256:27fc666ff3314364f5b020944d91816a6592e69601459ee80b276fd6757bfe3e",
     "src/replay.ts": "sha256:3457c73c97db3263adc6160b538a2e310eedbbe13f4200f5584bb84eacb7e7a5",
     "src/runner.ts": "sha256:7ff48d0c698582ef92c026bae42ed65cec6f4b49858939e5332dc660c9eb018f",

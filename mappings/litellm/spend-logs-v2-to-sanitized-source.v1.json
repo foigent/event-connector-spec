@@ -1,0 +1,59 @@
+{
+  "mapping_version": "foigent.upstream-to-source-mapping.v1",
+  "mapping_id": "foigent.litellm.spend-logs-v2-to-sanitized-source.v1",
+  "upstream": {
+    "product": "litellm",
+    "version": "v1.93.0",
+    "route": "/spend/logs/v2",
+    "response_data_path": "data[]"
+  },
+  "output_schema": "foigent://sources/litellm/spend-log/v1",
+  "allowlisted_fields": {
+    "request_id": "exact valid UTF-8 bytes",
+    "status": "null or success -> succeeded; failure -> failed; all other values reject",
+    "startTime": "parse as UTC instant and emit start_time at exact microsecond precision",
+    "endTime": "parse as UTC instant and emit end_time at exact microsecond precision",
+    "model": "exact valid UTF-8 bytes",
+    "model_group": "exact valid UTF-8 bytes when nonempty, otherwise absent",
+    "custom_llm_provider": "provider exact valid UTF-8 bytes when nonempty, otherwise absent",
+    "prompt_tokens": "nonnegative int64 -> canonical decimal string",
+    "completion_tokens": "nonnegative int64 -> canonical decimal string",
+    "total_tokens": "nonnegative int64 -> canonical decimal string and exact prompt+completion sum",
+    "spend": "parse exact JSON numeric token as nonnegative decimal and emit canonical reported_spend",
+    "cache_hit": "JSON true or string True -> hit; JSON false or string False -> miss; JSON null or empty string -> unknown; all other values reject",
+    "currency": "declared exact USD"
+  },
+  "privacy_boundary": {
+    "raw_response_retention": "forbidden",
+    "raw_response_logging": "forbidden",
+    "unknown_field_copy": "forbidden",
+    "explicitly_discarded_fields": [
+      "api_key",
+      "user",
+      "end_user",
+      "requester_ip_address",
+      "metadata",
+      "messages",
+      "response",
+      "proxy_server_request",
+      "cache_key",
+      "session_id",
+      "team_id",
+      "organization_id"
+    ],
+    "sanitized_record_validation": "strict unknown-field rejection"
+  },
+  "page_invariants": {
+    "page_size": 100,
+    "maximum_pages": 20,
+    "maximum_unique_request_ids": 2000,
+    "maximum_cumulative_response_bytes": 8388608,
+    "total_is_capped": false,
+    "all_pages_same_total_and_shape": true,
+    "unique_request_id_count_equals_total": true,
+    "local_order": [
+      "startTime ascending",
+      "request_id exact UTF-8 bytes ascending"
+    ]
+  }
+}

@@ -57,6 +57,82 @@
       "pattern": "^[a-z][a-z0-9_-]*$",
       "maxLength": 64
     },
+    "source_release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "git_commit",
+        "image",
+        "platform_manifests",
+        "signature"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "git_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repository",
+            "index_digest"
+          ],
+          "properties": {
+            "repository": {
+              "type": "string",
+              "pattern": "^[a-z0-9.-]+(/[a-z0-9._-]+)+$",
+              "maxLength": 200
+            },
+            "index_digest": {
+              "$ref": "#/$defs/sha256Ref"
+            }
+          }
+        },
+        "platform_manifests": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "linux_amd64",
+            "linux_arm64"
+          ],
+          "properties": {
+            "linux_amd64": {
+              "$ref": "#/$defs/sha256Ref"
+            },
+            "linux_arm64": {
+              "$ref": "#/$defs/sha256Ref"
+            }
+          }
+        },
+        "signature": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scheme",
+            "public_key_sha256",
+            "verified_index_digest"
+          ],
+          "properties": {
+            "scheme": {
+              "const": "cosign-key-v1"
+            },
+            "public_key_sha256": {
+              "$ref": "#/$defs/sha256Ref"
+            },
+            "verified_index_digest": {
+              "$ref": "#/$defs/sha256Ref"
+            }
+          }
+        }
+      }
+    },
     "event_identity_profile": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_-]*)+$",
@@ -201,7 +277,10 @@
       ],
       "properties": {
         "strategy": {
-          "const": "opaque_cursor"
+          "enum": [
+            "opaque_cursor",
+            "litellm_start_time_boundary_v1"
+          ]
         },
         "cursor_ownership": {
           "const": "connector_state_only"

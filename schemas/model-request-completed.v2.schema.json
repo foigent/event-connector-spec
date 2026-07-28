@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://events/model/request-completed/v2",
+  "title": "Foigent Model Request Completed V2 Payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "terminal",
+    "usage",
+    "reported_money",
+    "timeline_complete",
+    "capture_gaps"
+  ],
+  "properties": {
+    "terminal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "succeeded",
+            "failed"
+          ]
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "prompt_tokens",
+        "completion_tokens",
+        "total_tokens",
+        "source",
+        "authority",
+        "finality",
+        "contract_version",
+        "cache_status"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "model_group": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "prompt_tokens": {
+          "$ref": "#/$defs/int64Decimal"
+        },
+        "completion_tokens": {
+          "$ref": "#/$defs/int64Decimal"
+        },
+        "total_tokens": {
+          "$ref": "#/$defs/int64Decimal"
+        },
+        "source": {
+          "const": "litellm_spend_log"
+        },
+        "authority": {
+          "const": "source_reported"
+        },
+        "finality": {
+          "const": "finalized_after_delay"
+        },
+        "contract_version": {
+          "const": "foigent.litellm.spend-log.v1"
+        },
+        "cache_status": {
+          "enum": [
+            "hit",
+            "miss",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "reported_money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "currency",
+        "amount",
+        "source",
+        "authority"
+      ],
+      "properties": {
+        "schema": {
+          "const": "decimal-currency.v1"
+        },
+        "currency": {
+          "const": "USD"
+        },
+        "amount": {
+          "$ref": "#/$defs/canonicalDecimal"
+        },
+        "source": {
+          "const": "litellm_spend_log"
+        },
+        "authority": {
+          "const": "source_reported"
+        }
+      }
+    },
+    "timeline_complete": {
+      "const": true
+    },
+    "capture_gaps": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/litellmGap"
+            },
+            {
+              "properties": {
+                "affected_claim": {
+                  "const": "billing_authority"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/litellmGap"
+            },
+            {
+              "properties": {
+                "affected_claim": {
+                  "const": "business_outcome"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/litellmGap"
+            },
+            {
+              "properties": {
+                "affected_claim": {
+                  "const": "downstream_side_effects"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/litellmGap"
+            },
+            {
+              "properties": {
+                "affected_claim": {
+                  "const": "routing_decision"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "int64Decimal": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[01][0-9]{17}|92[01][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[01][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-7])$",
+      "maxLength": 19
+    },
+    "canonicalDecimal": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*|(0|[1-9][0-9]*)\\.[0-9]*[1-9])$",
+      "maxLength": 80
+    },
+    "litellmGap": {
+      "allOf": [
+        {
+          "$ref": "foigent://schemas/capture-gap/v1"
+        },
+        {
+          "properties": {
+            "gap_type": {
+              "const": "not_available_from_source"
+            },
+            "reason_code": {
+              "const": "not_exposed_by_litellm_spend_logs_v1"
+            },
+            "severity": {
+              "const": "warning"
+            },
+            "payload_capture_mode": {
+              "const": "none"
+            },
+            "field_provenance": {
+              "const": {
+                "affected_claim": "declared",
+                "reason_code": "declared",
+                "gap_id": "derived",
+                "parent_event_id": "derived",
+                "scope": "derived",
+                "correlation": "derived",
+                "observed_at": "derived",
+                "gap_type": "declared",
+                "severity": "declared",
+                "payload_capture_mode": "declared"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

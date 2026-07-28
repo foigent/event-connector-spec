@@ -1,0 +1,123 @@
+{
+  "manifest_version": "foigent.connector-manifest.v1",
+  "connector_id": "foigent.litellm.spend-logs",
+  "connector_version": "1.0.0",
+  "connector_class": "integration",
+  "direction": "source",
+  "source_product": "litellm",
+  "source_release": {
+    "version": "v1.93.0",
+    "git_commit": "052b5a2169d8d3082e1d66e69f200a72b0c1e274",
+    "image": {
+      "repository": "ghcr.io/berriai/litellm",
+      "index_digest": "sha256:a1745e629abfb17d434426ff48b115f54f4f4c4a0f5af241de569e93c63c411e"
+    },
+    "platform_manifests": {
+      "linux_amd64": "sha256:4ce6c997f7652cf4ed787eef8db8b013f1cd6b79af8280c43f782f8491f6adad",
+      "linux_arm64": "sha256:c465a61a9949b59dc1689c0a745e9aaa3c3e4bd7f6ccb4e1858bbde8cf6e83da"
+    },
+    "signature": {
+      "scheme": "cosign-key-v1",
+      "public_key_sha256": "sha256:ff8869bf14ba9d10af7b64b9d479543b44daec0165e715753c43ff8a998f6dd3",
+      "verified_index_digest": "sha256:a1745e629abfb17d434426ff48b115f54f4f4c4a0f5af241de569e93c63c411e"
+    }
+  },
+  "event_identity_profile": "foigent.event-idempotency.v1",
+  "supported_source_schemas": [
+    {
+      "schema_id": "foigent://sources/litellm/spend-log/v1",
+      "sha256": "sha256:bc6360ac33f17f57dc7845b8d6dc413736a635d6e1fb14b16dde1a9ae8ea0949"
+    }
+  ],
+  "emitted_event_schemas": [
+    {
+      "event_type": "model.request.completed",
+      "schema_ref": "foigent://events/model/request-completed/v2",
+      "schema_version": "2"
+    }
+  ],
+  "transport": {
+    "mode": "https_pull",
+    "route": "/spend/logs/v2",
+    "page_schema": "litellm.spend-logs-v2.page@v1.93.0",
+    "max_items": 100,
+    "max_bytes": 8388608
+  },
+  "delivery": {
+    "guarantee": "at_least_once",
+    "checkpoint_commit": "after_all_items_converge",
+    "conflict": "fail_closed",
+    "empty_page_cursor_advance": "fail_closed"
+  },
+  "bootstrap": {
+    "mode": "activation_forward",
+    "broad_backfill": false
+  },
+  "checkpoint": {
+    "strategy": "litellm_start_time_boundary_v1",
+    "cursor_ownership": "connector_state_only"
+  },
+  "coverage": {
+    "included": [
+      "authenticated LiteLLM spend-log rows finalized at least 60 seconds before poll time",
+      "bounded complete HTTP windows with at most 2000 unique request IDs",
+      "at most 8 MiB cumulative response bytes per complete poll window"
+    ],
+    "excluded": [
+      "retention, logging or emission of prompt, response, proxy request, API key, user, end-user and IP payloads",
+      "rows inserted later than the finalization delay with startTime older than the committed checkpoint",
+      "windows whose complete pagination cannot be proven"
+    ]
+  },
+  "instance_binding": {
+    "source_field": "source_instance",
+    "envelope_field": "producer.instance",
+    "comparison": "exact_utf8_bytes",
+    "change_semantics": "new_connector_instance_identity_domain"
+  },
+  "payload_policy": {
+    "ingestion_capture_mode": "api_import",
+    "payload_capture_mode": "metadata_only",
+    "raw_payload_present": false
+  },
+  "required_capabilities": [
+    "strict_source_validation",
+    "raw_response_allowlist_projection",
+    "bounded_complete_window",
+    "checkpoint_after_convergence",
+    "same_identity_same_hash_duplicate_noop",
+    "same_identity_different_hash_conflict"
+  ],
+  "declared_capture_gaps": [
+    {
+      "affected_claim": "billing_authority",
+      "reason_code": "not_exposed_by_litellm_spend_logs_v1"
+    },
+    {
+      "affected_claim": "business_outcome",
+      "reason_code": "not_exposed_by_litellm_spend_logs_v1"
+    },
+    {
+      "affected_claim": "downstream_side_effects",
+      "reason_code": "not_exposed_by_litellm_spend_logs_v1"
+    },
+    {
+      "affected_claim": "routing_decision",
+      "reason_code": "not_exposed_by_litellm_spend_logs_v1"
+    }
+  ],
+  "compatibility": {
+    "reference_profile": "xinsight.foigent-envelope-to-m0.litellm-spend-log.v1",
+    "reference_projection_contract": {
+      "path": "mappings/xinsight/model-request-completed-v2-to-m0-m0.1-litellm-v1.json",
+      "sha256": "sha256:72bb90b6a5ddf0f44f7773a7378c0f7f458438f9fc1363d31a65602c0547f088"
+    },
+    "reference_compatibility_vector_bundle": {
+      "path": "vectors/litellm-connector-vector-bundle.v1.json",
+      "sha256": "sha256:a090c3e0f093354e8134b38e8e6d3c56016bbb5b2fbf30dcde1b888f081b9c59"
+    },
+    "source_revision": "1",
+    "timeline_complete": true,
+    "retention": "7d"
+  }
+}

@@ -23,7 +23,8 @@
       ]
     },
     "protocol_version": {
-      "const": "1.0.0"
+      "type": "string",
+      "pattern": "^1\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
     },
     "release_digest": {
       "type": "string",
@@ -45,7 +46,8 @@
           "const": 1313391565
         },
         "tag": {
-          "const": "v1.0.0"
+          "type": "string",
+          "pattern": "^v1\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
         }
       }
     },

@@ -117,6 +117,8 @@
         "capture_gap_schema",
         "domain_catalog",
         "model_request_completed_schema",
+        "model_request_completed_v2_schema",
+        "litellm_source_schema",
         "connector_manifest_schema",
         "connector_lifecycle_schema",
         "event_batch_schema",
@@ -125,22 +127,38 @@
         "error_schema",
         "conformance_report_schema",
         "reference_connector_manifest",
+        "litellm_connector_manifest",
+        "litellm_source_signature_evidence",
+        "litellm_source_signature_public_key",
+        "litellm_source_contract_evidence",
         "source_projection_contract",
         "source_lifecycle_mapping",
         "source_identity_mapping",
         "reference_projection_contract",
+        "litellm_source_projection_contract",
+        "litellm_upstream_source_mapping",
+        "litellm_reference_projection_contract",
         "consumer_lifecycle_mapping",
         "consumer_identity_mapping",
         "canonical_vector_bundle",
+        "litellm_vector_bundle",
         "golden_fixture_bundle",
+        "litellm_golden_fixture_bundle",
         "reference_compatibility_vector_bundle",
         "compatibility_matrix",
+        "litellm_compatibility_matrix",
         "conformance_contract",
+        "litellm_conformance_contract",
+        "litellm_artifact_builder",
+        "litellm_upstream_evidence_verifier",
+        "litellm_conformance_comparator",
         "go_implementation_manifest",
         "typescript_implementation_manifest",
         "schema_audit_source_manifest",
         "go_conformance_report",
-        "typescript_conformance_report"
+        "go_litellm_conformance_report",
+        "typescript_conformance_report",
+        "typescript_litellm_conformance_report"
       ],
       "properties": {
         "protocol_spec": {
@@ -188,6 +206,12 @@
         "model_request_completed_schema": {
           "$ref": "#/$defs/component"
         },
+        "model_request_completed_v2_schema": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_source_schema": {
+          "$ref": "#/$defs/component"
+        },
         "connector_manifest_schema": {
           "$ref": "#/$defs/component"
         },
@@ -212,6 +236,18 @@
         "reference_connector_manifest": {
           "$ref": "#/$defs/component"
         },
+        "litellm_connector_manifest": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_source_signature_evidence": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_source_signature_public_key": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_source_contract_evidence": {
+          "$ref": "#/$defs/component"
+        },
         "source_projection_contract": {
           "$ref": "#/$defs/component"
         },
@@ -224,6 +260,15 @@
         "reference_projection_contract": {
           "$ref": "#/$defs/component"
         },
+        "litellm_source_projection_contract": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_upstream_source_mapping": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_reference_projection_contract": {
+          "$ref": "#/$defs/component"
+        },
         "consumer_lifecycle_mapping": {
           "$ref": "#/$defs/component"
         },
@@ -233,7 +278,13 @@
         "canonical_vector_bundle": {
           "$ref": "#/$defs/component"
         },
+        "litellm_vector_bundle": {
+          "$ref": "#/$defs/component"
+        },
         "golden_fixture_bundle": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_golden_fixture_bundle": {
           "$ref": "#/$defs/component"
         },
         "reference_compatibility_vector_bundle": {
@@ -242,7 +293,22 @@
         "compatibility_matrix": {
           "$ref": "#/$defs/component"
         },
+        "litellm_compatibility_matrix": {
+          "$ref": "#/$defs/component"
+        },
         "conformance_contract": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_conformance_contract": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_artifact_builder": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_upstream_evidence_verifier": {
+          "$ref": "#/$defs/component"
+        },
+        "litellm_conformance_comparator": {
           "$ref": "#/$defs/component"
         },
         "go_implementation_manifest": {
@@ -257,7 +323,13 @@
         "go_conformance_report": {
           "$ref": "#/$defs/component"
         },
+        "go_litellm_conformance_report": {
+          "$ref": "#/$defs/component"
+        },
         "typescript_conformance_report": {
+          "$ref": "#/$defs/component"
+        },
+        "typescript_litellm_conformance_report": {
           "$ref": "#/$defs/component"
         }
       }

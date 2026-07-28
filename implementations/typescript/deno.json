@@ -5,9 +5,9 @@
     "noUncheckedIndexedAccess": true
   },
   "tasks": {
-    "typecheck": "deno check src/runner.ts tests/conformance_test.ts",
+    "typecheck": "deno check src/runner.ts src/litellm_runner.ts tests/conformance_test.ts",
     "test": "deno test --allow-read tests",
-    "build": "deno cache --quiet --check --no-remote --no-npm src/runner.ts"
+    "build": "deno cache --quiet --check --no-remote --no-npm src/runner.ts src/litellm_runner.ts"
   },
   "fmt": {
     "lineWidth": 88,

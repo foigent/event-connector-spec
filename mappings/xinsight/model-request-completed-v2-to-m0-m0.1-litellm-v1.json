@@ -1,0 +1,33 @@
+{
+  "mapping_version": "foigent.consumer-projection-mapping.v1",
+  "mapping_id": "xinsight.foigent-envelope-to-m0.litellm-spend-log.v1",
+  "input": {
+    "event_type": "model.request.completed",
+    "schema_ref": "foigent://events/model/request-completed/v2",
+    "schema_version": "2",
+    "connector_id": "foigent.litellm.spend-logs",
+    "connector_version": "1.0.0"
+  },
+  "output": {
+    "normalized_schema_version": "m0.1",
+    "succeeded_event_type": "model.request.succeeded",
+    "failed_event_type": "model.request.failed",
+    "gap_event_type": "gap.capture.detected",
+    "capture_mode": "api_import",
+    "payload_capture_mode": "metadata_only",
+    "reported_money": {
+      "destination": "usage.extensions.source_reported_money",
+      "top_level_cny_cost_fields": "absent"
+    }
+  },
+  "compatibility": {
+    "unirouter_reference_projection": "unchanged",
+    "unirouter_m0_identity_hash_seed": "exact",
+    "event_hash_excludes": [
+      "ingested_at",
+      "checkpoint",
+      "page",
+      "retry_state"
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 # Foigent Event and Connector Protocol V1
 
-Version: `1.0.0`. Binding authority is the immutable `v1.0.0` release tag and
+Version: `1.1.0`. Binding authority is the immutable `v1.1.0` release tag and
 its verified release manifest. A working-tree copy of this file is not
 independently authoritative.
 
@@ -21,7 +21,9 @@ Products retain their own:
 A shared Event Envelope is Connector input. It is not a direct product
 database row.
 
-## 2. Reference Source Event
+## 2. Source Events
+
+### 2.1 UniRouter completed-execution Reference Connector
 
 The first Reference Connector emits one shared event:
 
@@ -37,6 +39,43 @@ rejections are outside Reference V1 coverage.
 `timeline_complete=true` means the bounded billing-terminal timeline is final.
 It does not erase declared Capture Gaps.
 
+### 2.2 LiteLLM spend-log Connector
+
+The second Connector also emits:
+
+```text
+event_type = model.request.completed
+schema_ref = foigent://events/model/request-completed/v2
+terminal.status = succeeded | failed
+```
+
+It consumes LiteLLM `GET /spend/logs/v2` from the exact source release pinned
+in the Connector Manifest and immediately projects each raw row through the
+released allowlist mapping into the strict sanitized Source schema. Raw HTTP
+bytes are bounded, transient, never persisted or logged, and never enter event
+or error output. Prompt, response, proxy-request, API-key, user, end-user, IP,
+metadata, cache-key, session, team, and organization fields are explicitly
+discarded. Unknown raw fields are not copied. Unknown fields in the sanitized
+Source record fail strict validation.
+
+Upstream `status=null|success` maps to `succeeded`; `failure` maps to `failed`.
+Upstream cache state maps to `hit|miss|unknown` without collapsing unknown into
+miss. Source-reported spend is a canonical decimal-string USD observation; it
+is not Foigent billing authority and must not populate X-Insight top-level CNY
+cost fields.
+
+The Connector uses a 60-second finalization delay. Every bounded query window
+must be fetched completely, must contain no more than 20 pages and 2,000 unique
+request IDs, must stay within 8 MiB cumulative response bytes, must not be
+total-capped, and must satisfy unique count equals reported total. The
+Connector sorts the complete window locally by exact
+`(startTime, request_id UTF-8 bytes)` before projection. Incomplete, capped,
+over-limit, duplicate-conflicting, or unstable windows fail closed.
+
+Activation is forward-only. Rows materialized after finalization with
+`startTime` older than the committed boundary are outside Connector V1
+coverage; no broad historical backfill is implied.
+
 ## 3. Event identity and idempotency
 
 The shared identity tuple is:
@@ -51,7 +90,7 @@ event_type
 event_id
 ```
 
-For the Reference Connector, `event_id` is the exact Source `request_id`.
+For both released Connectors, `event_id` is the exact Source `request_id`.
 `request_id` is not assumed globally unique. Organization and project scope
 are therefore required.
 
@@ -77,8 +116,8 @@ sha256:<lowercase SHA-256 hex of:
   LP_UTF8(event_id)>
 ```
 
-Reference revision is exact string `"1"`. Revision does not enter identity or
-idempotency.
+Released Connector revision is exact string `"1"`. Revision does not enter
+identity or idempotency.
 
 Same identity plus the same canonical Envelope hash is duplicate/no-op. Same
 identity plus different canonical content is conflict and fails closed.
@@ -106,7 +145,7 @@ Payload Schema. Removing the hash from that validated final object must
 reproduce the exact Golden hash input.
 
 Strict token-level parsing rejects duplicate object keys at every depth before
-ordinary object mapping. Arrays preserve schema-defined order. Reference
+ordinary object mapping. Arrays preserve schema-defined order. Connector
 `capture_gaps` are sorted by `affected_claim`.
 
 Shared timestamps are parsed as instants, normalized to UTC, and emitted as
@@ -116,7 +155,8 @@ they are never rounded or truncated by the shared mapper. The Reference
 Source canonicalizes its terminal fact to PostgreSQL microsecond precision
 before the immutable Snapshot is created.
 
-Protocol-controlled names, enums, identifiers, and Schema references must
+Protocol-controlled names, enums, identifiers, currency codes, and Schema
+references must
 already be valid UTF-8 NFC. Validators reject non-NFC protocol-controlled
 values and never normalize silently.
 
@@ -138,7 +178,7 @@ nor rejected solely for being non-NFC.
 SDKs must not validate, convert, or re-emit these decimal strings through
 binary floating point.
 
-## 6. Reference time ownership
+## 6. Time ownership
 
 Exact Source `terminal.available_at` maps to shared `time.terminal_at`.
 `time.occurred_at` is a deterministic alias of the same instant.
@@ -148,6 +188,12 @@ Parent `time.observed_at` is absent in Reference V1.
 Connector page generation, fetch and receive times, retry state, and Consumer
 ingestion time remain outside Event content, identity, Envelope hash, and
 item-linked import provenance.
+
+For the LiteLLM Connector, exact Source `endTime` maps to
+`time.terminal_at`; `time.occurred_at` is the same deterministic alias.
+Source `startTime` remains Source metadata and may enter a product-local
+extension, but never replaces terminal time. Poll, fetch, receive, and
+Consumer ingestion times remain outside Event identity and hashes.
 
 ## 7. Capture Gaps
 
@@ -179,6 +225,20 @@ The exact field provenance is:
 Derived and declared fields are regenerated and compared. A producer cannot
 override them. Same Gap identity with different direct, derived, or declared
 content is conflict.
+
+LiteLLM Connector V1 declares exactly:
+
+```text
+billing_authority
+business_outcome
+downstream_side_effects
+routing_decision
+```
+
+Each reason is `not_exposed_by_litellm_spend_logs_v1`. Because these facts are
+absent from the Source row, `affected_claim` and `reason_code` are declared;
+identity, linkage, and observed time are derived. The same ordering,
+regeneration, and conflict rules apply.
 
 ## 8. Delivery isolation
 
@@ -224,6 +284,19 @@ direction = source
 Portable identity never replaces product-local source, adapter, credential, or
 registry identities. B9 mappings bind them explicitly.
 
+The second Connector identity is:
+
+```text
+connector_id = foigent.litellm.spend-logs
+connector_version = 1.0.0
+class = integration
+direction = source
+```
+
+Its Source release, image index, platform manifests, signature key, and source
+schema are immutable release-manifest inputs rather than mutable runtime
+discovery.
+
 ## 11. Orthogonal lifecycle axes
 
 Lifecycle is represented by independent axes:
@@ -248,3 +321,9 @@ Released versions and bytes are immutable.
 - breaking releases require a compatibility matrix, migration guidance, and
   deprecation window;
 - the same version must never identify different bytes.
+
+Protocol `1.1.0` is additive to `1.0.0`: it adds the LiteLLM Source schema,
+`model.request.completed` payload schema V2, Connector Manifest, mapping,
+compatibility evidence, and conformance vectors. It does not alter the
+UniRouter completed-execution Reference V1 bytes or X-Insight M0 compatibility
+seeds.

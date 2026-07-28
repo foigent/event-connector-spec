@@ -1,0 +1,81 @@
+{
+  "bundle_version": "foigent.litellm-golden-fixture-bundle.v1",
+  "protocol_version": "1.1.0",
+  "connector": "foigent.litellm.spend-logs",
+  "cases": [
+    {
+      "case_id": "litellm-succeeded",
+      "source_fixture": {
+        "release_path": "fixtures/source/litellm/valid-succeeded.json",
+        "sha256": "sha256:8da3c47c90914cf258e51e97ff2c374e85a2f68f5ddb254dd43005314afd17dd"
+      },
+      "shared_hash_input": {
+        "path": "fixtures/shared/litellm-succeeded-envelope.hash-input.json",
+        "file_sha256": "sha256:70c7a83c0cc3f68dc4ff2e4fbd989849a1a945c6ad79deabaa342e1f2f60b9e3",
+        "envelope_hash_field": "absent"
+      },
+      "expected": {
+        "canonical_bytes": 4663,
+        "envelope_hash": "sha256:0c595fcb3066288b16d6fc12e375912d0bcb421ba27c7a442d6b22d898a5e5a7",
+        "idempotency_key": "sha256:ba906ad95206034be58b9b8801fa8c3f176fa2f188c8443b31d37962f172f235",
+        "terminal_status": "succeeded",
+        "capture_gap_count": 4
+      }
+    },
+    {
+      "case_id": "litellm-failed",
+      "source_fixture": {
+        "release_path": "fixtures/source/litellm/valid-failed.json",
+        "sha256": "sha256:820e4ec98757bf4072794738d6082aca72a7e5e18475b4d0df3dbb8ba4bdc479"
+      },
+      "shared_hash_input": {
+        "path": "fixtures/shared/litellm-failed-envelope.hash-input.json",
+        "file_sha256": "sha256:b76334c6e7a34d5a705a43acaf115dfefeaa2a89baa0285f7a0223d39c86fd58",
+        "envelope_hash_field": "absent"
+      },
+      "expected": {
+        "canonical_bytes": 4652,
+        "envelope_hash": "sha256:8c95fe0461c9372b033554f2828782eb136ebaa2ffa2e1e55111a4d2493df78a",
+        "idempotency_key": "sha256:69e2b4ad8345ac51281ef50635a00d102e7691ba52c93c438304323873ec4ec6",
+        "terminal_status": "failed",
+        "capture_gap_count": 4
+      }
+    },
+    {
+      "case_id": "litellm-cache-hit",
+      "source_fixture": {
+        "release_path": "fixtures/source/litellm/valid-cache-hit.json",
+        "sha256": "sha256:7bedce772cd449df4f3c86aff4743a1be98e1fc6d81e6f60c7f6b907f9d2db22"
+      },
+      "shared_hash_input": {
+        "path": "fixtures/shared/litellm-cache-hit-envelope.hash-input.json",
+        "file_sha256": "sha256:a4ef827962095e1c9dce143094eb6f64ce0e0c9b73bad76b79e5c06fcb1c487d",
+        "envelope_hash_field": "absent"
+      },
+      "expected": {
+        "canonical_bytes": 4690,
+        "envelope_hash": "sha256:38fa662294774e04d56977d4582a9824a07fafd99464fb55ebb737066d4ddfe0",
+        "idempotency_key": "sha256:d2faccb46ffb9aca9804a27b7438224606026229dee5a1f8e9dc3ff0545a41c4",
+        "terminal_status": "succeeded",
+        "capture_gap_count": 4
+      }
+    }
+  ],
+  "negative_source_seeds": [
+    {
+      "case_id": "privacy-field-rejected",
+      "release_path": "fixtures/source/litellm/privacy-rejected.json",
+      "sha256": "sha256:d51f5ed1a51a7a117caa820d216337e92987f4dbf504bee27cab91e1036fa828",
+      "expected_error": {
+        "error_version": "foigent.connector-error.v1",
+        "category": "privacy",
+        "code": "prohibited_raw_field",
+        "phase": "validate",
+        "operation": "sanitize_litellm_spend_log",
+        "retryable": false,
+        "safe_message": "LiteLLM Source row contains a prohibited raw field",
+        "recovery": "operator_repair"
+      }
+    }
+  ]
+}

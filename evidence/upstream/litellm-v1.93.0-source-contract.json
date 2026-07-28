@@ -1,0 +1,57 @@
+{
+  "evidence_version": "foigent.upstream-source-contract-evidence.v1",
+  "source": {
+    "repository": "https://github.com/BerriAI/litellm",
+    "tag": "v1.93.0",
+    "commit": "052b5a2169d8d3082e1d66e69f200a72b0c1e274"
+  },
+  "reviewed_files": [
+    {
+      "path": "litellm/proxy/management_endpoints/spend_management_endpoints.py",
+      "sha256": "sha256:335a05f966ed2dbe375755517545efd58f14a9162155867ad2a71416c456fd07"
+    },
+    {
+      "path": "litellm/models/spend_logs.py",
+      "sha256": "sha256:575269114b798154c532138572d8a39026b4556fa1c5bdbeabb1f1e485be0da0"
+    },
+    {
+      "path": "litellm/proxy/_types.py",
+      "sha256": "sha256:3df8c2b08746d27126eb439d8f71bf5ab27d5791d8b12a336095d28542da8ffb"
+    },
+    {
+      "path": "schema.prisma",
+      "sha256": "sha256:0dd6132dcccb522b6b7f1bf560e259cce1ae14d10e64a1719f8cfb28a6e54ccb"
+    }
+  ],
+  "verified_contract": {
+    "route": "GET /spend/logs/v2",
+    "authentication": "user_api_key_auth",
+    "required_query": [
+      "start_date",
+      "end_date"
+    ],
+    "page_size_maximum": 100,
+    "sort_by": "startTime",
+    "sort_order": "asc",
+    "response_shape": [
+      "data",
+      "total",
+      "page",
+      "page_size",
+      "total_pages",
+      "total_is_capped"
+    ],
+    "request_id_uniqueness": "LiteLLM_SpendLogs.request_id primary key",
+    "database_indexes": [
+      "startTime",
+      "startTime,request_id"
+    ],
+    "pagination_tie_breaker": "not supplied by upstream SQL; Connector must fetch a complete stable window, verify unique count equals total, then sort locally",
+    "heavy_fields_omitted_by_list_query": [
+      "messages",
+      "response",
+      "proxy_server_request"
+    ],
+    "additional_sensitive_fields_in_list_query": "present and therefore explicitly discarded by the released allowlist mapping"
+  }
+}
