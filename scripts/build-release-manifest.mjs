@@ -6,20 +6,20 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const outputPath = resolve(root, "releases/v1.1.0/release-manifest.json");
+const outputPath = resolve(root, "releases/v1.1.1/release-manifest.json");
 const mode = process.argv[2] ?? "--check";
 const approvalPaths = [
   {
     role: "source_domain_owner",
-    path: "reviews/releases/v1.1.0/source-owner-approval.md",
+    path: "reviews/releases/v1.1.1/source-owner-approval.md",
   },
   {
     role: "projection_owner",
-    path: "reviews/releases/v1.1.0/projection-owner-approval.md",
+    path: "reviews/releases/v1.1.1/projection-owner-approval.md",
   },
   {
     role: "coordinator",
-    path: "reviews/releases/v1.1.0/coordinator-approval.md",
+    path: "reviews/releases/v1.1.1/coordinator-approval.md",
   },
 ];
 
@@ -152,11 +152,11 @@ const components = Object.fromEntries(
 );
 const contentHashInput = {
   release_manifest_version: "foigent.protocol-release-manifest.v1",
-  protocol_version: "1.1.0",
+  protocol_version: "1.1.1",
   authority: {
     repository: "https://github.com/foigent/event-connector-spec",
     repository_id: 1313391565,
-    tag: "v1.1.0",
+    tag: "v1.1.1",
   },
   components,
 };
