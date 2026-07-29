@@ -1,6 +1,6 @@
 # Foigent Event & Connector SDK candidate
 
-Status: `0.1.0-candidate.1`, local extraction candidate only.
+Status: `0.1.0-candidate.2`, local extraction candidate only.
 
 This directory contains source-neutral Go and TypeScript implementations of
 the shared protocol mechanics. It does not change any released protocol,
@@ -12,6 +12,7 @@ or product runtime.
 - `go/{protocol,canonical,kernel,testkit}`
 - `typescript/src/{protocol,canonical,kernel,testkit}`
 - `compatibility-matrix.v1.json`
+- `candidate-negative-vectors.v1.json`
 
 The public package names are:
 
@@ -60,13 +61,18 @@ payload in production. The unchanged authority runners continue to validate
 the released Reference and LiteLLM payloads and remain independent byte
 oracles.
 
-The candidate currently rejects fractional and exponent JSON number tokens
-before canonical emission. Frozen protocol vectors use integer tokens and are
-byte-identical across the candidate and all unchanged runners. The written
-RFC 8785 safe-integer profile and pre-existing runner behavior are not fully
-aligned for unvectored integral exponent forms; this candidate does not
-authorize adoption or publication until that variance receives a joint
-protocol decision.
+Both public parsers reject fractional, exponent and out-of-safe-range JSON
+number tokens before structural validation or canonical emission. Both
+timestamp normalizers also require input and normalized UTC years
+`0001`–`9999`. Candidate-owned negative vectors exercise those boundaries
+in both languages.
+
+Frozen protocol vectors are byte-identical across the candidate and all
+unchanged runners. The written RFC 8785 safe-integer profile and pre-existing
+runner behavior are not fully aligned for unvectored integral exponent forms;
+the pre-existing timestamp implementations also differ on year `0000`. This
+candidate does not authorize adoption or publication until both variances
+receive joint protocol decisions and released vectors.
 
 ## Local verification
 

@@ -92,7 +92,10 @@ func TestStrictJSONLimitsAndCanonicalProfile(t *testing.T) {
 	if _, err := Parse([]byte(`{"abcdef":1}`), Limits{MaxBytes: 8, MaxDepth: 4}); err == nil {
 		t.Fatal("expected byte limit rejection")
 	}
-	for _, input := range []string{`1.0`, `1e2`, `9007199254740992`} {
+	for _, input := range []string{`1.0`, `1e2`, `9007199254740992`, `-9007199254740992`} {
+		if _, err := Parse([]byte(input), DefaultLimits()); err == nil {
+			t.Fatalf("expected parse-time safe-integer rejection for %s", input)
+		}
 		if _, err := Canonicalize([]byte(input), DefaultLimits()); err == nil {
 			t.Fatalf("expected safe-integer rejection for %s", input)
 		}
@@ -106,12 +109,50 @@ func TestStrictJSONLimitsAndCanonicalProfile(t *testing.T) {
 	}
 }
 
+func TestCandidateNegativeVectors(t *testing.T) {
+	var vectors struct {
+		StrictJSON []struct {
+			CaseID string `json:"case_id"`
+			Input  string `json:"input"`
+		} `json:"strict_json"`
+		Timestamps []struct {
+			CaseID       string `json:"case_id"`
+			Input        string `json:"input"`
+			ExpectedCode string `json:"expected_error"`
+		} `json:"timestamps"`
+	}
+	input, err := os.ReadFile(filepath.Join("..", "..", "candidate-negative-vectors.v1.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(input, &vectors); err != nil {
+		t.Fatal(err)
+	}
+	for _, testCase := range vectors.StrictJSON {
+		t.Run(testCase.CaseID, func(t *testing.T) {
+			if _, err := Parse([]byte(testCase.Input), DefaultLimits()); err == nil {
+				t.Fatalf("candidate negative JSON vector was accepted: %s", testCase.Input)
+			}
+		})
+	}
+	for _, testCase := range vectors.Timestamps {
+		t.Run(testCase.CaseID, func(t *testing.T) {
+			if result := NormalizeMicrosecondTimestamp(testCase.Input); result.ErrorCode != testCase.ExpectedCode {
+				t.Fatalf("timestamp result=%+v expected=%s", result, testCase.ExpectedCode)
+			}
+		})
+	}
+}
+
 func TestTimeDecimalAndNFCProfiles(t *testing.T) {
 	if result := NormalizeMicrosecondTimestamp("2026-01-02T03:04:05.123456+08:00"); result.Normalized != "2026-01-01T19:04:05.123456Z" {
 		t.Fatalf("unexpected time normalization: %+v", result)
 	}
 	if result := NormalizeMicrosecondTimestamp("2026-01-02T03:04:05.1234567Z"); result.ErrorCode != "timestamp_precision_loss" {
 		t.Fatalf("expected precision loss: %+v", result)
+	}
+	if result := NormalizeMicrosecondTimestamp("0000-01-01T00:00:00.000000Z"); result.ErrorCode != "invalid_timestamp" {
+		t.Fatalf("expected year-zero rejection: %+v", result)
 	}
 	if !IsValidInt64Decimal("9223372036854775807") || IsValidInt64Decimal("9223372036854775808") {
 		t.Fatal("int64 decimal boundary drift")

@@ -233,10 +233,13 @@ class StrictJsonParser {
     } catch {
       throw this.error("invalid_json", "JSON integer is invalid");
     }
-    if (value >= MIN_SAFE_INTEGER && value <= MAX_SAFE_INTEGER) {
-      return Number(value);
+    if (value < MIN_SAFE_INTEGER || value > MAX_SAFE_INTEGER) {
+      throw this.error(
+        "unsafe_json_number",
+        `JSON integer ${token} is outside the safe-integer profile`,
+      );
     }
-    return value;
+    return Number(value);
   }
 
   private parseLiteral<T extends JsonScalar>(token: string, value: T): T {

@@ -54,8 +54,8 @@ func DefaultLimits() Limits {
 	return Limits{MaxBytes: DefaultMaxBytes, MaxDepth: DefaultMaxDepth}
 }
 
-// Value is a lossless protocol JSON AST. NumberText retains the input token
-// until the safe-integer canonical profile validates and emits it.
+// Value is a lossless protocol JSON AST. NumberText retains an already
+// validated safe-integer input token until canonical emission normalizes it.
 type Value struct {
 	Kind       Kind
 	Bool       bool
@@ -244,6 +244,9 @@ func NormalizeMicrosecondTimestamp(input string) TimestampResult {
 	if match == nil {
 		return TimestampResult{ErrorCode: "invalid_timestamp"}
 	}
+	if strings.HasPrefix(match[1], "0000-") {
+		return TimestampResult{ErrorCode: "invalid_timestamp"}
+	}
 	fraction := match[2]
 	if len(fraction) > 6 && strings.Trim(fraction[6:], "0") != "" {
 		return TimestampResult{ErrorCode: "timestamp_precision_loss"}
@@ -252,10 +255,14 @@ func NormalizeMicrosecondTimestamp(input string) TimestampResult {
 	if err != nil {
 		return TimestampResult{ErrorCode: "invalid_timestamp"}
 	}
+	utc := instant.UTC()
+	if utc.Year() < 1 || utc.Year() > 9999 {
+		return TimestampResult{ErrorCode: "invalid_timestamp"}
+	}
 	if instant.Nanosecond()%1000 != 0 {
 		return TimestampResult{ErrorCode: "timestamp_precision_loss"}
 	}
-	return TimestampResult{Normalized: instant.UTC().Format("2006-01-02T15:04:05.000000Z")}
+	return TimestampResult{Normalized: utc.Format("2006-01-02T15:04:05.000000Z")}
 }
 
 func IsNFC(value string) bool {

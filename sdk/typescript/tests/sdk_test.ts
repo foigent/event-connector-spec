@@ -58,8 +58,10 @@ Deno.test("strict JSON limits and canonical profile", () => {
       maxDepth: 4,
     })
   );
-  for (const input of ["1.0", "1e2", "9007199254740992"]) {
-    throws(() => canonicalBytes(parseStrictJson(input)));
+  for (
+    const input of ["1.0", "1e2", "9007199254740992", "-9007199254740992"]
+  ) {
+    throws(() => parseStrictJson(input));
   }
   equal(
     new TextDecoder().decode(
@@ -67,6 +69,30 @@ Deno.test("strict JSON limits and canonical profile", () => {
     ),
     `{"😀":1,"":2}`,
   );
+});
+
+Deno.test("candidate negative vectors", async () => {
+  const vectors = JSON.parse(
+    await Deno.readTextFile(
+      `${protocolRoot}/sdk/candidate-negative-vectors.v1.json`,
+    ),
+  ) as {
+    strict_json: { case_id: string; input: string }[];
+    timestamps: {
+      case_id: string;
+      input: string;
+      expected_error: string;
+    }[];
+  };
+  for (const testCase of vectors.strict_json) {
+    throws(() => parseStrictJson(testCase.input));
+  }
+  for (const testCase of vectors.timestamps) {
+    equal(
+      normalizeMicrosecondTimestamp(testCase.input).errorCode,
+      testCase.expected_error,
+    );
+  }
 });
 
 Deno.test("time decimal and NFC profiles", () => {
@@ -81,6 +107,12 @@ Deno.test("time decimal and NFC profiles", () => {
       "2026-01-02T03:04:05.1234567Z",
     ).errorCode,
     "timestamp_precision_loss",
+  );
+  equal(
+    normalizeMicrosecondTimestamp(
+      "0000-01-01T00:00:00.000000Z",
+    ).errorCode,
+    "invalid_timestamp",
   );
   assert(isValidInt64Decimal("9223372036854775807"));
   assert(!isValidInt64Decimal("9223372036854775808"));
@@ -113,6 +145,34 @@ Deno.test("released hash inputs and final Envelopes", async () => {
       `{"batch_version":"foigent.event-batch.v1","connector_id":"foigent.unirouter.completed-execution","connector_version":"1.0.0","producer_instance":"unirouter-development","generated_at":"2026-01-01T00:00:00.000000Z","events":[${finalEnvelope}],"next_cursor":"11","high_watermark":"20","has_more":false}`,
     ),
     DEFAULT_LIMITS,
+  );
+});
+
+Deno.test("wire parsers apply candidate safe-integer profile", async () => {
+  const input = new TextDecoder().decode(
+    await Deno.readFile(
+      `${protocolRoot}/fixtures/shared/settled-envelope.hash-input.json`,
+    ),
+  );
+  const exponent = input.replace(
+    `"amount_scale": 1000000`,
+    `"amount_scale": 1e6`,
+  );
+  assert(exponent !== input, "test setup did not replace amount_scale");
+  throws(() =>
+    parseEnvelopeHashInput(
+      new TextEncoder().encode(exponent),
+      DEFAULT_LIMITS,
+    )
+  );
+
+  throws(() =>
+    parseOperationalReceipt(
+      new TextEncoder().encode(
+        `{"receipt_version":"foigent.operational-receipt.v1","operation_id":"op-1","connector_id":"foigent.example.source","producer_instance":"instance","operation":"commit_page","status":"completed","counts":{"received":9007199254740992,"inserted":0,"duplicate_noop":0,"conflict":0,"rejected":0},"checkpoint_before":"10","checkpoint_after":"10","observed_at":"2026-01-01T00:00:01.000000Z"}`,
+      ),
+      DEFAULT_LIMITS,
+    )
   );
 });
 
@@ -236,6 +296,15 @@ Deno.test("replay and steady-only checkpoint transition", () => {
 });
 
 Deno.test("compatibility matrix fails closed", () => {
+  assert(Object.isFrozen(SUPPORTED_COMPATIBILITY_PINS));
+  assert(Object.isFrozen(SUPPORTED_COMPATIBILITY_PINS[0]));
+  const original = { ...SUPPORTED_COMPATIBILITY_PINS[0]! };
+  throws(() => {
+    (SUPPORTED_COMPATIBILITY_PINS[0] as {
+      protocolVersion: string;
+    }).protocolVersion = "latest";
+  });
+  validateCompatibilityPin(original);
   for (const pin of SUPPORTED_COMPATIBILITY_PINS) {
     validateCompatibilityPin(pin);
   }

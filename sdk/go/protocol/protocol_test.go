@@ -1,6 +1,7 @@
 package protocol
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -46,6 +47,26 @@ func TestReleasedHashInputsAndFinalEnvelope(t *testing.T) {
 				t.Fatal(err)
 			}
 		})
+	}
+}
+
+func TestWireParsersApplyCandidateSafeIntegerProfile(t *testing.T) {
+	root := filepath.Clean(filepath.Join("..", "..", ".."))
+	input, err := os.ReadFile(filepath.Join(root, "fixtures/shared/settled-envelope.hash-input.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	exponent := []byte(strings.Replace(string(input), `"amount_scale": 1000000`, `"amount_scale": 1e6`, 1))
+	if bytes.Equal(exponent, input) {
+		t.Fatal("test setup did not replace amount_scale")
+	}
+	if _, err := ParseEnvelopeHashInput(exponent, canonical.DefaultLimits(), nil); err == nil {
+		t.Fatal("Envelope hash-input parser accepted exponent number syntax")
+	}
+
+	receipt := `{"receipt_version":"foigent.operational-receipt.v1","operation_id":"op-1","connector_id":"foigent.example.source","producer_instance":"instance","operation":"commit_page","status":"completed","counts":{"received":9007199254740992,"inserted":0,"duplicate_noop":0,"conflict":0,"rejected":0},"checkpoint_before":"10","checkpoint_after":"10","observed_at":"2026-01-01T00:00:01.000000Z"}`
+	if _, err := ParseOperationalReceipt([]byte(receipt), canonical.DefaultLimits()); err == nil {
+		t.Fatal("Operational Receipt parser accepted an unsafe JSON integer")
 	}
 }
 

@@ -98,56 +98,65 @@ export interface CompatibilityPin {
   readonly projectionContractSha256: string;
 }
 
-export const SUPPORTED_COMPATIBILITY_PINS: readonly CompatibilityPin[] = [
-  {
-    consumer: "xinsight-reference",
-    connectorId: "foigent.unirouter.completed-execution",
-    connectorVersion: "1.0.0",
-    sourceRevision: "1",
-    protocolVersion: "1.0.0",
-    protocolReleaseDigest:
-      "sha256:aaeb5b37b94a1fd603048d77b2180fa88be1ddbd6eeea6a1369edf0cea9c5e2b",
-    manifestSchemaSha256:
-      "sha256:a6f43b37477002ab836a4d9ea7c4e462675cd4313f0637c0733cd98675fc0adf",
-    referenceManifestSha256:
-      "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79",
-    projectionContractSha256:
-      "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03",
-  },
-  {
-    consumer: "xinsight-litellm",
-    connectorId: "foigent.litellm.spend-logs",
-    connectorVersion: "1.0.0",
-    sourceRevision: "1",
-    protocolVersion: "1.1.2",
-    protocolReleaseDigest: SDK_RELEASE_DIGEST,
-    manifestSchemaSha256:
-      "sha256:59c405086310d0dfb2aaff37e55d73853e04319e6ccf659c66f98d8ba704a205",
-    referenceManifestSha256:
-      "sha256:86a10565a8c66abe5b31d6c39e853cebf5e9b90721d6784ea0bf7c28d2c20693",
-    projectionContractSha256:
-      "sha256:72bb90b6a5ddf0f44f7773a7378c0f7f458438f9fc1363d31a65602c0547f088",
-  },
-  {
-    consumer: "unirouter-reference-runtime",
-    connectorId: "foigent.unirouter.completed-execution",
-    connectorVersion: "1.0.0",
-    sourceRevision: "1",
-    protocolVersion: "1.1.0",
-    protocolReleaseDigest:
-      "sha256:3bb10a544ace17d3b6c4a44e19048c45c557eba19ad79d9cea81728336658c4d",
-    manifestSchemaSha256:
-      "sha256:59c405086310d0dfb2aaff37e55d73853e04319e6ccf659c66f98d8ba704a205",
-    referenceManifestSha256:
-      "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79",
-    projectionContractSha256:
-      "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03",
-  },
-] as const;
+const validationCompatibilityPins: readonly CompatibilityPin[] = Object.freeze(
+  [
+    Object.freeze({
+      consumer: "xinsight-reference",
+      connectorId: "foigent.unirouter.completed-execution",
+      connectorVersion: "1.0.0",
+      sourceRevision: "1",
+      protocolVersion: "1.0.0",
+      protocolReleaseDigest:
+        "sha256:aaeb5b37b94a1fd603048d77b2180fa88be1ddbd6eeea6a1369edf0cea9c5e2b",
+      manifestSchemaSha256:
+        "sha256:a6f43b37477002ab836a4d9ea7c4e462675cd4313f0637c0733cd98675fc0adf",
+      referenceManifestSha256:
+        "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79",
+      projectionContractSha256:
+        "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03",
+    }),
+    Object.freeze({
+      consumer: "xinsight-litellm",
+      connectorId: "foigent.litellm.spend-logs",
+      connectorVersion: "1.0.0",
+      sourceRevision: "1",
+      protocolVersion: "1.1.2",
+      protocolReleaseDigest: SDK_RELEASE_DIGEST,
+      manifestSchemaSha256:
+        "sha256:59c405086310d0dfb2aaff37e55d73853e04319e6ccf659c66f98d8ba704a205",
+      referenceManifestSha256:
+        "sha256:86a10565a8c66abe5b31d6c39e853cebf5e9b90721d6784ea0bf7c28d2c20693",
+      projectionContractSha256:
+        "sha256:72bb90b6a5ddf0f44f7773a7378c0f7f458438f9fc1363d31a65602c0547f088",
+    }),
+    Object.freeze({
+      consumer: "unirouter-reference-runtime",
+      connectorId: "foigent.unirouter.completed-execution",
+      connectorVersion: "1.0.0",
+      sourceRevision: "1",
+      protocolVersion: "1.1.0",
+      protocolReleaseDigest:
+        "sha256:3bb10a544ace17d3b6c4a44e19048c45c557eba19ad79d9cea81728336658c4d",
+      manifestSchemaSha256:
+        "sha256:59c405086310d0dfb2aaff37e55d73853e04319e6ccf659c66f98d8ba704a205",
+      referenceManifestSha256:
+        "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79",
+      projectionContractSha256:
+        "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03",
+    }),
+  ],
+);
+
+// Expose a separate deeply frozen snapshot. Validation deliberately uses the
+// private frozen authority so a consumer cannot redefine accepted tuples by
+// casting away TypeScript's compile-time readonly annotation.
+export const SUPPORTED_COMPATIBILITY_PINS: readonly CompatibilityPin[] = Object.freeze(
+  validationCompatibilityPins.map((pin) => Object.freeze({ ...pin })),
+);
 
 export function validateCompatibilityPin(candidate: CompatibilityPin): void {
   if (
-    !SUPPORTED_COMPATIBILITY_PINS.some((supported) =>
+    !validationCompatibilityPins.some((supported) =>
       Object.keys(candidate).length === Object.keys(supported).length &&
       Object.keys(supported).every((key) =>
         supported[key as keyof CompatibilityPin] ===

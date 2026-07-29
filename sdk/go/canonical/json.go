@@ -351,7 +351,11 @@ func (p *jsonParser) parseNumber() (string, error) {
 			return "", errors.New("JSON exponent has no digits")
 		}
 	}
-	return string(p.data[start:p.index]), nil
+	raw := string(p.data[start:p.index])
+	if _, err := canonicalSafeInteger(raw); err != nil {
+		return "", err
+	}
+	return raw, nil
 }
 
 func (p *jsonParser) consumeLiteral(literal string) error {

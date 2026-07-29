@@ -8,11 +8,25 @@ fi
 
 protocol_root="$(cd "$1" && pwd -P)"
 candidate_tmp="$2"
+candidate_version="0.1.0-candidate.2"
+candidate_commit="$(git -C "$protocol_root" rev-parse --verify 'HEAD^{commit}')"
+candidate_epoch="$(git -C "$protocol_root" show -s --format=%ct "$candidate_commit")"
+if ! grep -Fq "\"version\": \"$candidate_version\"" \
+  "$protocol_root/sdk/typescript/package.json"; then
+  echo "candidate version does not match the TypeScript package" >&2
+  exit 3
+fi
+if [[ -n "$(git -C "$protocol_root" status --porcelain --untracked-files=all)" ]]; then
+  echo "SDK candidate verification requires a clean exact commit" >&2
+  exit 3
+fi
 mkdir -p \
   "$candidate_tmp/current" \
   "$candidate_tmp/go-cache" \
   "$candidate_tmp/deno" \
   "$candidate_tmp/bin" \
+  "$candidate_tmp/archive-a" \
+  "$candidate_tmp/archive-b" \
   "$candidate_tmp/npm-a" \
   "$candidate_tmp/npm-b" \
   "$candidate_tmp/npm-cache-a" \
@@ -59,8 +73,29 @@ DENO_NO_UPDATE_CHECK=1 DENO_DIR="$candidate_tmp/deno" \
     npm pack --ignore-scripts --pack-destination "$candidate_tmp/npm-b"
 )
 cmp \
-  "$candidate_tmp/npm-a/foigent-event-connector-sdk-0.1.0-candidate.1.tgz" \
-  "$candidate_tmp/npm-b/foigent-event-connector-sdk-0.1.0-candidate.1.tgz"
+  "$candidate_tmp/npm-a/foigent-event-connector-sdk-${candidate_version}.tgz" \
+  "$candidate_tmp/npm-b/foigent-event-connector-sdk-${candidate_version}.tgz"
+
+for output_directory in "$candidate_tmp/archive-a" "$candidate_tmp/archive-b"; do
+  git -C "$protocol_root" archive \
+    --format=tar \
+    --mtime="$candidate_epoch" \
+    --prefix="event-connector-sdk-${candidate_version}/" \
+    "$candidate_commit:sdk" \
+    > "$output_directory/event-connector-sdk-${candidate_version}.tar"
+  git -C "$protocol_root" archive \
+    --format=tar \
+    --mtime="$candidate_epoch" \
+    --prefix="event-connector-sdk-go-${candidate_version}/" \
+    "$candidate_commit:sdk/go" \
+    > "$output_directory/event-connector-sdk-go-${candidate_version}.tar"
+done
+cmp \
+  "$candidate_tmp/archive-a/event-connector-sdk-${candidate_version}.tar" \
+  "$candidate_tmp/archive-b/event-connector-sdk-${candidate_version}.tar"
+cmp \
+  "$candidate_tmp/archive-a/event-connector-sdk-go-${candidate_version}.tar" \
+  "$candidate_tmp/archive-b/event-connector-sdk-go-${candidate_version}.tar"
 
 cmp "$candidate_tmp/go-sdk.json" "$candidate_tmp/typescript-sdk.json"
 node "$protocol_root/scripts/compare-sdk-candidate.mjs" \

@@ -167,7 +167,7 @@ export function normalizeMicrosecondTimestamp(input: string): TimestampResult {
   const offsetMinutes = zone === "Z" ? 0 : parseOffsetMinutes(zone);
   const instant = new Date(local.getTime() - offsetMinutes * 60_000);
   const iso = instant.toISOString();
-  if (!/^[0-9]{4}-/.test(iso)) {
+  if (!/^(?!0000)[0-9]{4}-/.test(iso)) {
     return { errorCode: "invalid_timestamp" };
   }
   return {

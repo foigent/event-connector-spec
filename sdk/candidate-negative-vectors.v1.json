@@ -1,0 +1,43 @@
+{
+  "vector_version": "foigent.event-connector-sdk-candidate-negative.v1",
+  "status": "candidate_only_non_binding",
+  "strict_json": [
+    {
+      "case_id": "fraction-token-rejected",
+      "input": "1.0",
+      "expected": "reject"
+    },
+    {
+      "case_id": "exponent-token-rejected",
+      "input": "1e6",
+      "expected": "reject"
+    },
+    {
+      "case_id": "positive-unsafe-integer-rejected",
+      "input": "9007199254740992",
+      "expected": "reject"
+    },
+    {
+      "case_id": "negative-unsafe-integer-rejected",
+      "input": "-9007199254740992",
+      "expected": "reject"
+    }
+  ],
+  "timestamps": [
+    {
+      "case_id": "year-zero-rejected",
+      "input": "0000-01-01T00:00:00.000000Z",
+      "expected_error": "invalid_timestamp"
+    },
+    {
+      "case_id": "offset-crosses-below-year-one-rejected",
+      "input": "0001-01-01T00:00:00.000000+00:01",
+      "expected_error": "invalid_timestamp"
+    },
+    {
+      "case_id": "offset-crosses-above-year-9999-rejected",
+      "input": "9999-12-31T23:59:59.999999-00:01",
+      "expected_error": "invalid_timestamp"
+    }
+  ]
+}

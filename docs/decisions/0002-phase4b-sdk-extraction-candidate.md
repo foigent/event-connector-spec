@@ -7,7 +7,7 @@
   `d316d6ada678066ed7679a772856aea6157d869d`
 - Protocol release examined: `v1.1.2`,
   `sha256:0b414d5d59e5a7ca5c05505cb58d7992c544537da1c84a57256ec205618d9cd1`
-- Candidate version: `0.1.0-candidate.1`
+- Candidate version: `0.1.0-candidate.2`
 
 ## Decision
 
@@ -117,6 +117,13 @@ not rewrite any product pin.
 - default total JSON bytes: 8 MiB;
 - default container depth: 64;
 - nested duplicate-key and invalid-surrogate rejection;
+- parse-time rejection of fractional, exponent and out-of-safe-range JSON
+  number tokens in both languages;
+- rejection of timestamp inputs or UTC-normalized outputs outside years
+  `0001`–`9999` in both languages;
+- a candidate-only shared negative-vector file covering those boundaries;
+- a private frozen TypeScript compatibility authority plus a separate deeply
+  frozen public snapshot;
 - nonempty/`has_more` steady pages require cursor progress;
 - empty steady pages cannot advance the cursor;
 - only complete item outcomes `inserted` and `duplicate_noop` converge;
@@ -125,7 +132,7 @@ not rewrite any product pin.
 The 8 MiB limit matches both released Connector Manifests. The 64-level depth
 limit is an SDK safety constraint, not a released Schema change.
 
-## Unresolved variance
+## Unresolved variances
 
 The written protocol describes RFC 8785 canonicalization within a safe-integer
 profile. The pre-existing Go runner accepts integral exponent/fraction tokens
@@ -133,10 +140,21 @@ that reduce exactly to a safe integer, while the pre-existing TypeScript
 runner rejects fractional or exponent tokens. Frozen vectors do not exercise
 this syntax.
 
-The candidate uses the conservative common subset and rejects fractional and
-exponent tokens. This is fail-closed and preserves every frozen byte, but it
-is not yet a jointly accepted protocol semantic decision. Publication and
-product adoption remain blocked on a separate protocol decision and vector.
+The pre-existing Go timestamp normalizer also accepts year `0000`, while the
+pre-existing TypeScript normalizer rejects it. Frozen timestamp vectors do
+not exercise that boundary or offset normalization across the four-digit
+year range.
+
+The candidate uses the conservative common subset: both public parsers reject
+fractional, exponent and out-of-safe-range number tokens, and both timestamp
+normalizers require input and normalized UTC years `0001`–`9999`.
+Candidate-owned negative vectors exercise those choices in both SDKs without
+changing released vectors.
+
+These fail-closed candidate choices preserve every frozen byte, but they are
+not jointly accepted protocol semantic decisions. Publication and product
+adoption remain blocked on separate protocol decisions and released vectors
+for both JSON-number syntax and year-zero timestamps.
 
 ## Non-authorization
 
