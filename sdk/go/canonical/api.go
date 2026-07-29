@@ -54,15 +54,15 @@ func DefaultLimits() Limits {
 	return Limits{MaxBytes: DefaultMaxBytes, MaxDepth: DefaultMaxDepth}
 }
 
-// Value is a lossless protocol JSON AST. NumberText retains an already
-// validated safe-integer input token until canonical emission normalizes it.
+// Value is an immutable strict-JSON value. Container accessors return copies,
+// and member replacement returns a new Value without changing the original.
 type Value struct {
-	Kind       Kind
-	Bool       bool
-	Text       string
-	NumberText string
-	Items      []Value
-	Members    map[string]Value
+	kind       Kind
+	boolean    bool
+	text       string
+	numberText string
+	items      []Value
+	members    map[string]Value
 }
 
 type Identity struct {
@@ -91,6 +91,74 @@ func Parse(data []byte, limits Limits) (Value, error) {
 	return exportValue(parsed), nil
 }
 
+func (value Value) Kind() Kind {
+	return value.kind
+}
+
+func (value Value) Bool() bool {
+	return value.boolean
+}
+
+func (value Value) Text() string {
+	return value.text
+}
+
+func (value Value) NumberText() string {
+	return value.numberText
+}
+
+func (value Value) Items() []Value {
+	return append([]Value(nil), value.items...)
+}
+
+func (value Value) Members() map[string]Value {
+	result := make(map[string]Value, len(value.members))
+	for key, member := range value.members {
+		result[key] = member
+	}
+	return result
+}
+
+func (value Value) Member(name string) (Value, bool) {
+	if value.kind != Object {
+		return Value{}, false
+	}
+	member, ok := value.members[name]
+	return member, ok
+}
+
+func (value Value) WithMember(name string, member Value) (Value, error) {
+	if value.kind != Object {
+		return Value{}, errors.New("JSON value is not an object")
+	}
+	result := value
+	result.members = value.Members()
+	result.members[name] = member
+	return result, nil
+}
+
+func (value Value) WithoutMember(name string) (Value, error) {
+	if value.kind != Object {
+		return Value{}, errors.New("JSON value is not an object")
+	}
+	result := value
+	result.members = value.Members()
+	delete(result.members, name)
+	return result, nil
+}
+
+func NewStringValue(value string) Value {
+	return Value{kind: String, text: value}
+}
+
+func NewObjectValue(members map[string]Value) Value {
+	value := Value{kind: Object, members: make(map[string]Value, len(members))}
+	for key, member := range members {
+		value.members[key] = member
+	}
+	return value
+}
+
 func Canonicalize(data []byte, limits Limits) ([]byte, error) {
 	if err := validateLimits(data, limits); err != nil {
 		return nil, err
@@ -116,23 +184,6 @@ func CanonicalizeValue(value Value) ([]byte, error) {
 		return nil, err
 	}
 	return output.Bytes(), nil
-}
-
-func Clone(value Value) Value {
-	cloned := value
-	if value.Items != nil {
-		cloned.Items = make([]Value, len(value.Items))
-		for index, item := range value.Items {
-			cloned.Items[index] = Clone(item)
-		}
-	}
-	if value.Members != nil {
-		cloned.Members = make(map[string]Value, len(value.Members))
-		for key, member := range value.Members {
-			cloned.Members[key] = Clone(member)
-		}
-	}
-	return cloned
 }
 
 func SHA256(data []byte) string {
@@ -244,9 +295,6 @@ func NormalizeMicrosecondTimestamp(input string) TimestampResult {
 	if match == nil {
 		return TimestampResult{ErrorCode: "invalid_timestamp"}
 	}
-	if strings.HasPrefix(match[1], "0000-") {
-		return TimestampResult{ErrorCode: "invalid_timestamp"}
-	}
 	fraction := match[2]
 	if len(fraction) > 6 && strings.Trim(fraction[6:], "0") != "" {
 		return TimestampResult{ErrorCode: "timestamp_precision_loss"}
@@ -256,7 +304,7 @@ func NormalizeMicrosecondTimestamp(input string) TimestampResult {
 		return TimestampResult{ErrorCode: "invalid_timestamp"}
 	}
 	utc := instant.UTC()
-	if utc.Year() < 1 || utc.Year() > 9999 {
+	if utc.Year() < 0 || utc.Year() > 9999 {
 		return TimestampResult{ErrorCode: "invalid_timestamp"}
 	}
 	if instant.Nanosecond()%1000 != 0 {
@@ -294,38 +342,38 @@ func validateLimits(data []byte, limits Limits) error {
 }
 
 func exportValue(value jsonValue) Value {
-	result := Value{Kind: Kind(value.kind), Bool: value.boolean}
+	result := Value{kind: Kind(value.kind), boolean: value.boolean}
 	switch value.kind {
 	case jsonString:
-		result.Text = value.text
+		result.text = value.text
 	case jsonNumber:
-		result.NumberText = value.text
+		result.numberText = value.text
 	case jsonArray:
-		result.Items = make([]Value, len(value.array))
+		result.items = make([]Value, len(value.array))
 		for index, item := range value.array {
-			result.Items[index] = exportValue(item)
+			result.items[index] = exportValue(item)
 		}
 	case jsonObject:
-		result.Members = make(map[string]Value, len(value.object))
+		result.members = make(map[string]Value, len(value.object))
 		for _, member := range value.object {
-			result.Members[member.key] = exportValue(member.value)
+			result.members[member.key] = exportValue(member.value)
 		}
 	}
 	return result
 }
 
 func importValue(value Value) (jsonValue, error) {
-	internal := jsonValue{kind: jsonKind(value.Kind), boolean: value.Bool}
-	switch value.Kind {
+	internal := jsonValue{kind: jsonKind(value.kind), boolean: value.boolean}
+	switch value.kind {
 	case Null, Boolean:
 		return internal, nil
 	case String:
-		internal.text = value.Text
+		internal.text = value.text
 	case Number:
-		internal.text = value.NumberText
+		internal.text = value.numberText
 	case Array:
-		internal.array = make([]jsonValue, len(value.Items))
-		for index, item := range value.Items {
+		internal.array = make([]jsonValue, len(value.items))
+		for index, item := range value.items {
 			converted, err := importValue(item)
 			if err != nil {
 				return jsonValue{}, err
@@ -333,8 +381,8 @@ func importValue(value Value) (jsonValue, error) {
 			internal.array[index] = converted
 		}
 	case Object:
-		internal.object = make([]jsonMember, 0, len(value.Members))
-		for key, member := range value.Members {
+		internal.object = make([]jsonMember, 0, len(value.members))
+		for key, member := range value.members {
 			if !utf8.ValidString(key) {
 				return jsonValue{}, errors.New("JSON object key is not valid UTF-8")
 			}

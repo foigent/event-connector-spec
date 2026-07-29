@@ -167,7 +167,7 @@ export function normalizeMicrosecondTimestamp(input: string): TimestampResult {
   const offsetMinutes = zone === "Z" ? 0 : parseOffsetMinutes(zone);
   const instant = new Date(local.getTime() - offsetMinutes * 60_000);
   const iso = instant.toISOString();
-  if (!/^(?!0000)[0-9]{4}-/.test(iso)) {
+  if (!/^[0-9]{4}-/.test(iso)) {
     return { errorCode: "invalid_timestamp" };
   }
   return {
@@ -184,14 +184,35 @@ function validDateTime(
   second: number,
 ): boolean {
   if (
-    year < 1 || year > 9999 || month < 1 || month > 12 || day < 1 ||
+    year < 0 || year > 9999 || month < 1 || month > 12 || day < 1 ||
     hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 ||
     second > 59
   ) {
     return false;
   }
-  const days = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  return day <= days;
+  return day <= daysInMonth(year, month);
+}
+
+function daysInMonth(year: number, month: number): number {
+  const values = [
+    31,
+    isLeapYear(year) ? 29 : 28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ];
+  return values[month - 1]!;
+}
+
+function isLeapYear(year: number): boolean {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
 function validZone(zone: string): boolean {

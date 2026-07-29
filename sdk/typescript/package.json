@@ -1,14 +1,16 @@
 {
   "name": "@foigent/event-connector-sdk",
-  "version": "0.1.0-candidate.2",
+  "version": "0.1.0-candidate.3",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./protocol": "./src/protocol/protocol.ts",
     "./canonical": "./src/canonical/index.ts",
-    "./kernel": "./src/kernel/kernel.ts",
-    "./testkit": "./src/testkit/report.ts"
+    "./compatibility": "./src/compatibility/catalog.ts",
+    "./protocol/v2-candidate": "./src/protocol/v2_candidate.ts",
+    "./experimental/page-plan": "./src/experimental/page_plan.ts",
+    "./testkit": "./src/testkit/report.ts",
+    "./testkit/replay": "./src/testkit/replay.ts"
   },
   "files": [
     "src",

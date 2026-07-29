@@ -1,7 +1,6 @@
-// Package protocol strictly parses and validates the source-neutral protocol
-// wire objects. Domain payload validation remains an explicit consumer-owned
-// port because payload schemas are versioned independently.
-package protocol
+// Package protocolv2candidate validates frozen v1 wire-object shapes under
+// the non-binding future-major canonical profile. It performs no workflow I/O.
+package protocolv2candidate
 
 import (
 	"fmt"
@@ -41,83 +40,144 @@ func (e *ValidationError) Error() string {
 }
 
 type Envelope struct {
-	Value          canonical.Value
-	EventID        string
-	EventType      string
-	EnvelopeHash   string
-	IdempotencyKey string
+	canonicalBytes      []byte
+	eventID             string
+	eventType           string
+	schemaRef           string
+	schemaVersion       string
+	envelopeHash        string
+	idempotencyKey      string
+	payloadSchemaSHA256 string
 }
 
 type Batch struct {
-	Value            canonical.Value
-	ConnectorID      string
-	ConnectorVersion string
-	ProducerInstance string
-	GeneratedAt      string
-	Events           []Envelope
-	NextCursor       string
-	HighWatermark    string
-	HasMore          bool
+	canonicalBytes   []byte
+	connectorID      string
+	connectorVersion string
+	producerInstance string
+	generatedAt      string
+	events           []Envelope
+	nextCursor       string
+	highWatermark    string
+	hasMore          bool
 }
 
 type Checkpoint struct {
-	Value            canonical.Value
-	ConnectorID      string
-	ConnectorVersion string
-	ProducerInstance string
-	Cursor           string
-	HighWatermark    string
-	Phase            string
-	UpdatedAt        string
+	canonicalBytes   []byte
+	connectorID      string
+	connectorVersion string
+	producerInstance string
+	cursor           string
+	highWatermark    string
+	phase            string
+	updatedAt        string
 }
 
 type ConnectorError struct {
-	Value             canonical.Value
-	Category          string
-	Code              string
-	Phase             string
-	Operation         string
-	Retryable         bool
-	RetryAfterSeconds *int
-	SafeMessage       string
-	Recovery          string
+	canonicalBytes    []byte
+	category          string
+	code              string
+	phase             string
+	operation         string
+	retryable         bool
+	retryAfterSeconds *int
+	safeMessage       string
+	recovery          string
 }
 
 type OperationalReceipt struct {
-	Value canonical.Value
+	canonicalBytes []byte
 }
 
 type Lifecycle struct {
-	Value canonical.Value
+	canonicalBytes []byte
 }
 
-type Manifest struct {
-	Value            canonical.Value
-	ConnectorID      string
-	ConnectorVersion string
+type manifest struct {
+	canonicalBytes   []byte
+	connectorID      string
+	connectorVersion string
 }
 
+// PayloadValidator must resolve the exact schema_ref/schema_version pair to
+// immutable local Schema bytes, validate the canonical payload against those
+// bytes, and return the verified lowercase SHA-256 reference for the Schema.
 type PayloadValidator interface {
-	Validate(schemaRef string, schemaVersion string, payload canonical.Value) error
+	ValidatePinned(schemaRef string, schemaVersion string, canonicalPayload []byte) (schemaSHA256 string, err error)
 }
+
+func (value Envelope) CanonicalBytes() []byte      { return copyBytes(value.canonicalBytes) }
+func (value Envelope) EventID() string             { return value.eventID }
+func (value Envelope) EventType() string           { return value.eventType }
+func (value Envelope) SchemaRef() string           { return value.schemaRef }
+func (value Envelope) SchemaVersion() string       { return value.schemaVersion }
+func (value Envelope) EnvelopeHash() string        { return value.envelopeHash }
+func (value Envelope) IdempotencyKey() string      { return value.idempotencyKey }
+func (value Envelope) PayloadSchemaSHA256() string { return value.payloadSchemaSHA256 }
+
+func (value Batch) CanonicalBytes() []byte   { return copyBytes(value.canonicalBytes) }
+func (value Batch) ConnectorID() string      { return value.connectorID }
+func (value Batch) ConnectorVersion() string { return value.connectorVersion }
+func (value Batch) ProducerInstance() string { return value.producerInstance }
+func (value Batch) GeneratedAt() string      { return value.generatedAt }
+func (value Batch) NextCursor() string       { return value.nextCursor }
+func (value Batch) HighWatermark() string    { return value.highWatermark }
+func (value Batch) HasMore() bool            { return value.hasMore }
+func (value Batch) Events() []Envelope       { return append([]Envelope(nil), value.events...) }
+
+func (value Checkpoint) CanonicalBytes() []byte   { return copyBytes(value.canonicalBytes) }
+func (value Checkpoint) ConnectorID() string      { return value.connectorID }
+func (value Checkpoint) ConnectorVersion() string { return value.connectorVersion }
+func (value Checkpoint) ProducerInstance() string { return value.producerInstance }
+func (value Checkpoint) Cursor() string           { return value.cursor }
+func (value Checkpoint) HighWatermark() string    { return value.highWatermark }
+func (value Checkpoint) Phase() string            { return value.phase }
+func (value Checkpoint) UpdatedAt() string        { return value.updatedAt }
+
+func (value ConnectorError) CanonicalBytes() []byte { return copyBytes(value.canonicalBytes) }
+func (value ConnectorError) Category() string       { return value.category }
+func (value ConnectorError) Code() string           { return value.code }
+func (value ConnectorError) Phase() string          { return value.phase }
+func (value ConnectorError) Operation() string      { return value.operation }
+func (value ConnectorError) Retryable() bool        { return value.retryable }
+func (value ConnectorError) SafeMessage() string    { return value.safeMessage }
+func (value ConnectorError) Recovery() string       { return value.recovery }
+func (value ConnectorError) RetryAfterSeconds() (int, bool) {
+	if value.retryAfterSeconds == nil {
+		return 0, false
+	}
+	return *value.retryAfterSeconds, true
+}
+
+func (value OperationalReceipt) CanonicalBytes() []byte {
+	return copyBytes(value.canonicalBytes)
+}
+
+func (value Lifecycle) CanonicalBytes() []byte { return copyBytes(value.canonicalBytes) }
 
 func ParseEnvelope(data []byte, limits canonical.Limits, payloadValidator PayloadValidator) (Envelope, error) {
+	if payloadValidator == nil {
+		return Envelope{}, invalid("$.payload", "a pinned payload validator is required")
+	}
 	value, err := canonical.Parse(data, limits)
 	if err != nil {
 		return Envelope{}, invalid("$", err.Error())
 	}
-	return ValidateEnvelope(value, true, payloadValidator)
+	return validateEnvelope(value, true, payloadValidator)
 }
 
 func ParseEnvelopeHashInput(data []byte, limits canonical.Limits, payloadValidator PayloadValidator) (Envelope, error) {
+	if payloadValidator == nil {
+		return Envelope{}, invalid("$.payload", "a pinned payload validator is required")
+	}
 	value, err := canonical.Parse(data, limits)
 	if err != nil {
 		return Envelope{}, invalid("$", err.Error())
 	}
-	return ValidateEnvelope(value, false, payloadValidator)
+	return validateEnvelope(value, false, payloadValidator)
 }
 
-func ValidateEnvelope(value canonical.Value, requireEnvelopeHash bool, payloadValidator PayloadValidator) (Envelope, error) {
+func validateEnvelope(value canonical.Value, requireEnvelopeHash bool, payloadValidator PayloadValidator) (Envelope, error) {
 	root, err := object(value, "$")
 	if err != nil {
 		return Envelope{}, err
@@ -307,8 +367,18 @@ func ValidateEnvelope(value canonical.Value, requireEnvelopeHash bool, payloadVa
 		if err != nil {
 			return Envelope{}, err
 		}
-		hashInput := canonical.Clone(value)
-		delete(hashInput.Members["integrity"].Members, "envelope_hash")
+		integrityValue, ok := value.Member("integrity")
+		if !ok {
+			return Envelope{}, invalid("$.integrity", "is required")
+		}
+		hashIntegrity, err := integrityValue.WithoutMember("envelope_hash")
+		if err != nil {
+			return Envelope{}, invalid("$.integrity", err.Error())
+		}
+		hashInput, err := value.WithMember("integrity", hashIntegrity)
+		if err != nil {
+			return Envelope{}, invalid("$", err.Error())
+		}
 		canonicalBytes, err := canonical.CanonicalizeValue(hashInput)
 		if err != nil {
 			return Envelope{}, invalid("$", err.Error())
@@ -368,15 +438,41 @@ func ValidateEnvelope(value canonical.Value, requireEnvelopeHash bool, payloadVa
 	if err != nil {
 		return Envelope{}, err
 	}
-	if payloadValidator != nil {
-		if err := payloadValidator.Validate(schemaRef, schemaVersion, canonical.Value{Kind: canonical.Object, Members: payload}); err != nil {
-			return Envelope{}, invalid("$.payload", err.Error())
-		}
+	payloadBytes, err := canonical.CanonicalizeValue(canonical.NewObjectValue(payload))
+	if err != nil {
+		return Envelope{}, invalid("$.payload", err.Error())
 	}
-	return Envelope{Value: value, EventID: eventID, EventType: eventType, EnvelopeHash: envelopeHash, IdempotencyKey: idempotency}, nil
+	payloadSchemaSHA256, err := payloadValidator.ValidatePinned(
+		schemaRef,
+		schemaVersion,
+		append([]byte(nil), payloadBytes...),
+	)
+	if err != nil {
+		return Envelope{}, invalid("$.payload", err.Error())
+	}
+	if !shaPattern.MatchString(payloadSchemaSHA256) {
+		return Envelope{}, invalid("$.payload", "validator did not return a pinned Schema SHA-256")
+	}
+	canonicalBytes, err := canonical.CanonicalizeValue(value)
+	if err != nil {
+		return Envelope{}, invalid("$", err.Error())
+	}
+	return Envelope{
+		canonicalBytes:      canonicalBytes,
+		eventID:             eventID,
+		eventType:           eventType,
+		schemaRef:           schemaRef,
+		schemaVersion:       schemaVersion,
+		envelopeHash:        envelopeHash,
+		idempotencyKey:      idempotency,
+		payloadSchemaSHA256: payloadSchemaSHA256,
+	}, nil
 }
 
 func ParseBatch(data []byte, limits canonical.Limits, payloadValidator PayloadValidator) (Batch, error) {
+	if payloadValidator == nil {
+		return Batch{}, invalid("$.events", "a pinned payload validator is required")
+	}
 	value, err := canonical.Parse(data, limits)
 	if err != nil {
 		return Batch{}, invalid("$", err.Error())
@@ -409,15 +505,16 @@ func ParseBatch(data []byte, limits canonical.Limits, payloadValidator PayloadVa
 		return Batch{}, err
 	}
 	eventsValue, ok := root["events"]
-	if !ok || eventsValue.Kind != canonical.Array {
+	if !ok || eventsValue.Kind() != canonical.Array {
 		return Batch{}, invalid("$.events", "must be an array")
 	}
-	if len(eventsValue.Items) > 50 {
+	eventItems := eventsValue.Items()
+	if len(eventItems) > 50 {
 		return Batch{}, invalid("$.events", "must contain at most 50 items")
 	}
-	events := make([]Envelope, len(eventsValue.Items))
-	for index, item := range eventsValue.Items {
-		events[index], err = ValidateEnvelope(item, true, payloadValidator)
+	events := make([]Envelope, len(eventItems))
+	for index, item := range eventItems {
+		events[index], err = validateEnvelope(item, true, payloadValidator)
 		if err != nil {
 			return Batch{}, invalid(fmt.Sprintf("$.events[%d]", index), err.Error())
 		}
@@ -434,10 +531,14 @@ func ParseBatch(data []byte, limits canonical.Limits, payloadValidator PayloadVa
 	if err != nil {
 		return Batch{}, err
 	}
+	canonicalBytes, err := canonical.CanonicalizeValue(value)
+	if err != nil {
+		return Batch{}, invalid("$", err.Error())
+	}
 	return Batch{
-		Value: value, ConnectorID: connectorID, ConnectorVersion: connectorVersion,
-		ProducerInstance: instance, GeneratedAt: generatedAt, Events: events,
-		NextCursor: nextCursor, HighWatermark: highWatermark, HasMore: hasMore,
+		canonicalBytes: canonicalBytes, connectorID: connectorID, connectorVersion: connectorVersion,
+		producerInstance: instance, generatedAt: generatedAt, events: events,
+		nextCursor: nextCursor, highWatermark: highWatermark, hasMore: hasMore,
 	}, nil
 }
 
@@ -446,10 +547,10 @@ func ParseCheckpoint(data []byte, limits canonical.Limits) (Checkpoint, error) {
 	if err != nil {
 		return Checkpoint{}, invalid("$", err.Error())
 	}
-	return ValidateCheckpoint(value)
+	return validateCheckpoint(value)
 }
 
-func ValidateCheckpoint(value canonical.Value) (Checkpoint, error) {
+func validateCheckpoint(value canonical.Value) (Checkpoint, error) {
 	root, err := object(value, "$")
 	if err != nil {
 		return Checkpoint{}, err
@@ -489,7 +590,11 @@ func ValidateCheckpoint(value canonical.Value) (Checkpoint, error) {
 	if err != nil {
 		return Checkpoint{}, err
 	}
-	return Checkpoint{Value: value, ConnectorID: connectorID, ConnectorVersion: version, ProducerInstance: instance, Cursor: cursor, HighWatermark: high, Phase: phase, UpdatedAt: updated}, nil
+	canonicalBytes, err := canonical.CanonicalizeValue(value)
+	if err != nil {
+		return Checkpoint{}, invalid("$", err.Error())
+	}
+	return Checkpoint{canonicalBytes: canonicalBytes, connectorID: connectorID, connectorVersion: version, producerInstance: instance, cursor: cursor, highWatermark: high, phase: phase, updatedAt: updated}, nil
 }
 
 func ParseConnectorError(data []byte, limits canonical.Limits) (ConnectorError, error) {
@@ -497,10 +602,10 @@ func ParseConnectorError(data []byte, limits canonical.Limits) (ConnectorError, 
 	if err != nil {
 		return ConnectorError{}, invalid("$", err.Error())
 	}
-	return ValidateConnectorError(value)
+	return validateConnectorError(value)
 }
 
-func ValidateConnectorError(value canonical.Value) (ConnectorError, error) {
+func validateConnectorError(value canonical.Value) (ConnectorError, error) {
 	root, err := object(value, "$")
 	if err != nil {
 		return ConnectorError{}, err
@@ -551,7 +656,11 @@ func ValidateConnectorError(value canonical.Value) (ConnectorError, error) {
 	if err != nil {
 		return ConnectorError{}, err
 	}
-	return ConnectorError{Value: value, Category: category, Code: code, Phase: phase, Operation: operation, Retryable: retryable, RetryAfterSeconds: retryAfter, SafeMessage: safeMessage, Recovery: recovery}, nil
+	canonicalBytes, err := canonical.CanonicalizeValue(value)
+	if err != nil {
+		return ConnectorError{}, invalid("$", err.Error())
+	}
+	return ConnectorError{canonicalBytes: canonicalBytes, category: category, code: code, phase: phase, operation: operation, retryable: retryable, retryAfterSeconds: retryAfter, safeMessage: safeMessage, recovery: recovery}, nil
 }
 
 func ParseOperationalReceipt(data []byte, limits canonical.Limits) (OperationalReceipt, error) {
@@ -620,11 +729,15 @@ func ParseOperationalReceipt(data []byte, limits canonical.Limits) (OperationalR
 		return OperationalReceipt{}, err
 	}
 	if errorValue, ok := root["error"]; ok {
-		if _, err := ValidateConnectorError(errorValue); err != nil {
+		if _, err := validateConnectorError(errorValue); err != nil {
 			return OperationalReceipt{}, invalid("$.error", err.Error())
 		}
 	}
-	return OperationalReceipt{Value: value}, nil
+	canonicalBytes, err := canonical.CanonicalizeValue(value)
+	if err != nil {
+		return OperationalReceipt{}, invalid("$", err.Error())
+	}
+	return OperationalReceipt{canonicalBytes: canonicalBytes}, nil
 }
 
 func ParseLifecycle(data []byte, limits canonical.Limits) (Lifecycle, error) {
@@ -656,17 +769,21 @@ func ParseLifecycle(data []byte, limits canonical.Limits) (Lifecycle, error) {
 			return Lifecycle{}, err
 		}
 	}
-	return Lifecycle{Value: value}, nil
+	canonicalBytes, err := canonical.CanonicalizeValue(value)
+	if err != nil {
+		return Lifecycle{}, invalid("$", err.Error())
+	}
+	return Lifecycle{canonicalBytes: canonicalBytes}, nil
 }
 
-func ParseManifest(data []byte, limits canonical.Limits) (Manifest, error) {
+func parseManifestCharacterization(data []byte, limits canonical.Limits) (manifest, error) {
 	value, err := canonical.Parse(data, limits)
 	if err != nil {
-		return Manifest{}, invalid("$", err.Error())
+		return manifest{}, invalid("$", err.Error())
 	}
 	root, err := object(value, "$")
 	if err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	required := []string{
 		"manifest_version", "connector_id", "connector_version", "connector_class", "direction",
@@ -675,46 +792,50 @@ func ParseManifest(data []byte, limits canonical.Limits) (Manifest, error) {
 		"payload_policy", "required_capabilities", "declared_capture_gaps", "compatibility",
 	}
 	if err := exact(root, required, []string{"source_release"}, "$"); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if err := constant(root, "manifest_version", "foigent.connector-manifest.v1", "$"); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	connectorID, err := patternedString(root, "connector_id", connectorPattern, 160, "$")
 	if err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	version, err := patternedString(root, "connector_version", semverPattern, 64, "$")
 	if err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if _, err := enumString(root, "connector_class", []string{"integration", "value", "enforcement"}, "$"); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if _, err := enumString(root, "direction", []string{"source", "sink", "bidirectional"}, "$"); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if _, err := patternedString(root, "source_product", productPattern, 64, "$"); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if _, err := patternedString(root, "event_identity_profile", connectorPattern, 200, "$"); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if err := validateManifestSchemaRefs(root); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if err := validateManifestTransport(root); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if err := validateManifestPolicy(root); err != nil {
-		return Manifest{}, err
+		return manifest{}, err
 	}
 	if sourceRelease, ok := root["source_release"]; ok {
 		if err := validateSourceRelease(sourceRelease); err != nil {
-			return Manifest{}, err
+			return manifest{}, err
 		}
 	}
-	return Manifest{Value: value, ConnectorID: connectorID, ConnectorVersion: version}, nil
+	canonicalBytes, err := canonical.CanonicalizeValue(value)
+	if err != nil {
+		return manifest{}, invalid("$", err.Error())
+	}
+	return manifest{canonicalBytes: canonicalBytes, connectorID: connectorID, connectorVersion: version}, nil
 }
 
 func validateManifestSchemaRefs(root map[string]canonical.Value) error {
@@ -1056,10 +1177,10 @@ func validateSourceRelease(value canonical.Value) error {
 }
 
 func object(value canonical.Value, path string) (map[string]canonical.Value, error) {
-	if value.Kind != canonical.Object {
+	if value.Kind() != canonical.Object {
 		return nil, invalid(path, "must be an object")
 	}
-	return value.Members, nil
+	return value.Members(), nil
 }
 
 func memberObject(root map[string]canonical.Value, key, path string) (map[string]canonical.Value, error) {
@@ -1072,10 +1193,10 @@ func memberObject(root map[string]canonical.Value, key, path string) (map[string
 
 func arrayMember(root map[string]canonical.Value, key, path string) ([]canonical.Value, error) {
 	value, ok := root[key]
-	if !ok || value.Kind != canonical.Array {
+	if !ok || value.Kind() != canonical.Array {
 		return nil, invalid(path+"."+key, "must be an array")
 	}
-	return value.Items, nil
+	return value.Items(), nil
 }
 
 func exact(root map[string]canonical.Value, required, optional []string, path string) error {
@@ -1098,13 +1219,13 @@ func exact(root map[string]canonical.Value, required, optional []string, path st
 }
 
 func stringValue(value canonical.Value, path string) (string, error) {
-	if value.Kind != canonical.String {
+	if value.Kind() != canonical.String {
 		return "", invalid(path, "must be a string")
 	}
-	if !utf8.ValidString(value.Text) {
+	if !utf8.ValidString(value.Text()) {
 		return "", invalid(path, "must be valid UTF-8")
 	}
-	return value.Text, nil
+	return value.Text(), nil
 }
 
 func boundedString(root map[string]canonical.Value, key string, minimum, maximum int, rejectControls bool, path string) (string, error) {
@@ -1175,10 +1296,10 @@ func constant(root map[string]canonical.Value, key, expected, path string) error
 
 func boolMember(root map[string]canonical.Value, key, path string) (bool, error) {
 	value, ok := root[key]
-	if !ok || value.Kind != canonical.Boolean {
+	if !ok || value.Kind() != canonical.Boolean {
 		return false, invalid(path+"."+key, "must be a boolean")
 	}
-	return value.Bool, nil
+	return value.Bool(), nil
 }
 
 func exactMicroTime(root map[string]canonical.Value, key, path string) (string, error) {
@@ -1208,10 +1329,17 @@ func shaString(root map[string]canonical.Value, key, path string) (string, error
 }
 
 func boundedInteger(value canonical.Value, minimum, maximum int, path string) (int, error) {
-	if value.Kind != canonical.Number {
+	if value.Kind() != canonical.Number {
 		return 0, invalid(path, "must be an integer")
 	}
-	parsed, err := strconv.ParseInt(value.NumberText, 10, 64)
+	canonicalNumber, err := canonical.Canonicalize(
+		[]byte(value.NumberText()),
+		canonical.DefaultLimits(),
+	)
+	if err != nil {
+		return 0, invalid(path, "must be an exact safe integer")
+	}
+	parsed, err := strconv.ParseInt(string(canonicalNumber), 10, 64)
 	if err != nil || parsed < int64(minimum) || parsed > int64(maximum) {
 		return 0, invalid(path, fmt.Sprintf("must be in range %d..%d", minimum, maximum))
 	}
@@ -1224,4 +1352,8 @@ func invalid(path, why string) error {
 
 func mismatch(path, why string) error {
 	return &ValidationError{Code: "protocol_integrity_mismatch", Path: path, Why: why}
+}
+
+func copyBytes(value []byte) []byte {
+	return append([]byte(nil), value...)
 }

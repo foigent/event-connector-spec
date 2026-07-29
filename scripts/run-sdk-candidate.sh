@@ -8,7 +8,7 @@ fi
 
 protocol_root="$(cd "$1" && pwd -P)"
 candidate_tmp="$2"
-candidate_version="0.1.0-candidate.2"
+candidate_version="0.1.0-candidate.3"
 candidate_commit="$(git -C "$protocol_root" rev-parse --verify 'HEAD^{commit}')"
 candidate_epoch="$(git -C "$protocol_root" show -s --format=%ct "$candidate_commit")"
 if ! grep -Fq "\"version\": \"$candidate_version\"" \
@@ -110,16 +110,18 @@ if rg -n \
   -g '!**/*_test.go' \
   '"(net/http|database/sql|os|github.com/foigent/x-insight|github.com/uniroute/unirouter)' \
   "$protocol_root/sdk/go/canonical" \
+  "$protocol_root/sdk/go/compatibility" \
   "$protocol_root/sdk/go/protocol" \
-  "$protocol_root/sdk/go/kernel"; then
+  "$protocol_root/sdk/go/experimental"; then
   echo "forbidden Go core dependency detected" >&2
   exit 3
 fi
 if rg -n \
   '\b(Deno\.|globalThis\.fetch|node:fs|node:http|node:https)' \
   "$protocol_root/sdk/typescript/src/canonical" \
+  "$protocol_root/sdk/typescript/src/compatibility" \
   "$protocol_root/sdk/typescript/src/protocol" \
-  "$protocol_root/sdk/typescript/src/kernel"; then
+  "$protocol_root/sdk/typescript/src/experimental"; then
   echo "forbidden TypeScript core dependency detected" >&2
   exit 3
 fi

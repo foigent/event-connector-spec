@@ -1,4 +1,4 @@
-package protocol
+package protocolv2candidate
 
 import (
 	"bytes"
@@ -11,8 +11,34 @@ import (
 	"github.com/foigent/event-connector-spec/sdk/go/canonical"
 )
 
+type fixturePayloadValidator struct {
+	badDigest bool
+}
+
+func (validator fixturePayloadValidator) ValidatePinned(
+	schemaRef string,
+	schemaVersion string,
+	canonicalPayload []byte,
+) (string, error) {
+	if len(canonicalPayload) == 0 {
+		return "", fmt.Errorf("payload bytes are empty")
+	}
+	if validator.badDigest {
+		return "not-a-digest", nil
+	}
+	switch schemaRef + "@" + schemaVersion {
+	case "foigent://events/model/request-completed/v1@1":
+		return "sha256:ea0ea7354f3d9f435bb86a34eb28284e4297e5a2d1a3d22a23058c7dcc514dc6", nil
+	case "foigent://events/model/request-completed/v2@2":
+		return "sha256:75e5af3fe8a433054988c6afa3faf5a9a9fbe03a300c8d1d5a869912ecd9154e", nil
+	default:
+		return "", fmt.Errorf("schema is not pinned: %s@%s", schemaRef, schemaVersion)
+	}
+}
+
 func TestReleasedHashInputsAndFinalEnvelope(t *testing.T) {
-	root := filepath.Clean(filepath.Join("..", "..", ".."))
+	root := filepath.Clean(filepath.Join("..", "..", "..", ".."))
+	validator := fixturePayloadValidator{}
 	for _, relative := range []string{
 		"fixtures/shared/settled-envelope.hash-input.json",
 		"fixtures/shared/cancelled-envelope.hash-input.json",
@@ -21,14 +47,20 @@ func TestReleasedHashInputsAndFinalEnvelope(t *testing.T) {
 		"fixtures/shared/litellm-cache-hit-envelope.hash-input.json",
 	} {
 		t.Run(filepath.Base(relative), func(t *testing.T) {
-			bytes, err := os.ReadFile(filepath.Join(root, relative))
+			inputBytes, err := os.ReadFile(filepath.Join(root, relative))
 			if err != nil {
 				t.Fatal(err)
 			}
-			if _, err := ParseEnvelopeHashInput(bytes, canonical.DefaultLimits(), nil); err != nil {
+			parsed, err := ParseEnvelopeHashInput(inputBytes, canonical.DefaultLimits(), validator)
+			if err != nil {
 				t.Fatal(err)
 			}
-			value, err := canonical.Parse(bytes, canonical.DefaultLimits())
+			first := parsed.CanonicalBytes()
+			first[0] ^= 0xff
+			if bytes.Equal(first, parsed.CanonicalBytes()) {
+				t.Fatal("validated Envelope leaked its canonical byte backing store")
+			}
+			value, err := canonical.Parse(inputBytes, canonical.DefaultLimits())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -36,22 +68,34 @@ func TestReleasedHashInputsAndFinalEnvelope(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			integrity := value.Members["integrity"]
-			integrity.Members["envelope_hash"] = canonical.Value{Kind: canonical.String, Text: canonical.SHA256(canonicalBytes)}
-			value.Members["integrity"] = integrity
+			integrity, ok := value.Member("integrity")
+			if !ok {
+				t.Fatal("fixture is missing integrity")
+			}
+			integrity, err = integrity.WithMember(
+				"envelope_hash",
+				canonical.NewStringValue(canonical.SHA256(canonicalBytes)),
+			)
+			if err != nil {
+				t.Fatal(err)
+			}
+			value, err = value.WithMember("integrity", integrity)
+			if err != nil {
+				t.Fatal(err)
+			}
 			finalBytes, err := canonical.CanonicalizeValue(value)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if _, err := ParseEnvelope(finalBytes, canonical.DefaultLimits(), nil); err != nil {
+			if _, err := ParseEnvelope(finalBytes, canonical.DefaultLimits(), validator); err != nil {
 				t.Fatal(err)
 			}
 		})
 	}
 }
 
-func TestWireParsersApplyCandidateSafeIntegerProfile(t *testing.T) {
-	root := filepath.Clean(filepath.Join("..", "..", ".."))
+func TestWireParsersApplyCandidateExactIntegerProfile(t *testing.T) {
+	root := filepath.Clean(filepath.Join("..", "..", "..", ".."))
 	input, err := os.ReadFile(filepath.Join(root, "fixtures/shared/settled-envelope.hash-input.json"))
 	if err != nil {
 		t.Fatal(err)
@@ -60,8 +104,8 @@ func TestWireParsersApplyCandidateSafeIntegerProfile(t *testing.T) {
 	if bytes.Equal(exponent, input) {
 		t.Fatal("test setup did not replace amount_scale")
 	}
-	if _, err := ParseEnvelopeHashInput(exponent, canonical.DefaultLimits(), nil); err == nil {
-		t.Fatal("Envelope hash-input parser accepted exponent number syntax")
+	if _, err := ParseEnvelopeHashInput(exponent, canonical.DefaultLimits(), fixturePayloadValidator{}); err != nil {
+		t.Fatalf("Envelope hash-input parser rejected exact integral exponent: %v", err)
 	}
 
 	receipt := `{"receipt_version":"foigent.operational-receipt.v1","operation_id":"op-1","connector_id":"foigent.example.source","producer_instance":"instance","operation":"commit_page","status":"completed","counts":{"received":9007199254740992,"inserted":0,"duplicate_noop":0,"conflict":0,"rejected":0},"checkpoint_before":"10","checkpoint_after":"10","observed_at":"2026-01-01T00:00:01.000000Z"}`
@@ -71,7 +115,7 @@ func TestWireParsersApplyCandidateSafeIntegerProfile(t *testing.T) {
 }
 
 func TestReleasedManifests(t *testing.T) {
-	root := filepath.Clean(filepath.Join("..", "..", ".."))
+	root := filepath.Clean(filepath.Join("..", "..", "..", ".."))
 	for _, name := range []string{
 		"manifests/foigent.unirouter.completed-execution-1.0.0.json",
 		"manifests/foigent.litellm.spend-logs-1.0.0.json",
@@ -80,7 +124,7 @@ func TestReleasedManifests(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, err := ParseManifest(bytes, canonical.DefaultLimits()); err != nil {
+		if _, err := parseManifestCharacterization(bytes, canonical.DefaultLimits()); err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
 	}
@@ -109,7 +153,7 @@ func TestOtherProtocolWireObjects(t *testing.T) {
 }
 
 func TestBatchWireParser(t *testing.T) {
-	root := filepath.Clean(filepath.Join("..", "..", ".."))
+	root := filepath.Clean(filepath.Join("..", "..", "..", ".."))
 	input, err := os.ReadFile(filepath.Join(root, "fixtures/shared/settled-envelope.hash-input.json"))
 	if err != nil {
 		t.Fatal(err)
@@ -122,34 +166,41 @@ func TestBatchWireParser(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	integrity := value.Members["integrity"]
-	integrity.Members["envelope_hash"] = canonical.Value{Kind: canonical.String, Text: canonical.SHA256(hashInput)}
-	value.Members["integrity"] = integrity
+	integrity, ok := value.Member("integrity")
+	if !ok {
+		t.Fatal("fixture is missing integrity")
+	}
+	integrity, err = integrity.WithMember(
+		"envelope_hash",
+		canonical.NewStringValue(canonical.SHA256(hashInput)),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	value, err = value.WithMember("integrity", integrity)
+	if err != nil {
+		t.Fatal(err)
+	}
 	envelope, err := canonical.CanonicalizeValue(value)
 	if err != nil {
 		t.Fatal(err)
 	}
 	batch := fmt.Sprintf(`{"batch_version":"foigent.event-batch.v1","connector_id":"foigent.unirouter.completed-execution","connector_version":"1.0.0","producer_instance":"unirouter-development","generated_at":"2026-01-01T00:00:00.000000Z","events":[%s],"next_cursor":"11","high_watermark":"20","has_more":false}`, envelope)
-	if _, err := ParseBatch([]byte(batch), canonical.DefaultLimits(), nil); err != nil {
+	if _, err := ParseBatch([]byte(batch), canonical.DefaultLimits(), fixturePayloadValidator{}); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestCompatibilityMatrixFailsClosed(t *testing.T) {
-	for _, pin := range SupportedCompatibilityPins() {
-		if err := ValidateCompatibilityPin(pin); err != nil {
-			t.Fatal(err)
-		}
-	}
-	unknown := SupportedCompatibilityPins()[0]
-	unknown.ProtocolVersion = "latest"
-	if err := ValidateCompatibilityPin(unknown); err == nil {
-		t.Fatal("unknown compatibility tuple must fail closed")
-	}
-	if err := ValidateReleasedSourceRevision("1"); err != nil {
+func TestPinnedPayloadValidatorIsMandatory(t *testing.T) {
+	root := filepath.Clean(filepath.Join("..", "..", "..", ".."))
+	input, err := os.ReadFile(filepath.Join(root, "fixtures/shared/settled-envelope.hash-input.json"))
+	if err != nil {
 		t.Fatal(err)
 	}
-	if err := ValidateReleasedSourceRevision("2"); err == nil {
-		t.Fatal("unknown Source revision must fail closed")
+	if _, err := ParseEnvelopeHashInput(input, canonical.DefaultLimits(), nil); err == nil {
+		t.Fatal("nil payload validator must fail closed")
+	}
+	if _, err := ParseEnvelopeHashInput(input, canonical.DefaultLimits(), fixturePayloadValidator{badDigest: true}); err == nil {
+		t.Fatal("validator without a pinned Schema digest must fail closed")
 	}
 }

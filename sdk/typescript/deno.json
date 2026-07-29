@@ -6,15 +6,17 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./protocol": "./src/protocol/protocol.ts",
     "./canonical": "./src/canonical/index.ts",
-    "./kernel": "./src/kernel/kernel.ts",
-    "./testkit": "./src/testkit/report.ts"
+    "./compatibility": "./src/compatibility/catalog.ts",
+    "./protocol/v2-candidate": "./src/protocol/v2_candidate.ts",
+    "./experimental/page-plan": "./src/experimental/page_plan.ts",
+    "./testkit": "./src/testkit/report.ts",
+    "./testkit/replay": "./src/testkit/replay.ts"
   },
   "tasks": {
-    "typecheck": "deno check --node-modules-dir=none src/index.ts src/testkit/runner.ts tests/sdk_test.ts",
+    "typecheck": "deno check --node-modules-dir=none src/index.ts src/experimental/page_plan.ts src/testkit/runner.ts src/testkit/replay.ts tests/sdk_test.ts",
     "test": "deno test --node-modules-dir=none --allow-read tests",
-    "build": "deno cache --node-modules-dir=none --quiet --check --no-remote --no-npm src/index.ts src/testkit/runner.ts"
+    "build": "deno cache --node-modules-dir=none --quiet --check --no-remote --no-npm src/index.ts src/experimental/page_plan.ts src/testkit/runner.ts src/testkit/replay.ts"
   },
   "fmt": {
     "lineWidth": 88,

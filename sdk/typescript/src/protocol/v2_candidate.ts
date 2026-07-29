@@ -30,29 +30,27 @@ const SUBJECT_TYPE = /^[a-z][a-z0-9_]*$/;
 const SHA = /^sha256:[0-9a-f]{64}$/;
 const MICRO_TIME = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{6}Z$/;
 
-export const SDK_PROTOCOL_VERSION = "1.1.2";
-export const SDK_AUTHORITY_COMMIT = "fd82aeca9877bea8064b25c365a3cdcdd0bb3d16";
-export const SDK_RELEASE_DIGEST =
-  "sha256:0b414d5d59e5a7ca5c05505cb58d7992c544537da1c84a57256ec205618d9cd1";
-
 export interface PayloadValidator {
-  validate(
+  validatePinned(
     schemaRef: string,
     schemaVersion: string,
-    payload: JsonObject,
-  ): void;
+    canonicalPayload: Uint8Array,
+  ): string;
 }
 
 export interface Envelope {
-  readonly value: JsonObject;
+  canonicalBytes(): Uint8Array;
   readonly eventId: string;
   readonly eventType: string;
+  readonly schemaRef: string;
+  readonly schemaVersion: string;
   readonly envelopeHash: string;
   readonly idempotencyKey: string;
+  readonly payloadSchemaSha256: string;
 }
 
 export interface Batch {
-  readonly value: JsonObject;
+  canonicalBytes(): Uint8Array;
   readonly connectorId: string;
   readonly connectorVersion: string;
   readonly producerInstance: string;
@@ -64,7 +62,7 @@ export interface Batch {
 }
 
 export interface Checkpoint {
-  readonly value?: JsonObject;
+  canonicalBytes(): Uint8Array;
   readonly connectorId: string;
   readonly connectorVersion: string;
   readonly producerInstance: string;
@@ -75,7 +73,7 @@ export interface Checkpoint {
 }
 
 export interface ConnectorError {
-  readonly value: JsonObject;
+  canonicalBytes(): Uint8Array;
   readonly category: string;
   readonly code: string;
   readonly phase: string;
@@ -86,105 +84,16 @@ export interface ConnectorError {
   readonly recovery: string;
 }
 
-export interface CompatibilityPin {
-  readonly consumer: string;
-  readonly connectorId: string;
-  readonly connectorVersion: string;
-  readonly sourceRevision: string;
-  readonly protocolVersion: string;
-  readonly protocolReleaseDigest: string;
-  readonly manifestSchemaSha256: string;
-  readonly referenceManifestSha256: string;
-  readonly projectionContractSha256: string;
-}
-
-const validationCompatibilityPins: readonly CompatibilityPin[] = Object.freeze(
-  [
-    Object.freeze({
-      consumer: "xinsight-reference",
-      connectorId: "foigent.unirouter.completed-execution",
-      connectorVersion: "1.0.0",
-      sourceRevision: "1",
-      protocolVersion: "1.0.0",
-      protocolReleaseDigest:
-        "sha256:aaeb5b37b94a1fd603048d77b2180fa88be1ddbd6eeea6a1369edf0cea9c5e2b",
-      manifestSchemaSha256:
-        "sha256:a6f43b37477002ab836a4d9ea7c4e462675cd4313f0637c0733cd98675fc0adf",
-      referenceManifestSha256:
-        "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79",
-      projectionContractSha256:
-        "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03",
-    }),
-    Object.freeze({
-      consumer: "xinsight-litellm",
-      connectorId: "foigent.litellm.spend-logs",
-      connectorVersion: "1.0.0",
-      sourceRevision: "1",
-      protocolVersion: "1.1.2",
-      protocolReleaseDigest: SDK_RELEASE_DIGEST,
-      manifestSchemaSha256:
-        "sha256:59c405086310d0dfb2aaff37e55d73853e04319e6ccf659c66f98d8ba704a205",
-      referenceManifestSha256:
-        "sha256:86a10565a8c66abe5b31d6c39e853cebf5e9b90721d6784ea0bf7c28d2c20693",
-      projectionContractSha256:
-        "sha256:72bb90b6a5ddf0f44f7773a7378c0f7f458438f9fc1363d31a65602c0547f088",
-    }),
-    Object.freeze({
-      consumer: "unirouter-reference-runtime",
-      connectorId: "foigent.unirouter.completed-execution",
-      connectorVersion: "1.0.0",
-      sourceRevision: "1",
-      protocolVersion: "1.1.0",
-      protocolReleaseDigest:
-        "sha256:3bb10a544ace17d3b6c4a44e19048c45c557eba19ad79d9cea81728336658c4d",
-      manifestSchemaSha256:
-        "sha256:59c405086310d0dfb2aaff37e55d73853e04319e6ccf659c66f98d8ba704a205",
-      referenceManifestSha256:
-        "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79",
-      projectionContractSha256:
-        "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03",
-    }),
-  ],
-);
-
-// Expose a separate deeply frozen snapshot. Validation deliberately uses the
-// private frozen authority so a consumer cannot redefine accepted tuples by
-// casting away TypeScript's compile-time readonly annotation.
-export const SUPPORTED_COMPATIBILITY_PINS: readonly CompatibilityPin[] = Object.freeze(
-  validationCompatibilityPins.map((pin) => Object.freeze({ ...pin })),
-);
-
-export function validateCompatibilityPin(candidate: CompatibilityPin): void {
-  if (
-    !validationCompatibilityPins.some((supported) =>
-      Object.keys(candidate).length === Object.keys(supported).length &&
-      Object.keys(supported).every((key) =>
-        supported[key as keyof CompatibilityPin] ===
-          candidate[key as keyof CompatibilityPin]
-      )
-    )
-  ) {
-    throw new StrictJsonError(
-      "unsupported_compatibility",
-      `unsupported compatibility tuple ${candidate.consumer}/${candidate.connectorId}/${candidate.protocolVersion}`,
-    );
-  }
-}
-
-export function validateReleasedSourceRevision(revision: string): void {
-  if (revision !== "1") {
-    throw new StrictJsonError(
-      "unsupported_source_revision",
-      `unsupported released Source revision ${JSON.stringify(revision)}`,
-    );
-  }
+export interface ValidatedWireObject {
+  canonicalBytes(): Uint8Array;
 }
 
 export function parseEnvelope(
   bytes: Uint8Array,
   limits: Limits,
-  payloadValidator?: PayloadValidator,
+  payloadValidator: PayloadValidator,
 ): Envelope {
+  requirePayloadValidator(payloadValidator);
   return validateEnvelope(
     asObject(parseStrictJsonBytes(bytes, limits), "Envelope"),
     true,
@@ -195,8 +104,9 @@ export function parseEnvelope(
 export function parseEnvelopeHashInput(
   bytes: Uint8Array,
   limits: Limits,
-  payloadValidator?: PayloadValidator,
+  payloadValidator: PayloadValidator,
 ): Envelope {
+  requirePayloadValidator(payloadValidator);
   return validateEnvelope(
     asObject(parseStrictJsonBytes(bytes, limits), "Envelope hash input"),
     false,
@@ -204,10 +114,10 @@ export function parseEnvelopeHashInput(
   );
 }
 
-export function validateEnvelope(
+function validateEnvelope(
   root: JsonObject,
   requireEnvelopeHash: boolean,
-  payloadValidator?: PayloadValidator,
+  payloadValidator: PayloadValidator,
 ): Envelope {
   assertExactKeys(
     root,
@@ -422,7 +332,7 @@ export function validateEnvelope(
       hashInput.integrity,
       "Envelope.integrity",
     );
-    delete clonedIntegrity.envelope_hash;
+    delete (clonedIntegrity as { [key: string]: JsonValue }).envelope_hash;
     const expected = sha256(canonicalBytes(hashInput));
     if (envelopeHash !== expected) {
       fail("Envelope.integrity.envelope_hash does not match canonical input");
@@ -496,21 +406,32 @@ export function validateEnvelope(
   }
 
   const payload = objectMember(root, "payload", "Envelope");
-  payloadValidator?.validate(schemaRef, schemaVersion, payload);
-  return {
-    value: root,
+  const payloadSchemaSha256 = payloadValidator.validatePinned(
+    schemaRef,
+    schemaVersion,
+    canonicalBytes(payload).slice(),
+  );
+  if (!SHA.test(payloadSchemaSha256)) {
+    fail("Envelope.payload validator did not return a pinned Schema SHA-256");
+  }
+  return Object.freeze({
+    canonicalBytes: byteAccessor(root),
     eventId,
     eventType,
+    schemaRef,
+    schemaVersion,
     envelopeHash,
     idempotencyKey: actualIdempotency,
-  };
+    payloadSchemaSha256,
+  });
 }
 
 export function parseBatch(
   bytes: Uint8Array,
   limits: Limits,
-  payloadValidator?: PayloadValidator,
+  payloadValidator: PayloadValidator,
 ): Batch {
+  requirePayloadValidator(payloadValidator);
   const root = asObject(parseStrictJsonBytes(bytes, limits), "Batch");
   assertExactKeys(
     root,
@@ -574,17 +495,17 @@ export function parseBatch(
     true,
   );
   const hasMore = asBoolean(root.has_more, "Batch.has_more");
-  return {
-    value: root,
+  return Object.freeze({
+    canonicalBytes: byteAccessor(root),
     connectorId,
     connectorVersion,
     producerInstance,
     generatedAt,
-    events,
+    events: Object.freeze(events),
     nextCursor,
     highWatermark,
     hasMore,
-  };
+  });
 }
 
 export function parseCheckpoint(
@@ -596,7 +517,7 @@ export function parseCheckpoint(
   );
 }
 
-export function validateCheckpoint(root: JsonObject): Checkpoint {
+function validateCheckpoint(root: JsonObject): Checkpoint {
   assertExactKeys(
     root,
     [
@@ -663,8 +584,8 @@ export function validateCheckpoint(root: JsonObject): Checkpoint {
     "Checkpoint",
   ) as Checkpoint["phase"];
   const updatedAt = exactMicroTime(root, "updated_at", "Checkpoint");
-  return {
-    value: root,
+  return Object.freeze({
+    canonicalBytes: byteAccessor(root),
     connectorId,
     connectorVersion,
     producerInstance,
@@ -672,7 +593,7 @@ export function validateCheckpoint(root: JsonObject): Checkpoint {
     highWatermark,
     phase,
     updatedAt,
-  };
+  });
 }
 
 export function parseConnectorError(
@@ -684,7 +605,7 @@ export function parseConnectorError(
   );
 }
 
-export function validateConnectorError(root: JsonObject): ConnectorError {
+function validateConnectorError(root: JsonObject): ConnectorError {
   assertExactKeys(
     root,
     [
@@ -789,8 +710,8 @@ export function validateConnectorError(root: JsonObject): ConnectorError {
     ],
     "ConnectorError",
   );
-  return {
-    value: root,
+  return Object.freeze({
+    canonicalBytes: byteAccessor(root),
     category,
     code,
     phase,
@@ -799,13 +720,13 @@ export function validateConnectorError(root: JsonObject): ConnectorError {
     retryAfterSeconds,
     safeMessage,
     recovery,
-  };
+  });
 }
 
 export function parseOperationalReceipt(
   bytes: Uint8Array,
   limits: Limits,
-): JsonObject {
+): ValidatedWireObject {
   const root = asObject(
     parseStrictJsonBytes(bytes, limits),
     "OperationalReceipt",
@@ -917,13 +838,13 @@ export function parseOperationalReceipt(
   if ("error" in root) {
     validateConnectorError(asObject(root.error, "OperationalReceipt.error"));
   }
-  return root;
+  return Object.freeze({ canonicalBytes: byteAccessor(root) });
 }
 
 export function parseLifecycle(
   bytes: Uint8Array,
   limits: Limits,
-): JsonObject {
+): ValidatedWireObject {
   const root = asObject(parseStrictJsonBytes(bytes, limits), "Lifecycle");
   assertExactKeys(
     root,
@@ -986,10 +907,10 @@ export function parseLifecycle(
     "stopped",
     "retired",
   ], "Lifecycle");
-  return root;
+  return Object.freeze({ canonicalBytes: byteAccessor(root) });
 }
 
-export function parseManifest(
+function parseManifestCharacterization(
   bytes: Uint8Array,
   limits: Limits,
 ): JsonObject {
@@ -1561,11 +1482,30 @@ function cloneJson(value: JsonValue): JsonValue {
   if (Array.isArray(value)) {
     return value.map(cloneJson);
   }
-  const result: JsonObject = Object.create(null) as JsonObject;
+  const result = Object.create(null) as { [key: string]: JsonValue };
   for (const [key, item] of Object.entries(value)) {
     result[key] = cloneJson(item);
   }
   return result;
+}
+
+function byteAccessor(value: JsonValue): () => Uint8Array {
+  const stored = canonicalBytes(value);
+  return () => stored.slice();
+}
+
+function requirePayloadValidator(
+  value: PayloadValidator | null | undefined,
+): asserts value is PayloadValidator {
+  if (
+    value === null || value === undefined ||
+    typeof value.validatePinned !== "function"
+  ) {
+    throw new StrictJsonError(
+      "payload_validator_required",
+      "A pinned payload validator is required",
+    );
+  }
 }
 
 function fail(message: string): never {

@@ -1,6 +1,6 @@
 # Foigent Event & Connector SDK candidate
 
-Status: `0.1.0-candidate.2`, local extraction candidate only.
+Status: `0.1.0-candidate.3`, local future-major semantics candidate only.
 
 This directory contains source-neutral Go and TypeScript implementations of
 the shared protocol mechanics. It does not change any released protocol,
@@ -9,10 +9,12 @@ or product runtime.
 
 ## Packages
 
-- `go/{protocol,canonical,kernel,testkit}`
-- `typescript/src/{protocol,canonical,kernel,testkit}`
-- `compatibility-matrix.v1.json`
-- `candidate-negative-vectors.v1.json`
+- `go/{canonical,compatibility,protocol/v2candidate,testkit}`
+- `go/experimental/pageplan`
+- `typescript/src/{canonical,compatibility,protocol,testkit}`
+- `typescript/src/experimental/page_plan.ts`
+- `compatibility-catalog.v1.json`
+- `candidate-wire-boundary-vectors.v1.json`
 
 The public package names are:
 
@@ -25,15 +27,19 @@ published by this candidate.
 ## Included
 
 - bounded strict JSON parsing with duplicate-key and invalid-Unicode rejection;
-- the frozen safe-integer canonical profile and UTF-16 object-key ordering;
+- the non-binding future-major exact-decimal safe-integer candidate and UTF-16
+  object-key ordering;
 - exact Source SHA-256 helpers, Envelope hashing, and seven-part LP_UTF8
   idempotency;
-- structural validation for Envelope, Batch, Checkpoint, Receipt, Error,
-  Lifecycle, and Connector Manifest wire objects;
-- an explicit Domain Payload validator port;
-- pure replay classification and steady-page convergence/checkpoint planning;
-- I/O interfaces only, with no implementation;
-- a fail-closed historical compatibility tuple matrix;
+- structural validation for Envelope, Batch, Checkpoint, Receipt, Error, and
+  Lifecycle wire objects;
+- mandatory invocation of a caller-supplied pinned Domain Payload validator
+  for Envelope and every Batch item;
+- immutable/copy-isolated validated results;
+- one caller-supplied, exact-digest compatibility catalog with no compiled
+  language tuple copies;
+- replay classification under testkit only;
+- a pure experimental page planner with no provider ports;
 - SDK-owned tests and byte comparison against the unchanged current Go and
   TypeScript conformance reports.
 
@@ -48,31 +54,33 @@ credential, database, filesystem, scheduler, worker, retry loop, runtime
 selector, outbox, M0 event, EvidenceStore, product provenance, UI, or
 product-local cursor codec.
 
-Activation-forward is deliberately absent. A product establishes and durably
-stores its activation fence locally, then calls the shared steady transition
-only with an already-durable `phase=steady` Checkpoint. Ack remains a
-product-owned operation performed only after durable CAS.
+Fetch, normalize, Commit, Checkpoint load/CAS, Receipt recording, Ack,
+activation-forward, Cursor interpretation, and every product transaction
+remain product-local. The experimental planner accepts copied scalar state
+only and cannot prove persistence or convergence.
 
 ## Validation boundary
 
-Generic Envelope validation does not imply validation of a referenced Domain
-Payload Schema. A consumer must supply `PayloadValidator` before accepting a
-payload in production. The unchanged authority runners continue to validate
-the released Reference and LiteLLM payloads and remain independent byte
-oracles.
+Envelope and Batch parsing fails closed without `PayloadValidator`. The
+validator contract requires exact `schema_ref`/`schema_version` resolution,
+offline validation against immutable Schema bytes, and a verified Schema
+SHA-256 receipt. The SDK rejects an absent validator or an invalid digest.
+The SDK can prove that the callback was present, invoked, and returned a
+well-formed digest; it cannot prove that a dishonest or defective callback
+actually performed Schema resolution and validation. A production adapter
+must supply that proof, and package qualification must test it against the
+digest-pinned Schema authority.
 
-Both public parsers reject fractional, exponent and out-of-safe-range JSON
-number tokens before structural validation or canonical emission. Both
-timestamp normalizers also require input and normalized UTC years
-`0001`–`9999`. Candidate-owned negative vectors exercise those boundaries
-in both languages.
+Candidate.3 accepts fraction or exponent tokens only when exact decimal
+reduction produces a safe integer, and canonicalizes them to the shortest
+base-10 integer. It accepts input and normalized UTC years `0000`–`9999` and
+rejects normalized expanded years. The active 19-number/7-time candidate
+matrix exercises these boundaries in both languages.
 
-Frozen protocol vectors are byte-identical across the candidate and all
-unchanged runners. The written RFC 8785 safe-integer profile and pre-existing
-runner behavior are not fully aligned for unvectored integral exponent forms;
-the pre-existing timestamp implementations also differ on year `0000`. This
-candidate does not authorize adoption or publication until both variances
-receive joint protocol decisions and released vectors.
+These semantics are `V2_SEMANTICS_CANDIDATE_NOT_BINDING`, not a v1 erratum.
+They do not assign version `2.0.0` and cannot be adopted by either product
+without a separately authorized major release, released discriminator
+vectors, migration/rollback guidance, and compatibility negotiation.
 
 ## Local verification
 

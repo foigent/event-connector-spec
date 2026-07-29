@@ -2,8 +2,8 @@ import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 
 export type JsonScalar = null | boolean | string | number | bigint;
-export type JsonValue = JsonScalar | JsonValue[] | JsonObject;
-export type JsonObject = { [key: string]: JsonValue };
+export type JsonValue = JsonScalar | readonly JsonValue[] | JsonObject;
+export type JsonObject = { readonly [key: string]: JsonValue };
 
 const MAX_SAFE_INTEGER = BigInt(Number.MAX_SAFE_INTEGER);
 const MIN_SAFE_INTEGER = -MAX_SAFE_INTEGER;
@@ -45,7 +45,9 @@ export function parseStrictJsonBytes(
   limits: Limits = DEFAULT_LIMITS,
 ): JsonValue {
   validateLimits(bytes.byteLength, limits);
-  return new StrictJsonParser(decodeUtf8(bytes), limits.maxDepth).parse();
+  return deepFreeze(
+    new StrictJsonParser(decodeUtf8(bytes), limits.maxDepth).parse(),
+  );
 }
 
 export function parseStrictJson(
@@ -54,7 +56,7 @@ export function parseStrictJson(
 ): JsonValue {
   const bytes = encodeUtf8(text);
   validateLimits(bytes.byteLength, limits);
-  return new StrictJsonParser(text, limits.maxDepth).parse();
+  return deepFreeze(new StrictJsonParser(text, limits.maxDepth).parse());
 }
 
 class StrictJsonParser {
@@ -221,25 +223,10 @@ class StrictJsonParser {
     }
     const token = match[0];
     this.offset += token.length;
-    if (token.includes(".") || token.includes("e") || token.includes("E")) {
-      throw this.error(
-        "unsafe_json_number",
-        "Frozen canonical profile accepts JSON integers only",
-      );
-    }
-    let value: bigint;
-    try {
-      value = BigInt(token);
-    } catch {
-      throw this.error("invalid_json", "JSON integer is invalid");
-    }
-    if (value < MIN_SAFE_INTEGER || value > MAX_SAFE_INTEGER) {
-      throw this.error(
-        "unsafe_json_number",
-        `JSON integer ${token} is outside the safe-integer profile`,
-      );
-    }
-    return Number(value);
+    return canonicalSafeIntegerToken(
+      token,
+      (message) => this.error("unsafe_json_number", message),
+    );
   }
 
   private parseLiteral<T extends JsonScalar>(token: string, value: T): T {
@@ -305,7 +292,7 @@ export function canonicalize(value: JsonValue): string {
     }
     return value.toString(10);
   }
-  if (Array.isArray(value)) {
+  if (isJsonArray(value)) {
     return `[${value.map((item) => canonicalize(item)).join(",")}]`;
   }
   const members = Object.keys(value)
@@ -370,15 +357,18 @@ export function asObject(
   name: string,
 ): JsonObject {
   if (
-    value === null || Array.isArray(value) || typeof value !== "object"
+    value === null || isJsonArray(value) || typeof value !== "object"
   ) {
     throw new StrictJsonError("invalid_artifact", `${name} must be an object`);
   }
   return value;
 }
 
-export function asArray(value: JsonValue | undefined, name: string): JsonValue[] {
-  if (!Array.isArray(value)) {
+export function asArray(
+  value: JsonValue | undefined,
+  name: string,
+): readonly JsonValue[] {
+  if (!isJsonArray(value)) {
     throw new StrictJsonError("invalid_artifact", `${name} must be an array`);
   }
   return value;
@@ -452,6 +442,12 @@ function isDigit(character: string | undefined): boolean {
   return character !== undefined && character >= "0" && character <= "9";
 }
 
+function isJsonArray(
+  value: JsonValue | undefined,
+): value is readonly JsonValue[] {
+  return Array.isArray(value);
+}
+
 function isJsonWhitespace(character: string | undefined): boolean {
   return character === " " || character === "\t" || character === "\n" ||
     character === "\r";
@@ -473,4 +469,74 @@ function validateLimits(byteLength: number, limits: Limits): void {
       `JSON input exceeds ${limits.maxBytes} bytes`,
     );
   }
+}
+
+function canonicalSafeIntegerToken(
+  token: string,
+  error: (message: string) => StrictJsonError,
+): number {
+  if (token.length > 1024) {
+    throw error("JSON number exceeds safe profile input limit");
+  }
+  const negative = token.startsWith("-");
+  const unsigned = negative ? token.slice(1) : token;
+  const exponentPosition = unsigned.search(/[eE]/);
+  const mantissa = exponentPosition < 0
+    ? unsigned
+    : unsigned.slice(0, exponentPosition);
+  const exponentText = exponentPosition < 0
+    ? "0"
+    : unsigned.slice(exponentPosition + 1);
+  const point = mantissa.indexOf(".");
+  const fractionDigits = point < 0 ? 0 : mantissa.length - point - 1;
+  const digits =
+    (point < 0 ? mantissa : `${mantissa.slice(0, point)}${mantissa.slice(point + 1)}`)
+      .replace(/^0+/, "");
+  if (digits.length === 0) {
+    return 0;
+  }
+
+  let scale: bigint;
+  try {
+    scale = BigInt(exponentText) - BigInt(fractionDigits);
+  } catch {
+    throw error("JSON number exponent is invalid");
+  }
+  if (scale > 20n || scale < -1024n) {
+    throw error("JSON number is outside the safe-integer profile");
+  }
+
+  let integer = BigInt(digits);
+  if (scale >= 0n) {
+    integer *= 10n ** scale;
+  } else {
+    const divisor = 10n ** -scale;
+    if (integer % divisor !== 0n) {
+      throw error("JSON number is not an exact integer");
+    }
+    integer /= divisor;
+  }
+  if (negative) {
+    integer = -integer;
+  }
+  if (integer < MIN_SAFE_INTEGER || integer > MAX_SAFE_INTEGER) {
+    throw error("JSON number is outside the safe-integer profile");
+  }
+  return Number(integer);
+}
+
+function deepFreeze<T extends JsonValue>(value: T): T {
+  if (value === null || typeof value !== "object" || Object.isFrozen(value)) {
+    return value;
+  }
+  if (isJsonArray(value)) {
+    for (const item of value) {
+      deepFreeze(item);
+    }
+  } else {
+    for (const item of Object.values(value)) {
+      deepFreeze(item);
+    }
+  }
+  return Object.freeze(value);
 }

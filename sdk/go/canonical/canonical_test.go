@@ -92,7 +92,17 @@ func TestStrictJSONLimitsAndCanonicalProfile(t *testing.T) {
 	if _, err := Parse([]byte(`{"abcdef":1}`), Limits{MaxBytes: 8, MaxDepth: 4}); err == nil {
 		t.Fatal("expected byte limit rejection")
 	}
-	for _, input := range []string{`1.0`, `1e2`, `9007199254740992`, `-9007199254740992`} {
+	for input, expected := range map[string]string{
+		`1.0`:   `1`,
+		`1e2`:   `100`,
+		`1.5e1`: `15`,
+	} {
+		output, err := Canonicalize([]byte(input), DefaultLimits())
+		if err != nil || string(output) != expected {
+			t.Fatalf("exact integral JSON number %s: output=%s err=%v", input, output, err)
+		}
+	}
+	for _, input := range []string{`1.5`, `1.0000000000000001`, `9007199254740992`, `-9007199254740992`} {
 		if _, err := Parse([]byte(input), DefaultLimits()); err == nil {
 			t.Fatalf("expected parse-time safe-integer rejection for %s", input)
 		}
@@ -109,36 +119,88 @@ func TestStrictJSONLimitsAndCanonicalProfile(t *testing.T) {
 	}
 }
 
-func TestCandidateNegativeVectors(t *testing.T) {
-	var vectors struct {
-		StrictJSON []struct {
-			CaseID string `json:"case_id"`
-			Input  string `json:"input"`
-		} `json:"strict_json"`
-		Timestamps []struct {
-			CaseID       string `json:"case_id"`
-			Input        string `json:"input"`
-			ExpectedCode string `json:"expected_error"`
-		} `json:"timestamps"`
+func TestParsedValuesAreImmutableByConstruction(t *testing.T) {
+	value, err := Parse([]byte(`{"items":[1],"name":"before"}`), DefaultLimits())
+	if err != nil {
+		t.Fatal(err)
 	}
-	input, err := os.ReadFile(filepath.Join("..", "..", "candidate-negative-vectors.v1.json"))
+	members := value.Members()
+	delete(members, "name")
+	items := members["items"].Items()
+	items[0] = NewStringValue("changed")
+	if output, err := CanonicalizeValue(value); err != nil || string(output) != `{"items":[1],"name":"before"}` {
+		t.Fatalf("container accessor changed parsed value: output=%s err=%v", output, err)
+	}
+	updated, err := value.WithMember("name", NewStringValue("after"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	original, err := CanonicalizeValue(value)
+	if err != nil {
+		t.Fatal(err)
+	}
+	replacement, err := CanonicalizeValue(updated)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(original) != `{"items":[1],"name":"before"}` ||
+		string(replacement) != `{"items":[1],"name":"after"}` {
+		t.Fatalf("functional member replacement drifted: original=%s replacement=%s", original, replacement)
+	}
+}
+
+func TestCandidateWireBoundaryVectors(t *testing.T) {
+	var vectors struct {
+		NumberProfile struct {
+			Cases []struct {
+				CaseID    string `json:"case_id"`
+				Input     string `json:"input"`
+				Expected  string `json:"expected"`
+				Canonical string `json:"canonical"`
+			} `json:"cases"`
+		} `json:"number_profile"`
+		TimestampProfile struct {
+			Cases []struct {
+				CaseID       string `json:"case_id"`
+				Input        string `json:"input"`
+				Expected     string `json:"expected"`
+				Normalized   string `json:"normalized"`
+				ExpectedCode string `json:"error_code"`
+			} `json:"cases"`
+		} `json:"timestamp_profile"`
+	}
+	input, err := os.ReadFile(filepath.Join("..", "..", "candidate-wire-boundary-vectors.v1.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err := json.Unmarshal(input, &vectors); err != nil {
 		t.Fatal(err)
 	}
-	for _, testCase := range vectors.StrictJSON {
+	for _, testCase := range vectors.NumberProfile.Cases {
 		t.Run(testCase.CaseID, func(t *testing.T) {
-			if _, err := Parse([]byte(testCase.Input), DefaultLimits()); err == nil {
-				t.Fatalf("candidate negative JSON vector was accepted: %s", testCase.Input)
+			output, err := Canonicalize([]byte(testCase.Input), DefaultLimits())
+			if testCase.Expected == "reject" {
+				if err == nil {
+					t.Fatalf("candidate negative JSON vector was accepted: %s", testCase.Input)
+				}
+				return
+			}
+			if err != nil || string(output) != testCase.Canonical {
+				t.Fatalf("number output=%s err=%v expected=%s", output, err, testCase.Canonical)
 			}
 		})
 	}
-	for _, testCase := range vectors.Timestamps {
+	for _, testCase := range vectors.TimestampProfile.Cases {
 		t.Run(testCase.CaseID, func(t *testing.T) {
-			if result := NormalizeMicrosecondTimestamp(testCase.Input); result.ErrorCode != testCase.ExpectedCode {
-				t.Fatalf("timestamp result=%+v expected=%s", result, testCase.ExpectedCode)
+			result := NormalizeMicrosecondTimestamp(testCase.Input)
+			if testCase.Expected == "reject" {
+				if result.ErrorCode != testCase.ExpectedCode {
+					t.Fatalf("timestamp result=%+v expected=%s", result, testCase.ExpectedCode)
+				}
+				return
+			}
+			if result.ErrorCode != "" || result.Normalized != testCase.Normalized {
+				t.Fatalf("timestamp result=%+v expected=%s", result, testCase.Normalized)
 			}
 		})
 	}
@@ -151,8 +213,8 @@ func TestTimeDecimalAndNFCProfiles(t *testing.T) {
 	if result := NormalizeMicrosecondTimestamp("2026-01-02T03:04:05.1234567Z"); result.ErrorCode != "timestamp_precision_loss" {
 		t.Fatalf("expected precision loss: %+v", result)
 	}
-	if result := NormalizeMicrosecondTimestamp("0000-01-01T00:00:00.000000Z"); result.ErrorCode != "invalid_timestamp" {
-		t.Fatalf("expected year-zero rejection: %+v", result)
+	if result := NormalizeMicrosecondTimestamp("0000-01-01T00:00:00.000000Z"); result.Normalized != "0000-01-01T00:00:00.000000Z" {
+		t.Fatalf("expected year-zero acceptance: %+v", result)
 	}
 	if !IsValidInt64Decimal("9223372036854775807") || IsValidInt64Decimal("9223372036854775808") {
 		t.Fatal("int64 decimal boundary drift")

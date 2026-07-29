@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math/big"
 	"sort"
-	"strconv"
 	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
@@ -508,9 +507,6 @@ func canonicalSafeInteger(raw string) (string, error) {
 	if len(raw) > 1024 {
 		return "", errors.New("JSON number exceeds safe profile input limit")
 	}
-	if strings.ContainsAny(raw, ".eE") {
-		return "", errors.New("frozen canonical profile accepts JSON integer tokens only")
-	}
 
 	negative := false
 	if strings.HasPrefix(raw, "-") {
@@ -518,15 +514,10 @@ func canonicalSafeInteger(raw string) (string, error) {
 		raw = raw[1:]
 	}
 	mantissa := raw
-	exponent := int64(0)
+	exponentRaw := "0"
 	if position := strings.IndexAny(mantissa, "eE"); position >= 0 {
-		exponentRaw := mantissa[position+1:]
+		exponentRaw = mantissa[position+1:]
 		mantissa = mantissa[:position]
-		parsed, err := strconv.ParseInt(exponentRaw, 10, 32)
-		if err != nil {
-			return "", errors.New("JSON number exponent exceeds safe profile")
-		}
-		exponent = parsed
 	}
 
 	fractionDigits := int64(0)
@@ -539,11 +530,20 @@ func canonicalSafeInteger(raw string) (string, error) {
 		return "0", nil
 	}
 
+	exponentValue := new(big.Int)
+	if _, ok := exponentValue.SetString(exponentRaw, 10); !ok {
+		return "", errors.New("invalid JSON number exponent")
+	}
+	scaleValue := new(big.Int).Sub(exponentValue, big.NewInt(fractionDigits))
+	if !scaleValue.IsInt64() {
+		return "", errors.New("JSON number exponent exceeds safe profile")
+	}
+	scale := scaleValue.Int64()
+
 	integer := new(big.Int)
 	if _, ok := integer.SetString(mantissa, 10); !ok {
 		return "", errors.New("invalid JSON number")
 	}
-	scale := exponent - fractionDigits
 	switch {
 	case scale > 20:
 		return "", errors.New("JSON number is outside the safe-integer profile")
