@@ -1,6 +1,6 @@
 # Decision 0004: Phase 4B JSON-number, timestamp, and SemVer candidate
 
-- Status: candidate, non-binding
+- Status: HOLD, superseded by Decision 0005
 - Date: 2026-07-30
 - Decision parent: commit
   `b652f90cd7b48d617481d5fa60c825e6e7aa2031`, tree
@@ -10,6 +10,11 @@
 - Candidate SDK successor: `0.1.0-candidate.3`
 - Proposed protocol classification:
   `V1_1_3_ERRATUM_CANDIDATE_NOT_BINDING`
+
+> Do not use this decision as current authority. Independent Source Owner
+> review found an omitted released lower-bound divergence and insufficient
+> normative evidence for the proposed erratum classification. Decision 0005
+> records the corrected major-version disposition.
 
 ## Decision
 

@@ -1,6 +1,6 @@
 {
   "vector_version": "foigent.event-connector-sdk-candidate-wire-boundary.v1",
-  "status": "v1.1.3_erratum_candidate_non_binding",
+  "status": "v2_semantics_candidate_non_binding",
   "number_profile": {
     "minimum": "-9007199254740991",
     "maximum": "9007199254740991",
@@ -15,6 +15,18 @@
       {
         "case_id": "negative-zero-preserved-compatibility",
         "input": "-0",
+        "expected": "canonical",
+        "canonical": "0"
+      },
+      {
+        "case_id": "negative-zero-fraction",
+        "input": "-0.0",
+        "expected": "canonical",
+        "canonical": "0"
+      },
+      {
+        "case_id": "negative-zero-exponent",
+        "input": "-0e10",
         "expected": "canonical",
         "canonical": "0"
       },
@@ -61,6 +73,11 @@
         "canonical": "-9007199254740991"
       },
       {
+        "case_id": "ieee-rounding-discriminator",
+        "input": "1.0000000000000001",
+        "expected": "reject"
+      },
+      {
         "case_id": "non-integral-fraction",
         "input": "1.5",
         "expected": "reject"
@@ -78,6 +95,16 @@
       {
         "case_id": "negative-unsafe-integer",
         "input": "-9007199254740992",
+        "expected": "reject"
+      },
+      {
+        "case_id": "positive-unsafe-integral-fraction",
+        "input": "9007199254740992.0",
+        "expected": "reject"
+      },
+      {
+        "case_id": "positive-unsafe-integral-exponent",
+        "input": "9.007199254740992e15",
         "expected": "reject"
       },
       {
