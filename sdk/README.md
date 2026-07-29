@@ -24,6 +24,10 @@ The public package names are:
 The TypeScript package is deliberately `"private": true`; neither package is
 published by this candidate.
 
+The TypeScript root export contains canonical and compatibility helpers only.
+Future-major wire parsing is available exclusively through the explicit
+`./protocol/v2-candidate` subpath.
+
 ## Included
 
 - bounded strict JSON parsing with duplicate-key and invalid-Unicode rejection;
@@ -37,7 +41,8 @@ published by this candidate.
   for Envelope and every Batch item;
 - immutable/copy-isolated validated results;
 - one caller-supplied, exact-digest compatibility catalog with no compiled
-  language tuple copies;
+  language tuple copies; TypeScript tuple validation also requires the
+  module-private provenance of the exact-digest loader;
 - replay classification under testkit only;
 - a pure experimental page planner with no provider ports;
 - SDK-owned tests and byte comparison against the unchanged current Go and

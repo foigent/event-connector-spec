@@ -4,7 +4,7 @@
 - Date: 2026-07-30
 - Authorization: local stages 0-2 only
 - Parent candidate:
-  `40ba980db5a73f3027753c968223ef9d5acb9e58`
+  `313b990a52415971a4fd18c47416a9998cb3c755`
 - Parent tree:
   `9ffc6913a67dc389530e35206946acb56b0d88f3`
 - Protocol release examined: immutable `v1.1.2`

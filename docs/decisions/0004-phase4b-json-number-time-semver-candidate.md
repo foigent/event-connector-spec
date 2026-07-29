@@ -3,7 +3,7 @@
 - Status: HOLD, superseded by Decision 0005
 - Date: 2026-07-30
 - Decision parent: commit
-  `b652f90cd7b48d617481d5fa60c825e6e7aa2031`, tree
+  `64a41440f1df7b2581af86090b72f02f5f2bbf53`, tree
   `19d62ed8f1ed282771d10deabc31454b65c6056e`
 - Released protocol examined: `v1.1.2`,
   `sha256:0b414d5d59e5a7ca5c05505cb58d7992c544537da1c84a57256ec205618d9cd1`

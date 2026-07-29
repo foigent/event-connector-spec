@@ -125,6 +125,11 @@ if rg -n \
   echo "forbidden TypeScript core dependency detected" >&2
   exit 3
 fi
+if rg -n '^[[:space:]]*export .*protocol' \
+  "$protocol_root/sdk/typescript/src/index.ts"; then
+  echo "unversioned TypeScript root protocol export detected" >&2
+  exit 3
+fi
 if rg -n 'EstablishFence|activation_forward.*function|ActivationCheckpoint' \
   "$protocol_root/sdk/go" \
   "$protocol_root/sdk/typescript/src"; then

@@ -17,6 +17,7 @@ export const PROTOCOL_RELEASE_SHA256 =
 
 const CATALOG_VERSION = "foigent.event-connector-sdk-compatibility.v1";
 const SHA = /^sha256:[0-9a-f]{64}$/;
+const loadedCatalogs = new WeakSet<object>();
 
 export interface CompatibilityPin {
   readonly consumer: string;
@@ -103,15 +104,26 @@ export function loadCompatibilityCatalog(
       "Compatibility catalog contains a duplicate tuple",
     );
   }
-  return Object.freeze({
+  const catalog = Object.freeze({
     pins: Object.freeze(pins),
   });
+  loadedCatalogs.add(catalog);
+  return catalog;
 }
 
 export function validateCompatibilityPin(
   catalog: CompatibilityCatalog,
   candidate: CompatibilityPin,
 ): void {
+  if (
+    typeof catalog !== "object" || catalog === null ||
+    !loadedCatalogs.has(catalog)
+  ) {
+    throw new StrictJsonError(
+      "untrusted_compatibility_catalog",
+      "Compatibility catalog must come from the exact-digest loader",
+    );
+  }
   if (!catalog.pins.some((supported) => samePin(supported, candidate))) {
     throw new StrictJsonError(
       "unsupported_compatibility",

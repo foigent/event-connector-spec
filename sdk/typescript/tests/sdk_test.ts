@@ -16,6 +16,9 @@ import {
   validateCompatibilityPin,
   validateReleasedSourceRevision,
 } from "../src/compatibility/catalog.ts";
+import {
+  loadCompatibilityCatalog as loadCompatibilityCatalogFromRoot,
+} from "../src/index.ts";
 import { planSteadyPage } from "../src/experimental/page_plan.ts";
 import {
   parseBatch,
@@ -350,7 +353,7 @@ Deno.test("replay and steady-only checkpoint transition", () => {
 });
 
 Deno.test("digest-pinned compatibility catalog fails closed", async () => {
-  const catalog = loadCompatibilityCatalog(
+  const catalog = loadCompatibilityCatalogFromRoot(
     await Deno.readFile(
       `${protocolRoot}/sdk/compatibility-catalog.v1.json`,
     ),
@@ -361,6 +364,18 @@ Deno.test("digest-pinned compatibility catalog fails closed", async () => {
   for (const pin of catalog.pins) {
     validateCompatibilityPin(catalog, pin);
   }
+  throws(() =>
+    validateCompatibilityPin(
+      { pins: catalog.pins },
+      catalog.pins[0]!,
+    )
+  );
+  throws(() =>
+    validateCompatibilityPin(
+      { ...catalog },
+      catalog.pins[0]!,
+    )
+  );
   throws(() =>
     validateCompatibilityPin(catalog, {
       ...catalog.pins[0]!,

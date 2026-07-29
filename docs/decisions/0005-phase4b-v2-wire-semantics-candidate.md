@@ -4,7 +4,7 @@
 - Date: 2026-07-30
 - Supersedes: Decision 0004
 - Decision parent under review:
-  `da16f0b4bc4050643dad94821e7b7153a91cf503`, tree
+  `4e1372bd834fa898816fa750deb595da2d43fbde`, tree
   `6e375f73cb456d2c00322ff86f7697c7d22a39c9`
 - Candidate SDK successor: `0.1.0-candidate.3`
 - Protocol disposition: `V2_SEMANTICS_CANDIDATE_NOT_BINDING`

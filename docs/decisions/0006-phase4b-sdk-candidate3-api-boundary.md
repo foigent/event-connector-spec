@@ -4,7 +4,7 @@
 - Date: 2026-07-30
 - Authorization: local stages 0-2 only
 - Implementation parent:
-  `89043916a4ecc1706e3cf7a7616e2789bf62942e`
+  `7f4f66ddf86e4ae59202d624267a1c12503eeeea`
 - Implementation parent tree:
   `bdd52f60406d556a7511291028f3b442598c8bf5`
 - Depends on: Decisions 0003 and 0005
@@ -32,12 +32,14 @@ The stable candidate namespaces are:
   compatibility catalog;
 - Go `protocol/v2candidate`: immutable validation results for Envelope, Batch,
   Checkpoint, Connector Error, Operational Receipt, and Lifecycle;
-- TypeScript `.`, `./canonical`, `./compatibility`, and
-  `./protocol/v2-candidate` with the equivalent boundaries.
+- TypeScript `.` for canonical and compatibility helpers, plus explicit
+  `./canonical`, `./compatibility`, and `./protocol/v2-candidate` subpaths.
 
 The TypeScript canonical entry point exports only public byte, hash, identity,
 time, Unicode, strict-JSON, and value types. Artifact-structure helpers used
 inside the protocol implementation are not package exports.
+The package root does not re-export protocol parsers; the future-major parser
+is reachable only from `./protocol/v2-candidate`.
 
 Go strict-JSON `Value` is opaque and immutable. Its container accessors return
 copies, and member replacement returns a new value. Go protocol result fields
@@ -88,8 +90,9 @@ Its exact candidate digest is:
 Go and TypeScript contain the expected authority metadata and digest but no
 compiled product/Connector tuple copies. Both loaders require caller-supplied
 bytes, reject digest or shape drift, reject duplicates, and fail closed for an
-unknown tuple. Loading the catalog does not activate a Connector or mutate a
-product registry.
+unknown tuple. TypeScript pin validation additionally requires module-private
+loader provenance and rejects a caller-constructed or cloned catalog object.
+Loading the catalog does not activate a Connector or mutate a product registry.
 
 ## Product-local boundary
 
