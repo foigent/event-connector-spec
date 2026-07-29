@@ -134,11 +134,13 @@ limit is an SDK safety constraint, not a released Schema change.
 
 ## Unresolved variances
 
-The written protocol describes RFC 8785 canonicalization within a safe-integer
-profile. The pre-existing Go runner accepts integral exponent/fraction tokens
-that reduce exactly to a safe integer, while the pre-existing TypeScript
-runner rejects fractional or exponent tokens. Frozen vectors do not exercise
-this syntax.
+Candidate.2 originally interpreted the written RFC 8785 requirements and
+concrete safe-integer wire fields as one generic safe-integer profile. The
+written protocol does not unambiguously define exact-decimal admission for
+every JSON number token. The pre-existing Go runner canonicalizes integral
+exponent/fraction tokens that reduce exactly to a safe integer, while the
+pre-existing TypeScript runner rejects fractional or exponent tokens during
+strict parse. Frozen vectors do not exercise this syntax.
 
 Historical correction recorded after candidate.2: the preceding number
 variance is between the unchanged released runners, but the timestamp wording

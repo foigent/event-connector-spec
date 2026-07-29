@@ -50,8 +50,8 @@ Direct probes against unchanged released implementations establish:
 | `1.0` | parse/canonicalize to `1` | strict parse rejects |
 | `1e6` | parse/canonicalize to `1000000` | strict parse rejects |
 | `1.5e1` | parse/canonicalize to `15` | strict parse rejects |
-| `1.5` | strict parse rejects | strict parse rejects |
-| `9007199254740992` | strict parse rejects | parse returns bigint; canonicalization rejects |
+| `1.5` | strict parse retains token; canonicalization rejects | strict parse rejects |
+| `9007199254740992` | strict parse retains token; canonicalization rejects | strict parse returns bigint; canonicalization rejects |
 | `-0` | parse/canonicalize to `0` | parse/canonicalize to `0` |
 | `0000-01-01T00:00:00Z` | accepts year `0000` | accepts year `0000` |
 | `0001-01-01T00:00:00+23:59` | normalizes into year `0000` | same |
