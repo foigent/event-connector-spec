@@ -1,0 +1,21 @@
+{
+  "name": "@foigent/event-connector-sdk",
+  "version": "0.1.0-candidate.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./protocol": "./src/protocol/protocol.ts",
+    "./canonical": "./src/canonical/index.ts",
+    "./kernel": "./src/kernel/kernel.ts",
+    "./testkit": "./src/testkit/report.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "deno.json"
+  ],
+  "engines": {
+    "node": ">=22"
+  }
+}
