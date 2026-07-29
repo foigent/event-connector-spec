@@ -1,0 +1,141 @@
+{
+  "vector_version": "foigent.event-connector-sdk-candidate-wire-boundary.v1",
+  "status": "v1.1.3_erratum_candidate_non_binding",
+  "number_profile": {
+    "minimum": "-9007199254740991",
+    "maximum": "9007199254740991",
+    "canonical_form": "shortest_base10_integer",
+    "cases": [
+      {
+        "case_id": "integer-zero",
+        "input": "0",
+        "expected": "canonical",
+        "canonical": "0"
+      },
+      {
+        "case_id": "negative-zero-preserved-compatibility",
+        "input": "-0",
+        "expected": "canonical",
+        "canonical": "0"
+      },
+      {
+        "case_id": "integral-fraction",
+        "input": "1.0",
+        "expected": "canonical",
+        "canonical": "1"
+      },
+      {
+        "case_id": "integral-exponent",
+        "input": "1e6",
+        "expected": "canonical",
+        "canonical": "1000000"
+      },
+      {
+        "case_id": "integral-fraction-exponent",
+        "input": "1.5e1",
+        "expected": "canonical",
+        "canonical": "15"
+      },
+      {
+        "case_id": "integral-negative-fraction-exponent",
+        "input": "-1.20e1",
+        "expected": "canonical",
+        "canonical": "-12"
+      },
+      {
+        "case_id": "integral-negative-exponent",
+        "input": "10e-1",
+        "expected": "canonical",
+        "canonical": "1"
+      },
+      {
+        "case_id": "maximum-safe-integral-fraction",
+        "input": "9007199254740991.0",
+        "expected": "canonical",
+        "canonical": "9007199254740991"
+      },
+      {
+        "case_id": "minimum-safe-integral-exponent",
+        "input": "-9007199254740991e0",
+        "expected": "canonical",
+        "canonical": "-9007199254740991"
+      },
+      {
+        "case_id": "non-integral-fraction",
+        "input": "1.5",
+        "expected": "reject"
+      },
+      {
+        "case_id": "non-integral-negative-exponent",
+        "input": "1e-1",
+        "expected": "reject"
+      },
+      {
+        "case_id": "positive-unsafe-integer",
+        "input": "9007199254740992",
+        "expected": "reject"
+      },
+      {
+        "case_id": "negative-unsafe-integer",
+        "input": "-9007199254740992",
+        "expected": "reject"
+      },
+      {
+        "case_id": "unsafe-exponent-result",
+        "input": "1e100",
+        "expected": "reject"
+      }
+    ]
+  },
+  "timestamp_profile": {
+    "input_year_minimum": "0000",
+    "input_year_maximum": "9999",
+    "normalized_year_minimum": "0000",
+    "normalized_year_maximum": "9999",
+    "canonical_form": "YYYY-MM-DDTHH:MM:SS.ffffffZ",
+    "cases": [
+      {
+        "case_id": "year-zero",
+        "input": "0000-01-01T00:00:00Z",
+        "expected": "normalized",
+        "normalized": "0000-01-01T00:00:00.000000Z"
+      },
+      {
+        "case_id": "offset-normalizes-into-year-zero",
+        "input": "0001-01-01T00:00:00+23:59",
+        "expected": "normalized",
+        "normalized": "0000-12-31T00:01:00.000000Z"
+      },
+      {
+        "case_id": "upper-four-digit-year",
+        "input": "9999-12-31T23:59:59.999999Z",
+        "expected": "normalized",
+        "normalized": "9999-12-31T23:59:59.999999Z"
+      },
+      {
+        "case_id": "offset-normalizes-below-year-zero",
+        "input": "0000-01-01T00:00:00+00:01",
+        "expected": "reject",
+        "error_code": "invalid_timestamp"
+      },
+      {
+        "case_id": "offset-normalizes-above-year-9999",
+        "input": "9999-12-31T23:59:59-23:59",
+        "expected": "reject",
+        "error_code": "invalid_timestamp"
+      },
+      {
+        "case_id": "nonzero-submicrosecond",
+        "input": "2026-07-25T04:05:06.123456789Z",
+        "expected": "reject",
+        "error_code": "timestamp_precision_loss"
+      },
+      {
+        "case_id": "missing-zone",
+        "input": "2026-07-25T04:05:06",
+        "expected": "reject",
+        "error_code": "invalid_timestamp"
+      }
+    ]
+  }
+}

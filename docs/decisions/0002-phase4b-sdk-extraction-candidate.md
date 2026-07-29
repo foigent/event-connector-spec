@@ -140,10 +140,16 @@ that reduce exactly to a safe integer, while the pre-existing TypeScript
 runner rejects fractional or exponent tokens. Frozen vectors do not exercise
 this syntax.
 
-The pre-existing Go timestamp normalizer also accepts year `0000`, while the
-pre-existing TypeScript normalizer rejects it. Frozen timestamp vectors do
-not exercise that boundary or offset normalization across the four-digit
-year range.
+Historical correction recorded after candidate.2: the preceding number
+variance is between the unchanged released runners, but the timestamp wording
+in the original candidate.2 decision was inaccurate. Both unchanged released
+runners accept year `0000`. The first SDK candidate introduced the year-zero
+variance: its Go implementation accepted year `0000`, while its TypeScript
+implementation rejected it. Candidate.2 then made both SDKs reject it. The
+actual unchanged-runner timestamp variance is at the upper normalization
+boundary: Go can emit year `10000`, while TypeScript rejects any normalized
+output that is not a four-digit year. Frozen timestamp vectors exercise
+neither boundary.
 
 The candidate uses the conservative common subset: both public parsers reject
 fractional, exponent and out-of-safe-range number tokens, and both timestamp
