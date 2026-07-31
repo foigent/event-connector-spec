@@ -586,6 +586,9 @@
       "input": {
         "operation": "poll",
         "state_kind": "pull",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "https_pull",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -617,6 +620,9 @@
       "input": {
         "operation": "acknowledge",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "durable",
@@ -648,6 +654,9 @@
       "input": {
         "operation": "import_bundle",
         "state_kind": "offline",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -679,6 +688,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "accepted",
         "acknowledgement": "withheld",
@@ -710,6 +722,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": "receive",
+        "error_operation": "receive",
+        "error_recovery": "resubmit_request",
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "withheld",
@@ -741,6 +756,9 @@
       "input": {
         "operation": "import_bundle",
         "state_kind": "offline",
+        "error_phase": "import",
+        "error_operation": "import_bundle",
+        "error_recovery": "operator_repair",
         "mode": "bounded_offline",
         "status": "permanent_error",
         "acknowledgement": "not_applicable",
@@ -772,6 +790,9 @@
       "input": {
         "operation": "activate",
         "state_kind": "control",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "https_pull",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -803,6 +824,9 @@
       "input": {
         "operation": "rotate",
         "state_kind": "control",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -834,6 +858,9 @@
       "input": {
         "operation": "pause",
         "state_kind": "control",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -865,6 +892,9 @@
       "input": {
         "operation": "start",
         "state_kind": "control",
+        "error_phase": "status",
+        "error_operation": "start",
+        "error_recovery": "automatic_retry",
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "not_applicable",
@@ -888,6 +918,164 @@
       }
     },
     {
+      "case_id": "pull-control-activate-retryable-error",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "activate",
+        "state_kind": "control",
+        "error_phase": "activate",
+        "error_operation": "activate",
+        "error_recovery": "automatic_retry",
+        "mode": "https_pull",
+        "status": "retryable_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "retryable_error",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "offline-control-retire-permanent-error",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "retire",
+        "state_kind": "control",
+        "error_phase": "shutdown",
+        "error_operation": "retire",
+        "error_recovery": "operator_repair",
+        "mode": "bounded_offline",
+        "status": "permanent_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": false
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "permanent_error",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "control-error-phase-mismatch",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "start",
+        "state_kind": "control",
+        "error_phase": "receive",
+        "error_operation": "start",
+        "error_recovery": "automatic_retry",
+        "mode": "otlp_http_push",
+        "status": "retryable_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "error_code": "receipt_error_phase_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "control-error-operation-mismatch",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "start",
+        "state_kind": "control",
+        "error_phase": "status",
+        "error_operation": "receive_batch",
+        "error_recovery": "automatic_retry",
+        "mode": "otlp_http_push",
+        "status": "retryable_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "error_code": "receipt_error_operation_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "control-error-data-recovery",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "start",
+        "state_kind": "control",
+        "error_phase": "status",
+        "error_operation": "start",
+        "error_recovery": "resubmit_request",
+        "mode": "otlp_http_push",
+        "status": "retryable_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "error_code": "receipt_error_recovery_mismatch",
+        "valid": false
+      }
+    },
+    {
       "case_id": "push-control-with-data-state",
       "case_classes": [
         "operational_receipt_semantics"
@@ -896,6 +1084,9 @@
       "input": {
         "operation": "rotate",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -923,6 +1114,9 @@
       "input": {
         "operation": "pause",
         "state_kind": "control",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -950,6 +1144,9 @@
       "input": {
         "operation": "poll",
         "state_kind": "control",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "https_pull",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -977,6 +1174,9 @@
       "input": {
         "operation": "rotate",
         "state_kind": "control",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "durable",
@@ -1004,6 +1204,9 @@
       "input": {
         "operation": "activate",
         "state_kind": "control",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "https_pull",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -1031,6 +1234,9 @@
       "input": {
         "operation": "acknowledge",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "withheld",
@@ -1058,6 +1264,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": "receive",
+        "error_operation": "receive",
+        "error_recovery": "resubmit_request",
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "durable",
@@ -1085,6 +1294,9 @@
       "input": {
         "operation": "acknowledge",
         "state_kind": "push",
+        "error_phase": "acknowledge",
+        "error_operation": "acknowledge",
+        "error_recovery": "resubmit_request",
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "durable",
@@ -1112,6 +1324,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "withheld",
@@ -1139,6 +1354,9 @@
       "input": {
         "operation": "acknowledge",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "durable",
@@ -1166,6 +1384,9 @@
       "input": {
         "operation": "import_bundle",
         "state_kind": "offline",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -1193,6 +1414,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "accepted",
         "acknowledgement": "withheld",
@@ -1220,6 +1444,9 @@
       "input": {
         "operation": "poll",
         "state_kind": "pull",
+        "error_phase": "fetch",
+        "error_operation": "poll",
+        "error_recovery": "automatic_retry",
         "mode": "https_pull",
         "status": "retryable_error",
         "acknowledgement": "not_applicable",
@@ -1247,6 +1474,9 @@
       "input": {
         "operation": "import_bundle",
         "state_kind": "offline",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "durable",
@@ -1274,6 +1504,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "accepted",
         "acknowledgement": "withheld",
@@ -1301,6 +1534,9 @@
       "input": {
         "operation": "commit_batch",
         "state_kind": "unknown",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "unknown",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -1328,6 +1564,9 @@
       "input": {
         "operation": "poll",
         "state_kind": "offline",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -1355,6 +1594,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": null,
+        "error_operation": null,
+        "error_recovery": null,
         "mode": "otlp_http_push",
         "status": "accepted",
         "acknowledgement": "withheld",
@@ -1382,6 +1624,9 @@
       "input": {
         "operation": "import_bundle",
         "state_kind": "offline",
+        "error_phase": "import",
+        "error_operation": "import_bundle",
+        "error_recovery": "reimport_bundle",
         "mode": "bounded_offline",
         "status": "permanent_error",
         "acknowledgement": "not_applicable",
@@ -1409,6 +1654,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": "receive",
+        "error_operation": "receive",
+        "error_recovery": "operator_repair",
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "withheld",
@@ -1436,6 +1684,9 @@
       "input": {
         "operation": "receive",
         "state_kind": "push",
+        "error_phase": "receive",
+        "error_operation": "receive",
+        "error_recovery": "resubmit_request",
         "mode": "otlp_http_push",
         "status": "unknown",
         "acknowledgement": "withheld",

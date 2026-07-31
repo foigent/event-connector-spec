@@ -553,14 +553,47 @@ func auditOperationalSchemas(
 			return err
 		}
 	}
-	retryableControl := cloneObject(controlReceipts["push control receipt"])
-	retryableControl["operation"] = "start"
+	for _, operation := range []string{
+		"activate", "pause", "resume", "start", "rotate", "stop", "retire",
+	} {
+		retryableControl := controlReceiptBase("otlp_http_push", operation)
+		retryableControl["status"] = "retryable_error"
+		retryableControl["error"] = controlReceiptError(operation, true)
+		if err := expectValid(
+			compiled[receiptV2],
+			retryableControl,
+			"retryable push control receipt "+operation,
+		); err != nil {
+			return err
+		}
+	}
+	retryableControl := controlReceiptBase("otlp_http_push", "start")
 	retryableControl["status"] = "retryable_error"
-	retryableControl["error"] = receiptError(true)
-	if err := expectValid(
+	retryableControl["error"] = controlReceiptError("start", true)
+	controlErrorPhaseMismatch := cloneObject(retryableControl)
+	controlErrorPhaseMismatch["error"].(map[string]any)["phase"] = "receive"
+	if err := expectInvalid(
 		compiled[receiptV2],
-		retryableControl,
-		"retryable push control receipt",
+		controlErrorPhaseMismatch,
+		"control receipt with data-plane error phase",
+	); err != nil {
+		return err
+	}
+	controlErrorOperationMismatch := cloneObject(retryableControl)
+	controlErrorOperationMismatch["error"].(map[string]any)["operation"] = "receive_batch"
+	if err := expectInvalid(
+		compiled[receiptV2],
+		controlErrorOperationMismatch,
+		"control receipt with data-plane error operation",
+	); err != nil {
+		return err
+	}
+	controlErrorRecoveryMismatch := cloneObject(retryableControl)
+	controlErrorRecoveryMismatch["error"].(map[string]any)["recovery"] = "resubmit_request"
+	if err := expectInvalid(
+		compiled[receiptV2],
+		controlErrorRecoveryMismatch,
+		"control receipt with data-plane recovery",
 	); err != nil {
 		return err
 	}
@@ -758,6 +791,29 @@ func receiptError(retryable bool) map[string]any {
 		"operation":     "receive_batch",
 		"retryable":     retryable,
 		"safe_message":  "receipt processing failed",
+		"recovery":      recovery,
+	}
+}
+
+func controlReceiptError(operation string, retryable bool) map[string]any {
+	phase := "status"
+	if operation == "activate" {
+		phase = "activate"
+	} else if operation == "stop" || operation == "retire" {
+		phase = "shutdown"
+	}
+	recovery := "operator_repair"
+	if retryable {
+		recovery = "automatic_retry"
+	}
+	return map[string]any{
+		"error_version": "foigent.connector-error.v2",
+		"category":      "transport",
+		"code":          "control_operation_failed",
+		"phase":         phase,
+		"operation":     operation,
+		"retryable":     retryable,
+		"safe_message":  "control operation failed",
 		"recovery":      recovery,
 	}
 }

@@ -17,7 +17,7 @@ func TestSourceNeutralBundlePasses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
-	if exitCode != ExitPass || summary.Status != "pass" || summary.CaseCount != 78 {
+	if exitCode != ExitPass || summary.Status != "pass" || summary.CaseCount != 83 {
 		t.Fatalf("unexpected summary: %+v exit=%d", summary, exitCode)
 	}
 	if info, err := os.Stat(reportPath); err != nil || info.Size() == 0 {
@@ -181,6 +181,50 @@ func TestOperationalReceiptSemanticsFailClosed(t *testing.T) {
 	})
 	if control["valid"] != true || control["receipt_completed"] != false {
 		t.Fatalf("mode-neutral control receipt rejected: %v", control)
+	}
+	controlError := classifyReceipt(map[string]any{
+		"mode":                 "otlp_http_push",
+		"operation":            "start",
+		"state_kind":           "control",
+		"status":               "retryable_error",
+		"acknowledgement":      "not_applicable",
+		"checkpoint_committed": false,
+		"counts": map[string]any{
+			"received":       float64(0),
+			"inserted":       float64(0),
+			"duplicate_noop": float64(0),
+			"conflict":       float64(0),
+			"rejected":       float64(0),
+		},
+		"error_retryable": true,
+		"error_phase":     "status",
+		"error_operation": "start",
+		"error_recovery":  "automatic_retry",
+	})
+	if controlError["valid"] != true {
+		t.Fatalf("valid control error receipt rejected: %v", controlError)
+	}
+	phaseMismatch := classifyReceipt(map[string]any{
+		"mode":                 "otlp_http_push",
+		"operation":            "start",
+		"state_kind":           "control",
+		"status":               "retryable_error",
+		"acknowledgement":      "not_applicable",
+		"checkpoint_committed": false,
+		"counts": map[string]any{
+			"received":       float64(0),
+			"inserted":       float64(0),
+			"duplicate_noop": float64(0),
+			"conflict":       float64(0),
+			"rejected":       float64(0),
+		},
+		"error_retryable": true,
+		"error_phase":     "receive",
+		"error_operation": "start",
+		"error_recovery":  "automatic_retry",
+	})
+	if phaseMismatch["error_code"] != "receipt_error_phase_mismatch" {
+		t.Fatalf("control error phase mismatch accepted: %v", phaseMismatch)
 	}
 }
 

@@ -194,6 +194,12 @@ strings. The following Receipt rules are normative:
   `received = inserted + duplicate_noop + conflict + rejected`;
 - `retryable_error` requires `error.retryable=true`;
 - `permanent_error` requires `error.retryable=false`;
+- a lifecycle/control Error binds `error.operation` to the outer Receipt
+  operation; `activate` uses phase `activate`, `pause`/`resume`/`start`/`rotate`
+  use phase `status`, and `stop`/`retire` use phase `shutdown`;
+- lifecycle/control Error recovery is one of `automatic_retry`, `restart`,
+  `reauthorize`, `operator_repair` or `none`; the data-plane recoveries
+  `explicit_resync`, `resubmit_request` and `reimport_bundle` are forbidden;
 - every status other than `accepted` accounts for every received item using
   the equality above;
 - a push data Receipt has acknowledgement `durable` only when status is
@@ -224,6 +230,11 @@ Connector Error v2 preserves v1 categories and adds the phases `receive`,
 
 Retryability remains explicit. Non-retryable errors cannot carry
 `retry_after_seconds`.
+
+A lifecycle/control Receipt cannot carry a data-plane Error context. Its
+Error phase and operation are derived exactly from the outer lifecycle
+operation, and its recovery is restricted to the lifecycle/control recovery
+domain defined in section 8.
 
 Mode-specific rules:
 

@@ -708,6 +708,29 @@ function receiptCase(caseID, input, expected) {
     : input.mode === "bounded_offline"
     ? "offline"
     : "unknown";
+  const hasError = input.error_retryable !== null;
+  const defaultErrorPhase = operation === "activate"
+    ? "activate"
+    : controlOperations.includes(operation)
+    ? (["stop", "retire"].includes(operation) ? "shutdown" : "status")
+    : operation === "poll"
+    ? "fetch"
+    : operation === "receive"
+    ? "receive"
+    : operation === "import_bundle"
+    ? "import"
+    : operation === "acknowledge"
+    ? "acknowledge"
+    : "commit";
+  const defaultErrorRecovery = input.error_retryable === true
+    ? controlOperations.includes(operation)
+      ? "automatic_retry"
+      : input.mode === "otlp_http_push"
+      ? "resubmit_request"
+      : input.mode === "bounded_offline"
+      ? "reimport_bundle"
+      : "automatic_retry"
+    : "operator_repair";
   return {
     case_id: caseID,
     case_classes: ["operational_receipt_semantics"],
@@ -715,6 +738,9 @@ function receiptCase(caseID, input, expected) {
     input: {
       operation,
       state_kind: defaultStateKind,
+      error_phase: hasError ? defaultErrorPhase : null,
+      error_operation: hasError ? operation : null,
+      error_recovery: hasError ? defaultErrorRecovery : null,
       ...input,
     },
     expected,
@@ -862,6 +888,74 @@ const receiptCases = [
       error_retryable: true,
     },
     validReceipt("retryable_error", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "pull-control-activate-retryable-error",
+    {
+      mode: "https_pull",
+      operation: "activate",
+      status: "retryable_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: true,
+    },
+    validReceipt("retryable_error", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "offline-control-retire-permanent-error",
+    {
+      mode: "bounded_offline",
+      operation: "retire",
+      status: "permanent_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: false,
+    },
+    validReceipt("permanent_error", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "control-error-phase-mismatch",
+    {
+      mode: "otlp_http_push",
+      operation: "start",
+      status: "retryable_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: true,
+      error_phase: "receive",
+    },
+    { error_code: "receipt_error_phase_mismatch", valid: false },
+  ),
+  receiptCase(
+    "control-error-operation-mismatch",
+    {
+      mode: "otlp_http_push",
+      operation: "start",
+      status: "retryable_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: true,
+      error_operation: "receive_batch",
+    },
+    { error_code: "receipt_error_operation_mismatch", valid: false },
+  ),
+  receiptCase(
+    "control-error-data-recovery",
+    {
+      mode: "otlp_http_push",
+      operation: "start",
+      status: "retryable_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: true,
+      error_recovery: "resubmit_request",
+    },
+    { error_code: "receipt_error_recovery_mismatch", valid: false },
   ),
   receiptCase(
     "push-control-with-data-state",

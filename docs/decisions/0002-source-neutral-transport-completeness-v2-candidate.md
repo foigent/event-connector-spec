@@ -57,6 +57,11 @@ counts and acknowledgement:
   `retryable` value;
 - lifecycle/control operations use a mode-neutral `control` state, all counts
   are zero and no request, bundle, acknowledgement or Checkpoint is fabricated;
+- lifecycle/control Errors bind their nested operation to the outer operation,
+  map `activate` to phase `activate`, `pause`/`resume`/`start`/`rotate` to
+  `status`, and `stop`/`retire` to `shutdown`;
+- lifecycle/control Errors allow only `automatic_retry`, `restart`,
+  `reauthorize`, `operator_repair` or `none`, never data-plane recovery;
 - push data acknowledgement is durable only for `completed`;
 - `poll`, `receive`/`acknowledge` and `import_bundle` are respectively
   pull-only, push-only and bounded-offline-only operations.

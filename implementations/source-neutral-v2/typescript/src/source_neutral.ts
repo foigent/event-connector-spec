@@ -26,14 +26,14 @@ import {
 } from "./protocol.ts";
 
 const EXPECTED_BUNDLE_SHA =
-  "sha256:8d0413b182d5cf722ae5fc130fa07c6bb842c4b8094d0deb3c30e818a653044c";
+  "sha256:2a15ff7c2ecbac3829203fb4692c9a701b9d1fa8880a801e9c845b3e358ab13a";
 const EXPECTED_CONTRACT_SHA =
   "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a";
 const EXPECTED_BUNDLE_VERSION = "foigent.source-neutral-vector-bundle.v2";
 const EXPECTED_PROTOCOL = "2.0.0";
 const REPORT_VERSION = "foigent.conformance-report.v1";
 const IMPLEMENTATION = "typescript";
-const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.4";
+const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.5";
 
 const REQUIRED_CLASSES = [
   "bounded_batch_ordering",
@@ -691,6 +691,9 @@ function classifyReceipt(input: JsonObject): JsonObject {
   const errorRetryable = hasError
     ? asBoolean(input.error_retryable, "error_retryable")
     : false;
+  const errorPhase = input.error_phase;
+  const errorOperation = input.error_operation;
+  const errorRecovery = input.error_recovery;
   if (
     !["https_pull", "otlp_http_push", "bounded_offline"].includes(mode)
   ) {
@@ -769,6 +772,49 @@ function classifyReceipt(input: JsonObject): JsonObject {
     ].includes(status)
   ) {
     return invalid("receipt_status_invalid");
+  }
+  if (hasError) {
+    if (
+      typeof errorPhase !== "string" ||
+      typeof errorOperation !== "string" ||
+      typeof errorRecovery !== "string"
+    ) {
+      return invalid("receipt_error_context_missing");
+    }
+  } else if (
+    errorPhase !== null ||
+    errorOperation !== null ||
+    errorRecovery !== null
+  ) {
+    return invalid("receipt_error_state_mismatch");
+  }
+  if (isControl && hasError) {
+    const expectedPhase: Record<string, string> = {
+      activate: "activate",
+      pause: "status",
+      resume: "status",
+      start: "status",
+      rotate: "status",
+      stop: "shutdown",
+      retire: "shutdown",
+    };
+    if (errorPhase !== expectedPhase[operation]) {
+      return invalid("receipt_error_phase_mismatch");
+    }
+    if (errorOperation !== operation) {
+      return invalid("receipt_error_operation_mismatch");
+    }
+    if (
+      ![
+        "automatic_retry",
+        "restart",
+        "reauthorize",
+        "operator_repair",
+        "none",
+      ].includes(errorRecovery as string)
+    ) {
+      return invalid("receipt_error_recovery_mismatch");
+    }
   }
   if (isControl) {
     if (acknowledgement !== "not_applicable") {

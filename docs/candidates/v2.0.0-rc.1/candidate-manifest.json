@@ -57,11 +57,11 @@
     },
     "semantic_decision": {
       "path": "docs/decisions/0002-source-neutral-transport-completeness-v2-candidate.md",
-      "sha256": "sha256:08ca98b47ba6b9d2d849b0b27c603d3e427e3b23cff18dac6613c94c99b75813"
+      "sha256": "sha256:7414fd61e1999b9ecf88dc92ac1a7ba1fd5182aa33e4398136234f1419a5d186"
     },
     "protocol_candidate": {
       "path": "spec/protocol-v2-candidate.md",
-      "sha256": "sha256:407a836f68766bfc128ca635e28c3f4c65ea61211b6ed7e9d4220f95628539ce"
+      "sha256": "sha256:f8f414b4477aae0730ce807a7d6075190837972d7993dfb75644ba1401c66356"
     },
     "domain_catalog": {
       "path": "catalog/domain-catalog.v2.json",
@@ -89,7 +89,7 @@
     },
     "operational_receipt_schema": {
       "path": "schemas/operational-receipt.v2.schema.json",
-      "sha256": "sha256:ef206cfb49bb53ccf0adf810d7ac33e622f345732ccfccc193d28e2fb322aeb8"
+      "sha256": "sha256:d2d091c2571d54df7a65329da049f13a4d7465af38b7916e4ae79e57255a04b6"
     },
     "openinference_source_schema": {
       "path": "schemas/openinference-span.v1.schema.json",
@@ -197,27 +197,27 @@
     },
     "vector_bundle": {
       "path": "vectors/source-neutral-vector-bundle.v2.json",
-      "sha256": "sha256:8d0413b182d5cf722ae5fc130fa07c6bb842c4b8094d0deb3c30e818a653044c"
+      "sha256": "sha256:2a15ff7c2ecbac3829203fb4692c9a701b9d1fa8880a801e9c845b3e358ab13a"
     },
     "go_conformance_report": {
       "path": "conformance/reports/go-source-neutral-v2.json",
-      "sha256": "sha256:754ae42e3f0fc6d729ca081966e10f4721ec981977eb98c2a1cf2e3c89ff1236"
+      "sha256": "sha256:de1ed5bc6abd0159e43da885d776e2abf792d068e8ca1b56a630abe511acaea8"
     },
     "typescript_conformance_report": {
       "path": "conformance/reports/typescript-source-neutral-v2.json",
-      "sha256": "sha256:d84441e3c8fff607f50b81f6d7b8764dc8dbf1b6a6113303180b3b58b061bd4a"
+      "sha256": "sha256:f5c4d381fc18563863b26cf1ba43525953f25c10fc886b6dced27268412be8b7"
     },
     "go_implementation_manifest": {
       "path": "implementations/source-neutral-v2/go/implementation-manifest.v2.json",
-      "sha256": "sha256:2f7eb3dc3d4272d1d8bce0b0efa9ace0511d945200afcbcefc45cf4897dbd844"
+      "sha256": "sha256:92fb51ca3326af8fbc26860f304adc0c32f981eb67ee99c7cb0e44005e65cc86"
     },
     "typescript_implementation_manifest": {
       "path": "implementations/source-neutral-v2/typescript/implementation-manifest.v2.json",
-      "sha256": "sha256:91c04793feb83d89451d5bf0400f2b52b16fdf328888d24c6858393596232a72"
+      "sha256": "sha256:a04bfd06231c462460984693e8cc2664d269f6eb2247d95c7cc771dd881608aa"
     },
     "artifact_builder": {
       "path": "scripts/build-source-neutral-v2-artifacts.mjs",
-      "sha256": "sha256:331dbeb6e58e901a86a00581796bf13487fb370a1939e85c7d8bf478db74ae79"
+      "sha256": "sha256:f4ef961963f4d330cfe733b763a6eb32136941f7c220f00e9a82707e83ad43f6"
     },
     "implementation_manifest_builder": {
       "path": "scripts/build-source-neutral-v2-implementation-manifests.mjs",
@@ -233,7 +233,7 @@
     },
     "compatibility_validator": {
       "path": "scripts/validate_source_neutral_v2_candidate.py",
-      "sha256": "sha256:07ad77d8f0fc8bfc57ae5ed8d5f5c1f431e1ebbbdb2acf5024823ee4c01c6467"
+      "sha256": "sha256:05409aab78f9fca3b257ed9e6ff2ad57090998f3c4b250d88d7494058aa6a384"
     },
     "conformance_kit": {
       "path": "scripts/run-source-neutral-v2-conformance-kit.sh",
@@ -241,7 +241,7 @@
     },
     "schema_audit_main": {
       "path": "tools/schema-audit-v2/main.go",
-      "sha256": "sha256:dada071b108940b4e0e6489df88e3fabe97cfb5580668a732452b446e096b355"
+      "sha256": "sha256:3f66170d3a782c4423426efbd5c640a509e82666f5bbcaf811b0fac6a0e04ba9"
     },
     "schema_audit_overlay": {
       "path": "tools/schema-audit-v2/overlay.json",
@@ -253,10 +253,10 @@
     },
     "compatibility_tests": {
       "path": "tests/test_source_neutral_v2_candidate.py",
-      "sha256": "sha256:69475fceff4ac2dd29859cfa6652d77e0cdc640fcd9b35acff302d2557ee83be"
+      "sha256": "sha256:820cb6d7f7a25e6691865a9dc62027c7b32bf371a0731e2cff7fc6b40c7318ea"
     }
   },
-  "content_digest": "sha256:b0352139436ae9b58652cb3c19ef895a4b5a226eb638873cd6d4d760bc1b1f3c",
+  "content_digest": "sha256:420847a10d0febddd1fd8fcd03b74761f00c4162dd1ebfed1ad3e164925993aa",
   "approvals": {
     "source_domain_owner": "required",
     "projection_owner": "candidate_evidence_pending_exact_digest",

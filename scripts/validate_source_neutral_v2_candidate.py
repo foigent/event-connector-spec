@@ -122,7 +122,7 @@ EXPECTED_OPENINFERENCE_M0 = [
         "sha256:00eac75af3083ddcad31c1d0f4abd217dd8d4bcf614dafd4d6174e61f958cd67",
     ),
 ]
-EXPECTED_CONFORMANCE_CASES = 78
+EXPECTED_CONFORMANCE_CASES = 83
 EXPECTED_CONFORMANCE_CLASSES = 29
 
 
@@ -380,6 +380,37 @@ def verify_operational_receipt_contract() -> None:
         },
         "mode-neutral operational control state changed",
     )
+    require(
+        receipt_schema["$defs"]["controlRecovery"]["enum"]
+        == [
+            "automatic_retry",
+            "restart",
+            "reauthorize",
+            "operator_repair",
+            "none",
+        ],
+        "control Error recovery domain changed",
+    )
+    control_error_contract = {
+        "controlErrorActivate": ("activate", "activate"),
+        "controlErrorPause": ("status", "pause"),
+        "controlErrorResume": ("status", "resume"),
+        "controlErrorStart": ("status", "start"),
+        "controlErrorRotate": ("status", "rotate"),
+        "controlErrorStop": ("shutdown", "stop"),
+        "controlErrorRetire": ("shutdown", "retire"),
+    }
+    require(
+        {
+            name: (
+                receipt_schema["$defs"][name]["properties"]["phase"]["const"],
+                receipt_schema["$defs"][name]["properties"]["operation"]["const"],
+            )
+            for name in control_error_contract
+        }
+        == control_error_contract,
+        "control Receipt Error phase/operation binding changed",
+    )
     for name in [
         "received",
         "inserted",
@@ -406,6 +437,11 @@ def verify_operational_receipt_contract() -> None:
         "push-control-rotate-completed",
         "offline-control-pause-completed",
         "push-control-retryable-error",
+        "pull-control-activate-retryable-error",
+        "offline-control-retire-permanent-error",
+        "control-error-phase-mismatch",
+        "control-error-operation-mismatch",
+        "control-error-data-recovery",
         "push-control-with-data-state",
         "offline-control-nonzero-count",
         "pull-data-with-control-state",
@@ -485,7 +521,31 @@ def verify_operational_receipt_contract() -> None:
         ],
         "mode-neutral lifecycle Receipt vectors changed",
     )
+    require(
+        [
+            (
+                by_id[case_id]["input"]["operation"],
+                by_id[case_id]["input"]["error_phase"],
+                by_id[case_id]["input"]["error_operation"],
+                by_id[case_id]["input"]["error_recovery"],
+            )
+            for case_id in [
+                "push-control-retryable-error",
+                "pull-control-activate-retryable-error",
+                "offline-control-retire-permanent-error",
+            ]
+        ]
+        == [
+            ("start", "status", "start", "automatic_retry"),
+            ("activate", "activate", "activate", "automatic_retry"),
+            ("retire", "shutdown", "retire", "operator_repair"),
+        ],
+        "control Receipt nested Error context changed",
+    )
     negative_errors = {
+        "control-error-phase-mismatch": "receipt_error_phase_mismatch",
+        "control-error-operation-mismatch": "receipt_error_operation_mismatch",
+        "control-error-data-recovery": "receipt_error_recovery_mismatch",
         "push-control-with-data-state": "receipt_state_mismatch",
         "offline-control-nonzero-count": "receipt_control_counts_nonzero",
         "pull-data-with-control-state": "receipt_state_mismatch",

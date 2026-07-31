@@ -157,6 +157,146 @@
     {
       "if": {
         "properties": {
+          "operation": {
+            "const": "activate"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorActivate"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "pause"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorPause"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "resume"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorResume"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "start"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorStart"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "rotate"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorRotate"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "stop"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorStop"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "retire"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorRetire"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
           "delivery_mode": {
             "const": "otlp_http_push"
           }
@@ -558,6 +698,113 @@
       "properties": {
         "mode": {
           "const": "control"
+        }
+      }
+    },
+    "controlRecovery": {
+      "enum": [
+        "automatic_retry",
+        "restart",
+        "reauthorize",
+        "operator_repair",
+        "none"
+      ]
+    },
+    "controlErrorActivate": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "activate"
+        },
+        "operation": {
+          "const": "activate"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorPause": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "status"
+        },
+        "operation": {
+          "const": "pause"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorResume": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "status"
+        },
+        "operation": {
+          "const": "resume"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorStart": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "status"
+        },
+        "operation": {
+          "const": "start"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorRotate": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "status"
+        },
+        "operation": {
+          "const": "rotate"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorStop": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "shutdown"
+        },
+        "operation": {
+          "const": "stop"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorRetire": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "shutdown"
+        },
+        "operation": {
+          "const": "retire"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
         }
       }
     },

@@ -21,13 +21,13 @@ import (
 )
 
 const (
-	expectedBundleSHA256   = "sha256:8d0413b182d5cf722ae5fc130fa07c6bb842c4b8094d0deb3c30e818a653044c"
+	expectedBundleSHA256   = "sha256:2a15ff7c2ecbac3829203fb4692c9a701b9d1fa8880a801e9c845b3e358ab13a"
 	expectedContractSHA256 = "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a"
 	expectedBundleVersion  = "foigent.source-neutral-vector-bundle.v2"
 	expectedProtocol       = "2.0.0"
 	reportVersion          = "foigent.conformance-report.v1"
 	implementationName     = "go"
-	implementationVersion  = "2.0.0-rc.1+independent.4"
+	implementationVersion  = "2.0.0-rc.1+independent.5"
 )
 
 const (
@@ -954,6 +954,9 @@ func classifyReceipt(input map[string]any) map[string]any {
 		counts[name] = value
 	}
 	errorRetryable, hasError := input["error_retryable"].(bool)
+	errorPhase, hasErrorPhase := input["error_phase"].(string)
+	errorOperation, hasErrorOperation := input["error_operation"].(string)
+	errorRecovery, hasErrorRecovery := input["error_recovery"].(string)
 	switch mode {
 	case "https_pull", "otlp_http_push", "bounded_offline":
 	default:
@@ -1010,6 +1013,40 @@ func classifyReceipt(input map[string]any) map[string]any {
 		}
 	default:
 		return invalid("receipt_status_invalid")
+	}
+	if hasError {
+		if !hasErrorPhase || !hasErrorOperation || !hasErrorRecovery {
+			return invalid("receipt_error_context_missing")
+		}
+	} else if hasErrorPhase || hasErrorOperation || hasErrorRecovery {
+		return invalid("receipt_error_state_mismatch")
+	}
+	if isControl && hasError {
+		expectedPhase := map[string]string{
+			"activate": "activate",
+			"pause":    "status",
+			"resume":   "status",
+			"start":    "status",
+			"rotate":   "status",
+			"stop":     "shutdown",
+			"retire":   "shutdown",
+		}[operation]
+		if errorPhase != expectedPhase {
+			return invalid("receipt_error_phase_mismatch")
+		}
+		if errorOperation != operation {
+			return invalid("receipt_error_operation_mismatch")
+		}
+		controlRecoveries := map[string]bool{
+			"automatic_retry": true,
+			"restart":         true,
+			"reauthorize":     true,
+			"operator_repair": true,
+			"none":            true,
+		}
+		if !controlRecoveries[errorRecovery] {
+			return invalid("receipt_error_recovery_mismatch")
+		}
 	}
 	if isControl {
 		if acknowledgement != "not_applicable" {
