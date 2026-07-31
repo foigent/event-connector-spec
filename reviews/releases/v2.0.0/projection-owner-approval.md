@@ -18,15 +18,19 @@ Work item:
 - repository: `https://github.com/foigent/event-connector-spec`
 - branch: `codex/v2-source-neutral-candidate`
 - reviewed content commit:
-  `3b09ecc8a0f8ff1d33aa50842403e6aedba1e50f`
+  `05f859c3663012099289495ed5c0372135173fa3`
 - reviewed content tree:
-  `f6957977c7c4cf8f9eb83cc0653aa62248b78bdb`
+  `d3fcf2a18ac83c23257628ecb5333e6048b3caf0`
 - protocol version: `2.0.0`
 - release component count: `93`
-- Reviewed content digest: `sha256:47642f562a47579d000a78961428f91829fa9053d15d647e26fbad9ea72a5b15`
+- Reviewed content digest: `sha256:4231062a50b0334eda7f67e07200faf5e71261b2a8cf27ecd375529ec84f8b69`
 
 This approval applies only to the exact content commit, tree, component set,
-and digest above. Candidate approval
+and digest above. The earlier final-release review for
+`sha256:47642f562a47579d000a78961428f91829fa9053d15d647e26fbad9ea72a5b15`
+was rejected because stable prose incorrectly equated control Error phase and
+recovery with the outer operation. It is superseded and cannot be inherited.
+Candidate approval
 `sha256:420847a10d0febddd1fd8fcd03b74761f00c4162dd1ebfed1ad3e164925993aa`
 is historical and is not inherited.
 
@@ -71,7 +75,7 @@ The following zero-network checks passed against the reviewed content:
   25 Python tests with 6 intentional skips, 14-Schema audit, 30/30 base cases,
   30/30 LiteLLM cases, and exact v1.1.2 release digest;
 - current v1 compatibility suite:
-  34 Python tests with 6 intentional skips, 24-Schema compilation, 30/30 base
+  35 Python tests with 6 intentional skips, 24-Schema compilation, 30/30 base
   cases, and 30/30 LiteLLM cases;
 - source-neutral v2 Schema audit:
   24 Schemas, three Manifests, three delivery modes, and five Source fixtures;
@@ -84,7 +88,8 @@ The following zero-network checks passed against the reviewed content:
   83/83 cases across 29/29 required classes;
 - release validator:
   60 candidate components, 57 predecessor components, 10/8/2 v1 identities,
-  5/4 OpenInference identities, and no product/runtime mutation;
+  5/4 OpenInference identities, exact control Error prose/Schema alignment,
+  one fail-closed prose-drift test, and no product/runtime mutation;
 - v1 release builder:
   exact release digest
   `sha256:0b414d5d59e5a7ca5c05505cb58d7992c544537da1c84a57256ec205618d9cd1`;
