@@ -13,21 +13,21 @@ Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V2-SOURCE-NEUTRAL-20260731`
 - repository: `https://github.com/foigent/event-connector-spec`
 - candidate branch: `codex/v2-source-neutral-candidate`
 - reviewed candidate commit:
-  `a1b13ff3f6ee9a6170a2db9b1020fbddf97eac64`
+  `fc5ae57d21ca389ca5a73f6c95382a9874ed7152`
 - reviewed candidate tree:
-  `afe8adbc38b17808e529016112c8e0b80d3ce824`
+  `8a446c8404254198e648c1fd81c4ea52aad3a5ea`
 - protocol version: `2.0.0`
 - protocol status: `NOT_BINDING`
 - candidate manifest:
   `docs/candidates/v2.0.0-rc.1/candidate-manifest.json`
 - candidate manifest SHA-256:
-  `sha256:62af363b362801d14d9f8d77b8236bd92aedb02913fa56b74c5e33345e5cdd81`
+  `sha256:ee046d1e06cbb3ab98a8565737ecd76ce71423be68e22d6f4f7b916ffcbb4b91`
 - reviewed content digest:
-  `sha256:b0352139436ae9b58652cb3c19ef895a4b5a226eb638873cd6d4d760bc1b1f3c`
+  `sha256:420847a10d0febddd1fd8fcd03b74761f00c4162dd1ebfed1ad3e164925993aa`
 
 ## Superseded evidence
 
-Three earlier Projection Owner reviews are superseded and must not be used for a
+Four earlier Projection Owner reviews are superseded and must not be used for a
 release gate:
 
 1. commit `a61ab21b013c5b69e103b8ebc8713e52e1a13880`, content digest
@@ -35,7 +35,9 @@ release gate:
 2. commit `eda7f9d05e39301a1fd6954270ed2b751530c637`, content digest
    `sha256:d4403333a4e932a3383a72918d151a5c6a78f6df35eb29b6d0833e96f95247c1`;
 3. commit `cec87cc33d84d0d9c41386872ff6329c6d83dda1`, content digest
-   `sha256:5591a6c3b4b86e3af2d39016a376961a19cf71aea71c3fcb9c6de755a08be163`.
+   `sha256:5591a6c3b4b86e3af2d39016a376961a19cf71aea71c3fcb9c6de755a08be163`;
+4. commit `a1b13ff3f6ee9a6170a2db9b1020fbddf97eac64`, content digest
+   `sha256:b0352139436ae9b58652cb3c19ef895a4b5a226eb638873cd6d4d760bc1b1f3c`.
 
 The first candidate claimed optional OpenInference facts, conditional Capture
 Gaps, strict status handling and bounded multi-span ordering while its shared
@@ -47,10 +49,14 @@ entry depended on protocol-root spelling, and the X-Insight projection
 recorded a 39-character value as a Git tree. The third candidate closed those
 three defects. Independent Source review then found that its
 delivery-mode-discriminated Receipt forced lifecycle/control operations to
-fabricate request, bundle, acknowledgement or Checkpoint state. The exact
-candidate reviewed here replaces that shape with an operation-discriminated
-mode-neutral control state and closes the lifecycle contradiction without
-changing Event identity, hash or any M0 seed.
+fabricate request, bundle, acknowledgement or Checkpoint state. The fourth
+candidate replaced that shape with an operation-discriminated mode-neutral
+control state and closed the lifecycle contradiction without changing Event
+identity, hash or any M0 seed. Independent Coordinator review then found that
+the fourth candidate still allowed a lifecycle/control Receipt to embed a
+data-plane Error phase, operation and recovery. The current exact candidate
+binds those nested Error fields to the lifecycle operation and rejects
+data-plane recovery semantics without changing Event or M0 semantics.
 
 Binding predecessor:
 
@@ -131,7 +137,13 @@ hash or X-Insight M0 semantics:
     accepted and error states withhold it. Completed receipts have no error,
     conflict or rejected item. Every non-accepted receipt accounts for all
     received items.
-16. The preserved dirty X-Insight checkout tree is the full 40-character Git
+16. A lifecycle/control Error binds its nested operation to the outer
+    operation. `activate` maps to phase `activate`,
+    `pause`/`resume`/`start`/`rotate` map to `status`, and `stop`/`retire` map
+    to `shutdown`. Only `automatic_retry`, `restart`, `reauthorize`,
+    `operator_repair` and `none` are allowed recoveries; data-plane recovery
+    values fail closed.
+17. The preserved dirty X-Insight checkout tree is the full 40-character Git
     tree `16a4930f014c35531b01cc4bd44c25bd29a53ae8`, and the validator now rejects
     truncated evidence identities.
 
@@ -186,19 +198,19 @@ identity.
 - source-neutral contract SHA-256:
   `sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a`
 - Operational Receipt Schema SHA-256:
-  `sha256:ef206cfb49bb53ccf0adf810d7ac33e622f345732ccfccc193d28e2fb322aeb8`
+  `sha256:d2d091c2571d54df7a65329da049f13a4d7465af38b7916e4ae79e57255a04b6`
 - vector bundle SHA-256:
-  `sha256:8d0413b182d5cf722ae5fc130fa07c6bb842c4b8094d0deb3c30e818a653044c`
+  `sha256:2a15ff7c2ecbac3829203fb4692c9a701b9d1fa8880a801e9c845b3e358ab13a`
 - Go report SHA-256:
-  `sha256:754ae42e3f0fc6d729ca081966e10f4721ec981977eb98c2a1cf2e3c89ff1236`
+  `sha256:de1ed5bc6abd0159e43da885d776e2abf792d068e8ca1b56a630abe511acaea8`
 - TypeScript report SHA-256:
-  `sha256:d84441e3c8fff607f50b81f6d7b8764dc8dbf1b6a6113303180b3b58b061bd4a`
+  `sha256:f5c4d381fc18563863b26cf1ba43525953f25c10fc886b6dced27268412be8b7`
 - Go implementation manifest SHA-256:
-  `sha256:2f7eb3dc3d4272d1d8bce0b0efa9ace0511d945200afcbcefc45cf4897dbd844`
+  `sha256:92fb51ca3326af8fbc26860f304adc0c32f981eb67ee99c7cb0e44005e65cc86`
 - TypeScript implementation manifest SHA-256:
-  `sha256:91c04793feb83d89451d5bf0400f2b52b16fdf328888d24c6858393596232a72`
+  `sha256:a04bfd06231c462460984693e8cc2664d269f6eb2247d95c7cc771dd881608aa`
 
-Both zero-network implementations passed 78 of 78 cases covering all 29
+Both zero-network implementations passed 83 of 83 cases covering all 29
 required classes. Each runner produced byte-identical output across two
 successive runs. After removing only `implementation` and
 `implementation_version`, the Go and TypeScript reports are byte-identical.
@@ -217,12 +229,13 @@ The full candidate kit also passed:
   malformed Trace identity and a 201-Span export;
 - strict duplicate-key, decimal-int64, timestamp, Unicode, privacy,
   duplicate-noop, conflict, partial-batch, completeness and Capture Gap cases;
-- 31 exact Operational Receipt cases covering all three delivery modes,
-  nine lifecycle/control positive and negative cases, mode-scoped data
-  operations, safe-integer boundaries, status/error coupling, arithmetic count
-  conservation, acknowledgement and Checkpoint boundaries;
+- 36 exact Operational Receipt cases covering all three delivery modes,
+  13 lifecycle-operation cases plus one negative data operation with an
+  illicit control state, exact nested lifecycle Error phase/operation/recovery,
+  mode-scoped data operations, safe-integer boundaries, status/error coupling,
+  arithmetic count conservation, acknowledgement and Checkpoint boundaries;
 - one-shot Python 3.14.5 execution from the exact immutable archive at
-  `/tmp/event_connector.spec_portability_20260731_a1b13ff`, whose protocol root
+  `/tmp/event_connector.spec_portability_20260731_fc5ae57`, whose protocol root
   contains both underscores and a dot;
 - deterministic artifact, implementation-manifest and candidate-manifest
   reconstruction;
