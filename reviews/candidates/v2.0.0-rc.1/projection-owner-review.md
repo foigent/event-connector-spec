@@ -4,7 +4,7 @@ Role: `projection_owner`
 
 Status: `PROJECTION_OWNER_V2_RELEASE_CANDIDATE_CONFIRM_NON_BINDING`
 
-Semantic conflict: `NONE_IDENTIFIED_WITHIN_PROJECTION_OWNER_SCOPE`
+Semantic conflict: `NONE_IDENTIFIED_WITH_SUPERSEDING_SHARED_CANDIDATE`
 
 Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`
 
@@ -13,17 +13,30 @@ Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`
 - repository: `https://github.com/foigent/event-connector-spec`
 - candidate branch: `codex/v2-source-neutral-candidate`
 - reviewed candidate commit:
-  `27fe3319a069f691425247458406502cf2ed2312`
+  `7ee05fc08e544f627d59545d6b6a52c80194adce`
 - reviewed candidate tree:
-  `1f6b58234411a6cf8611103f20dccd3a47a213a3`
+  `de779565388c6267fe6ec1305f9f884e262597b2`
 - protocol version: `2.0.0`
 - protocol status: `NOT_BINDING`
 - candidate manifest:
   `docs/candidates/v2.0.0-rc.1/candidate-manifest.json`
 - candidate manifest SHA-256:
-  `sha256:d4c7597a19d501b32378e8e8cabc776e72b0a21e76919101ac7f01035b4f2009`
+  `sha256:d228aa326d79cdf8631fefe8efe01e0875badccd2dfd9ae009442c517c38141d`
 - reviewed content digest:
-  `sha256:219401b98705b9787d4186b919dbf02d9d242a385cec956120b0870d401412ef`
+  `sha256:d4403333a4e932a3383a72918d151a5c6a78f6df35eb29b6d0833e96f95247c1`
+
+## Superseded evidence
+
+The earlier Projection Owner review at commit
+`a61ab21b013c5b69e103b8ebc8713e52e1a13880`, over content digest
+`sha256:219401b98705b9787d4186b919dbf02d9d242a385cec956120b0870d401412ef`,
+is superseded and must not be used for a release gate. A release-readiness
+self-audit found that its mapping text described optional OpenInference facts,
+conditional Capture Gaps, strict status handling and bounded multi-span
+ordering while the shared Go/TypeScript implementations and vectors proved
+only one fully populated Span. The exact candidate reviewed here closes that
+proof/implementation mismatch without changing the preserved reference
+identity or M0 seed.
 
 Binding predecessor:
 
@@ -80,6 +93,19 @@ hash or X-Insight M0 semantics:
    rejected solely for being non-NFC.
 8. Manifest coverage and exact `source_instance` to `producer.instance`
    binding are explicit.
+9. A bounded export counts selected and skipped Spans against the same
+   `max_spans=200` limit, skips non-LLM records deterministically and emits
+   sanitized LLM records in `trace_id`, then `span_id` order.
+10. Session, provider, token, actor and service facts are optional. Missing
+    facts stay absent; they are not silently replaced with zero or empty
+    values. Actor fallback and empty usage provenance are marked `gap`.
+11. Conditional Gap derivation is exact: missing session adds
+    `authoritative_session`, any incomplete token triple adds `token_usage`,
+    and a declared parent absent from the same trace inside the bounded
+    sanitized LLM batch adds `causal_parent`.
+12. Symbolic and numeric OTLP `UNSET`, `OK` and `ERROR` codes are handled
+    deterministically. Unknown status, malformed Trace identity, reversed
+    time and over-bound exports fail closed.
 
 The OpenInference reference connector is correctly limited to
 `bounded_offline`. Manifest support for `otlp_http_push` is a protocol
@@ -90,6 +116,12 @@ only as a compatibility identifier because changing it would change the
 Source hash and current M0 compatibility seed. Candidate authority, ownership
 and semantics are pinned by `catalog/domain-catalog.v2.json`, the Schema bytes
 and the source mappings.
+
+The shared parent-resolution rule intentionally uses
+`trace_id + parent_span_id`. The reviewed X-Insight candidate currently
+indexes parent presence only by `span_id` across the batch. This does not
+change any current compatibility seed, but it is recorded as an additional
+fail-closed product migration requirement before activation.
 
 ## Compatibility conclusion
 
@@ -114,27 +146,29 @@ The X-Insight activation gate remains
 `blocked_product_migration_required`. Before product activation, X-Insight
 must replace its current OpenInference `connector_pull` / `contracted_pull`
 classification and pull Checkpoint construction with bounded-offline
-integration, provenance and durable-receipt semantics. That migration must
-preserve the five M0 IDs/hashes above. The current product-local
-`import_cursor` remains only a deterministic source-event alias and must never
-carry delivery Cursor, request or bundle identity.
+integration, provenance and durable-receipt semantics, and must resolve parent
+presence by `trace_id + parent_span_id` instead of a batch-global
+`span_id` index. That migration must preserve the five M0 IDs/hashes above.
+The current product-local `import_cursor` remains only a deterministic
+source-event alias and must never carry delivery Cursor, request or bundle
+identity.
 
 ## Conformance evidence
 
 - source-neutral contract SHA-256:
-  `sha256:f11d263a7d2b8e98240a9a9750f349d83c1f8a12263682a49601b74eb7e891d2`
+  `sha256:e3ab080cbfa633950b859d621e7cf58184881347277a9b30a0973aa4258177b3`
 - vector bundle SHA-256:
-  `sha256:cbbcc45af8f2c5b0b12bb23e1094953661c352a1b506233c85405be47baf075f`
+  `sha256:c556051776f5a0ecd2e193f34dd8b240ff5ebef2e8c3877d8f1a8f6d69af95cb`
 - Go report SHA-256:
-  `sha256:3d234682fa6b924f9a77b1cbee9b3d14436cb8e935469528a026ce091fc55a97`
+  `sha256:e7ab8564e00908204a5eec9ca6313a93d02543a4fd46fd67029963d8c8590c4d`
 - TypeScript report SHA-256:
-  `sha256:08b390097713a2f4d68ad81ca60006f57a0b838d2161ab23c1fb2bcf41225313`
+  `sha256:d550073abb8cc4e9fa86f920d400051dc1d04f1386d62d61286b242ebb6b2f49`
 - Go implementation manifest SHA-256:
-  `sha256:e002d639181577a13e42d0d9650a2081bb778fa60f18a8eca5a4fe70929ec4fb`
+  `sha256:3162003f84c021792531c988105cf4295aad1b932da8740d10b112510cf1d765`
 - TypeScript implementation manifest SHA-256:
-  `sha256:e8ca589842034f883c8b49e6e4e226a8bc776854c768e20e9d0b5837b63d4ed7`
+  `sha256:22e355f469b70817ddd38b8fe83b864e523bdffc30347f1a298b26b40c1bb77a`
 
-Both zero-network implementations passed 39 of 39 cases covering all 23
+Both zero-network implementations passed 47 of 47 cases covering all 28
 required classes. Each runner produced byte-identical output across two
 successive runs. After removing only `implementation` and
 `implementation_version`, the Go and TypeScript reports are byte-identical.
@@ -146,6 +180,11 @@ The full candidate kit also passed:
 - v2 Schema compilation and positive/negative checks for pull, push and
   bounded-offline Manifest, lifecycle, batch, Checkpoint, receipt, error,
   Envelope, payload and mutable-delivery boundaries;
+- five positive OpenInference mappings covering the preserved reference,
+  missing optional facts with 7 exact Gaps, and a sorted three-record LLM
+  batch with one skipped non-LLM Span and a resolved same-Trace parent;
+- fail-closed OpenInference fixtures for unknown status, reversed time,
+  malformed Trace identity and a 201-Span export;
 - strict duplicate-key, decimal-int64, timestamp, Unicode, privacy,
   duplicate-noop, conflict, partial-batch, completeness and Capture Gap cases;
 - deterministic artifact, implementation-manifest and candidate-manifest
