@@ -186,8 +186,13 @@ The following rules are normative:
   `received = inserted + duplicate_noop + conflict + rejected`;
 - `retryable_error` requires `error.retryable=true`;
 - `permanent_error` requires `error.retryable=false`;
-- lifecycle/control Error phase, operation, and recovery match the outer
-  operation exactly;
+- a lifecycle/control Error binds `error.operation` exactly to the outer
+  Receipt operation;
+- lifecycle/control Error phase is `activate` for `activate`, `status` for
+  `pause`/`resume`/`start`/`rotate`, and `shutdown` for `stop`/`retire`;
+- lifecycle/control Error recovery is limited to `automatic_retry`, `restart`,
+  `reauthorize`, `operator_repair`, or `none`; the data-plane recoveries
+  `explicit_resync`, `resubmit_request`, and `reimport_bundle` are forbidden;
 - every non-accepted status accounts for every received item;
 - push acknowledgement is `durable` only for `completed`;
 - only a completed pull data operation may commit its post-operation

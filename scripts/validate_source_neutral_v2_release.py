@@ -123,6 +123,36 @@ def verify_predecessor_manifest() -> int:
     return len(release["components"])
 
 
+def verify_control_error_spec(spec: str) -> None:
+    normalized = " ".join(spec.split())
+    require(
+        "a lifecycle/control Error binds `error.operation` exactly to the outer "
+        "Receipt operation" in normalized,
+        "stable spec lost exact control Error operation binding",
+    )
+    require(
+        "lifecycle/control Error phase is `activate` for `activate`, `status` "
+        "for `pause`/`resume`/`start`/`rotate`, and `shutdown` for "
+        "`stop`/`retire`" in normalized,
+        "stable spec control Error phase mapping changed",
+    )
+    require(
+        "lifecycle/control Error recovery is limited to `automatic_retry`, "
+        "`restart`, `reauthorize`, `operator_repair`, or `none`" in normalized,
+        "stable spec control Error recovery domain changed",
+    )
+    require(
+        "`explicit_resync`, `resubmit_request`, and `reimport_bundle` are forbidden"
+        in normalized,
+        "stable spec no longer forbids data-plane control Error recovery",
+    )
+    require(
+        "Error phase, operation, and recovery match the outer operation exactly"
+        not in normalized,
+        "stable spec retains contradictory control Error equality",
+    )
+
+
 def verify_binding_artifacts() -> None:
     spec = (ROOT / "spec/protocol-v2.md").read_text(encoding="utf-8")
     require("Version: `2.0.0`" in spec, "stable v2 protocol version absent")
@@ -132,6 +162,7 @@ def verify_binding_artifacts() -> None:
         "Protocol release is not product migration" in spec,
         "product adoption boundary absent",
     )
+    verify_control_error_spec(spec)
 
     contract_path = ROOT / "conformance/source-neutral-conformance-contract.v2.json"
     vector_path = ROOT / "vectors/source-neutral-vector-bundle.v2.json"

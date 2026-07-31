@@ -72,6 +72,19 @@ class SourceNeutralV2ReleaseTests(unittest.TestCase):
     def test_candidate_archive_remains_exact_and_non_binding(self) -> None:
         self.assertEqual(60, release.verify_candidate_archive())
 
+    def test_control_error_spec_drift_fails_closed(self) -> None:
+        spec = (ROOT / "spec/protocol-v2.md").read_text(encoding="utf-8")
+        drifted = spec.replace(
+            "`pause`/`resume`/`start`/`rotate`, and `shutdown`",
+            "`pause`, and `shutdown`",
+        )
+        self.assertNotEqual(spec, drifted)
+        with self.assertRaisesRegex(
+            candidate.ValidationError,
+            "control Error phase mapping changed",
+        ):
+            release.verify_control_error_spec(drifted)
+
 
 if __name__ == "__main__":
     unittest.main()
