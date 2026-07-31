@@ -23,8 +23,8 @@ class SourceNeutralV2CandidateTests(unittest.TestCase):
         self.assertEqual(2, result["v1_provenance_ids"])
         self.assertEqual(5, result["openinference_m0_id_hash_pairs"])
         self.assertEqual(4, result["openinference_gap_events"])
-        self.assertEqual(47, result["conformance_cases"])
-        self.assertEqual(28, result["conformance_classes"])
+        self.assertEqual(69, result["conformance_cases"])
+        self.assertEqual(29, result["conformance_classes"])
         self.assertEqual("none", result["runtime_mutation"])
 
     def test_strict_loader_rejects_nested_duplicate_keys(self) -> None:

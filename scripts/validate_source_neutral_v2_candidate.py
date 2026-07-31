@@ -21,6 +21,8 @@ XINSIGHT_ORIGIN_MAIN_COMMIT = "e6c1bd3e3d6e6433b5e5717dedd50488dcf521ee"
 XINSIGHT_ORIGIN_MAIN_TREE = "1da84e19b81d52697acedc01f60446782e058023"
 XINSIGHT_CANDIDATE_COMMIT = "d1ae3fe76057c9ff37f2fb7e870f2190c47b3745"
 XINSIGHT_CANDIDATE_TREE = "79cabc9f4c7b5b425e3fc09590af5bd07af87047"
+XINSIGHT_PRESERVED_DIRTY_HEAD = "c27b39f67b0e72de7f60975ff8b0e94dfc05520f"
+XINSIGHT_PRESERVED_DIRTY_TREE = "16a4930f014c35531b01cc4bd44c25bd29a53ae8"
 V1_XINSIGHT_SEED_SHA = (
     "sha256:5cd40aa6c0256a70ad7317c05e078759685e0469be77a3e960a976adc3158e8e"
 )
@@ -120,8 +122,8 @@ EXPECTED_OPENINFERENCE_M0 = [
         "sha256:00eac75af3083ddcad31c1d0f4abd217dd8d4bcf614dafd4d6174e61f958cd67",
     ),
 ]
-EXPECTED_CONFORMANCE_CASES = 47
-EXPECTED_CONFORMANCE_CLASSES = 28
+EXPECTED_CONFORMANCE_CASES = 69
+EXPECTED_CONFORMANCE_CLASSES = 29
 
 
 class ValidationError(RuntimeError):
@@ -340,6 +342,122 @@ def verify_reports() -> tuple[int, int]:
     return len(go["cases"]), len(classes)
 
 
+def verify_operational_receipt_contract() -> None:
+    contract = load_json_strict(
+        ROOT / "conformance/source-neutral-conformance-contract.v2.json"
+    )
+    require(
+        "operational_receipt_semantics" in contract["required_case_classes"],
+        "operational receipt conformance class is absent",
+    )
+    receipt_contracts = [
+        entry
+        for entry in contract["case_contract"]
+        if entry["section"] == "receipts"
+    ]
+    require(
+        receipt_contracts
+        == [
+            {
+                "section": "receipts",
+                "case_id_pattern": "receipts/<case_id>",
+                "case_classes": ["operational_receipt_semantics"],
+                "result_kind": "classification",
+            }
+        ],
+        "operational receipt case contract changed",
+    )
+    receipt_schema = load_json_strict(
+        ROOT / "schemas/operational-receipt.v2.schema.json"
+    )
+    for name in [
+        "received",
+        "inserted",
+        "duplicate_noop",
+        "conflict",
+        "rejected",
+    ]:
+        count_schema = receipt_schema["properties"]["counts"]["properties"][name]
+        require(
+            count_schema["minimum"] == 0
+            and count_schema["maximum"] == 9007199254740991,
+            f"operational receipt count boundary changed: {name}",
+        )
+    vector = load_json_strict(ROOT / "vectors/source-neutral-vector-bundle.v2.json")
+    cases = vector["receipts"]
+    expected_ids = [
+        "pull-completed",
+        "push-completed",
+        "offline-completed",
+        "push-accepted-safe-count-max",
+        "push-retryable-error",
+        "offline-permanent-conflict",
+        "push-completed-withheld",
+        "push-error-durable",
+        "completed-with-error",
+        "retryable-without-error",
+        "counts-not-accounted",
+        "completed-with-conflict",
+        "accepted-with-outcome",
+        "pull-error-checkpoint-committed",
+        "offline-acknowledgement",
+        "negative-count",
+        "unknown-delivery-mode",
+        "cross-mode-operation",
+        "unsafe-count-above-max",
+        "permanent-with-retryable-error",
+        "retryable-with-permanent-error",
+        "unknown-status",
+    ]
+    require(
+        [case["case_id"] for case in cases] == expected_ids,
+        "operational receipt vector order changed",
+    )
+    require(
+        all(
+            case["case_classes"] == ["operational_receipt_semantics"]
+            and case["result_kind"] == "classification"
+            for case in cases
+        ),
+        "operational receipt vector classification changed",
+    )
+    by_id = {case["case_id"]: case for case in cases}
+    require(
+        by_id["push-accepted-safe-count-max"]["input"]["counts"]["received"]
+        == 9007199254740991,
+        "operational receipt safe-integer boundary is absent",
+    )
+    require(
+        {
+            case_id: by_id[case_id]["expected"]["error_code"]
+            for case_id in expected_ids[6:]
+        }
+        == {
+            "push-completed-withheld": "receipt_acknowledgement_mismatch",
+            "push-error-durable": "receipt_acknowledgement_mismatch",
+            "completed-with-error": "receipt_error_state_mismatch",
+            "retryable-without-error": "receipt_error_state_mismatch",
+            "counts-not-accounted": "receipt_counts_not_accounted",
+            "completed-with-conflict":
+                "receipt_completed_with_nonconverged_items",
+            "accepted-with-outcome": "receipt_accepted_with_outcomes",
+            "pull-error-checkpoint-committed": "receipt_checkpoint_mismatch",
+            "offline-acknowledgement":
+                "receipt_acknowledgement_not_applicable",
+            "negative-count": "receipt_count_invalid",
+            "unknown-delivery-mode": "receipt_mode_invalid",
+            "cross-mode-operation": "receipt_operation_mismatch",
+            "unsafe-count-above-max": "receipt_count_invalid",
+            "permanent-with-retryable-error":
+                "receipt_error_state_mismatch",
+            "retryable-with-permanent-error":
+                "receipt_error_state_mismatch",
+            "unknown-status": "receipt_status_invalid",
+        },
+        "operational receipt negative contract changed",
+    )
+
+
 def verify_openinference_vectors() -> None:
     vector = load_json_strict(ROOT / "vectors/source-neutral-vector-bundle.v2.json")
     mappings = vector["openinference_mapping"]
@@ -447,6 +565,7 @@ def validate() -> dict[str, Any]:
     predecessor_components = verify_predecessor_release()
     verify_v1_xinsight_seed()
     verify_openinference_vectors()
+    verify_operational_receipt_contract()
     decision = (ROOT / "docs/decisions/0002-source-neutral-transport-completeness-v2-candidate.md").read_text(
         encoding="utf-8"
     )
@@ -563,6 +682,17 @@ def validate() -> dict[str, Any]:
         projection_baseline["commit"] == XINSIGHT_CANDIDATE_COMMIT
         and projection_baseline["tree"] == XINSIGHT_CANDIDATE_TREE,
         "projection candidate baseline changed",
+    )
+    require(
+        projection_baseline["preserved_dirty_checkout_head"]
+        == XINSIGHT_PRESERVED_DIRTY_HEAD
+        and projection_baseline["preserved_dirty_checkout_tree"]
+        == XINSIGHT_PRESERVED_DIRTY_TREE,
+        "preserved dirty checkout identity changed",
+    )
+    require(
+        len(projection_baseline["preserved_dirty_checkout_tree"]) == 40,
+        "preserved dirty checkout tree is not a full Git tree identity",
     )
     require(
         projection["activation_gate"]["status"]

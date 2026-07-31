@@ -38,6 +38,7 @@
     "mode_state_separation",
     "mutable_delivery_exclusion",
     "opaque_utf8_preservation",
+    "operational_receipt_semantics",
     "optional_fact_preservation",
     "partial_batch_rejection",
     "privacy_rejection",
@@ -161,6 +162,14 @@
         ]
       },
       "result_kind": "state_transition"
+    },
+    {
+      "section": "receipts",
+      "case_id_pattern": "receipts/<case_id>",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification"
     },
     {
       "section": "completeness",

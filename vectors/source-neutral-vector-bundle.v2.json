@@ -4,7 +4,7 @@
   "protocol_status": "not_binding",
   "conformance_contract": {
     "path": "conformance/source-neutral-conformance-contract.v2.json",
-    "sha256": "sha256:e3ab080cbfa633950b859d621e7cf58184881347277a9b30a0973aa4258177b3"
+    "sha256": "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a"
   },
   "mapping_context": {
     "producer_product": "openinference",
@@ -573,6 +573,604 @@
         "checkpoint_committed": false,
         "outcome": "retry_batch",
         "receipt_completed": false
+      }
+    }
+  ],
+  "receipts": [
+    {
+      "case_id": "pull-completed",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "poll",
+        "mode": "https_pull",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": true,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": true,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "completed",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-completed",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "acknowledge",
+        "mode": "otlp_http_push",
+        "status": "completed",
+        "acknowledgement": "durable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 1,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "acknowledgement": "durable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "completed",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "offline-completed",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "import_bundle",
+        "mode": "bounded_offline",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": true,
+        "status": "completed",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-accepted-safe-count-max",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "accepted",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 9007199254740991,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts_accounted": false,
+        "receipt_completed": false,
+        "status": "accepted",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-retryable-error",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "retryable_error",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 1
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "retryable_error",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "offline-permanent-conflict",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "import_bundle",
+        "mode": "bounded_offline",
+        "status": "permanent_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 1,
+          "rejected": 0
+        },
+        "error_retryable": false
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "permanent_error",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-completed-withheld",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "acknowledge",
+        "mode": "otlp_http_push",
+        "status": "completed",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_acknowledgement_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "push-error-durable",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "retryable_error",
+        "acknowledgement": "durable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 1
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "error_code": "receipt_acknowledgement_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "completed-with-error",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "acknowledge",
+        "mode": "otlp_http_push",
+        "status": "completed",
+        "acknowledgement": "durable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "error_code": "receipt_error_state_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "retryable-without-error",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "retryable_error",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 1
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_error_state_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "counts-not-accounted",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "acknowledge",
+        "mode": "otlp_http_push",
+        "status": "completed",
+        "acknowledgement": "durable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 2,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_counts_not_accounted",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "completed-with-conflict",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "import_bundle",
+        "mode": "bounded_offline",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 1,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_completed_with_nonconverged_items",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "accepted-with-outcome",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "accepted",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_accepted_with_outcomes",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "pull-error-checkpoint-committed",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "poll",
+        "mode": "https_pull",
+        "status": "retryable_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": true,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 1
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "error_code": "receipt_checkpoint_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "offline-acknowledgement",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "import_bundle",
+        "mode": "bounded_offline",
+        "status": "completed",
+        "acknowledgement": "durable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_acknowledgement_not_applicable",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "negative-count",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "accepted",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": -1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_count_invalid",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "unknown-delivery-mode",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "commit_batch",
+        "mode": "unknown",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_mode_invalid",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "cross-mode-operation",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "poll",
+        "mode": "bounded_offline",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_operation_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "unsafe-count-above-max",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "accepted",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 9007199254740992,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_count_invalid",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "permanent-with-retryable-error",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "import_bundle",
+        "mode": "bounded_offline",
+        "status": "permanent_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 1,
+          "rejected": 0
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "error_code": "receipt_error_state_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "retryable-with-permanent-error",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "retryable_error",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 1
+        },
+        "error_retryable": false
+      },
+      "expected": {
+        "error_code": "receipt_error_state_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "unknown-status",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "receive",
+        "mode": "otlp_http_push",
+        "status": "unknown",
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 1
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "error_code": "receipt_status_invalid",
+        "valid": false
       }
     }
   ],

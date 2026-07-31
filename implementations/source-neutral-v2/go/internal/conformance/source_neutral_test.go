@@ -17,7 +17,7 @@ func TestSourceNeutralBundlePasses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
-	if exitCode != ExitPass || summary.Status != "pass" || summary.CaseCount != 47 {
+	if exitCode != ExitPass || summary.Status != "pass" || summary.CaseCount != 69 {
 		t.Fatalf("unexpected summary: %+v exit=%d", summary, exitCode)
 	}
 	if info, err := os.Stat(reportPath); err != nil || info.Size() == 0 {
@@ -126,6 +126,40 @@ func TestManifestAxesFailClosed(t *testing.T) {
 	})
 	if got["valid"] != false || got["error_code"] != "mode_axis_mismatch" {
 		t.Fatalf("hybrid manifest did not fail closed: %v", got)
+	}
+}
+
+func TestOperationalReceiptSemanticsFailClosed(t *testing.T) {
+	counts := map[string]any{
+		"received":       float64(1),
+		"inserted":       float64(1),
+		"duplicate_noop": float64(0),
+		"conflict":       float64(0),
+		"rejected":       float64(0),
+	}
+	valid := classifyReceipt(map[string]any{
+		"mode":                 "otlp_http_push",
+		"operation":            "acknowledge",
+		"status":               "completed",
+		"acknowledgement":      "durable",
+		"checkpoint_committed": false,
+		"counts":               counts,
+		"error_retryable":      nil,
+	})
+	if valid["valid"] != true || valid["counts_accounted"] != true {
+		t.Fatalf("valid receipt rejected: %v", valid)
+	}
+	invalid := classifyReceipt(map[string]any{
+		"mode":                 "otlp_http_push",
+		"operation":            "acknowledge",
+		"status":               "completed",
+		"acknowledgement":      "withheld",
+		"checkpoint_committed": false,
+		"counts":               counts,
+		"error_retryable":      nil,
+	})
+	if invalid["error_code"] != "receipt_acknowledgement_mismatch" {
+		t.Fatalf("completed withheld receipt accepted: %v", invalid)
 	}
 }
 

@@ -548,6 +548,121 @@ func auditOperationalSchemas(
 	); err != nil {
 		return err
 	}
+	crossModeOperation := cloneObject(receipts["offline receipt"])
+	crossModeOperation["operation"] = "poll"
+	if err := expectInvalid(
+		compiled[receiptV2],
+		crossModeOperation,
+		"offline receipt with pull operation",
+	); err != nil {
+		return err
+	}
+	retryableReceipt := cloneObject(receipts["push receipt"])
+	retryableReceipt["status"] = "retryable_error"
+	retryableReceipt["delivery_state"].(map[string]any)["acknowledgement"] = "withheld"
+	retryableReceipt["counts"] = map[string]any{
+		"received":       1,
+		"inserted":       0,
+		"duplicate_noop": 0,
+		"conflict":       0,
+		"rejected":       1,
+	}
+	retryableReceipt["error"] = receiptError(true)
+	if err := expectValid(
+		compiled[receiptV2],
+		retryableReceipt,
+		"retryable push receipt",
+	); err != nil {
+		return err
+	}
+	completedWithheld := cloneObject(receipts["push receipt"])
+	completedWithheld["delivery_state"].(map[string]any)["acknowledgement"] = "withheld"
+	if err := expectInvalid(
+		compiled[receiptV2],
+		completedWithheld,
+		"completed push receipt with withheld acknowledgement",
+	); err != nil {
+		return err
+	}
+	completedWithError := cloneObject(receipts["push receipt"])
+	completedWithError["error"] = receiptError(true)
+	if err := expectInvalid(
+		compiled[receiptV2],
+		completedWithError,
+		"completed receipt with error",
+	); err != nil {
+		return err
+	}
+	acceptedWithError := cloneObject(receipts["push receipt"])
+	acceptedWithError["status"] = "accepted"
+	acceptedWithError["delivery_state"].(map[string]any)["acknowledgement"] = "withheld"
+	acceptedWithError["counts"] = map[string]any{
+		"received":       1,
+		"inserted":       0,
+		"duplicate_noop": 0,
+		"conflict":       0,
+		"rejected":       0,
+	}
+	acceptedWithError["error"] = receiptError(true)
+	if err := expectInvalid(
+		compiled[receiptV2],
+		acceptedWithError,
+		"accepted receipt with error",
+	); err != nil {
+		return err
+	}
+	retryableWithoutError := cloneObject(retryableReceipt)
+	delete(retryableWithoutError, "error")
+	if err := expectInvalid(
+		compiled[receiptV2],
+		retryableWithoutError,
+		"retryable receipt without error",
+	); err != nil {
+		return err
+	}
+	permanentWithRetryableError := cloneObject(retryableReceipt)
+	permanentWithRetryableError["status"] = "permanent_error"
+	if err := expectInvalid(
+		compiled[receiptV2],
+		permanentWithRetryableError,
+		"permanent receipt with retryable error",
+	); err != nil {
+		return err
+	}
+	completedWithConflict := cloneObject(receipts["offline receipt"])
+	completedWithConflict["counts"] = map[string]any{
+		"received":       1,
+		"inserted":       0,
+		"duplicate_noop": 0,
+		"conflict":       1,
+		"rejected":       0,
+	}
+	if err := expectInvalid(
+		compiled[receiptV2],
+		completedWithConflict,
+		"completed receipt with conflict",
+	); err != nil {
+		return err
+	}
+	acceptedWithOutcome := cloneObject(receipts["push receipt"])
+	acceptedWithOutcome["status"] = "accepted"
+	acceptedWithOutcome["delivery_state"].(map[string]any)["acknowledgement"] = "withheld"
+	if err := expectInvalid(
+		compiled[receiptV2],
+		acceptedWithOutcome,
+		"accepted receipt with terminal outcome",
+	); err != nil {
+		return err
+	}
+	unsafeCount := cloneObject(receipts["offline receipt"])
+	unsafeCount["counts"].(map[string]any)["received"] = float64(9007199254740992)
+	if err := expectInvalid(
+		compiled[receiptV2],
+		unsafeCount,
+		"receipt count above safe integer",
+	); err != nil {
+		return err
+	}
 
 	validError := map[string]any{
 		"error_version":       "foigent.connector-error.v2",
@@ -570,6 +685,23 @@ func auditOperationalSchemas(
 		invalidError,
 		"non-retryable error with retry_after_seconds",
 	)
+}
+
+func receiptError(retryable bool) map[string]any {
+	recovery := "operator_repair"
+	if retryable {
+		recovery = "resubmit_request"
+	}
+	return map[string]any{
+		"error_version": "foigent.connector-error.v2",
+		"category":      "transport",
+		"code":          "receipt_processing_failed",
+		"phase":         "receive",
+		"operation":     "receive_batch",
+		"retryable":     retryable,
+		"safe_message":  "receipt processing failed",
+		"recovery":      recovery,
+	}
 }
 
 func receiptBase(

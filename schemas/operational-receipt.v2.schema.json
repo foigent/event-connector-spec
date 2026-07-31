@@ -79,23 +79,28 @@
       "properties": {
         "received": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 9007199254740991
         },
         "inserted": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 9007199254740991
         },
         "duplicate_noop": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 9007199254740991
         },
         "conflict": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 9007199254740991
         },
         "rejected": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 9007199254740991
         }
       }
     },
@@ -130,6 +135,19 @@
       },
       "then": {
         "properties": {
+          "operation": {
+            "enum": [
+              "activate",
+              "poll",
+              "commit_batch",
+              "pause",
+              "resume",
+              "stop",
+              "start",
+              "rotate",
+              "retire"
+            ]
+          },
           "delivery_state": {
             "$ref": "#/$defs/pullState"
           }
@@ -146,6 +164,20 @@
       },
       "then": {
         "properties": {
+          "operation": {
+            "enum": [
+              "activate",
+              "receive",
+              "commit_batch",
+              "acknowledge",
+              "pause",
+              "resume",
+              "stop",
+              "start",
+              "rotate",
+              "retire"
+            ]
+          },
           "delivery_state": {
             "$ref": "#/$defs/pushState"
           }
@@ -162,8 +194,211 @@
       },
       "then": {
         "properties": {
+          "operation": {
+            "enum": [
+              "activate",
+              "import_bundle",
+              "commit_batch",
+              "pause",
+              "resume",
+              "stop",
+              "start",
+              "rotate",
+              "retire"
+            ]
+          },
           "delivery_state": {
             "$ref": "#/$defs/offlineState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "accepted",
+              "completed"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "error"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "retryable_error"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "properties": {
+              "retryable": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "permanent_error"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "properties": {
+              "retryable": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "completed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "counts": {
+            "properties": {
+              "conflict": {
+                "const": 0
+              },
+              "rejected": {
+                "const": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "accepted"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "counts": {
+            "properties": {
+              "inserted": {
+                "const": 0
+              },
+              "duplicate_noop": {
+                "const": 0
+              },
+              "conflict": {
+                "const": 0
+              },
+              "rejected": {
+                "const": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "otlp_http_push"
+          },
+          "status": {
+            "const": "completed"
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "properties": {
+              "acknowledgement": {
+                "const": "durable"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "otlp_http_push"
+          },
+          "status": {
+            "enum": [
+              "accepted",
+              "retryable_error",
+              "permanent_error"
+            ]
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "properties": {
+              "acknowledgement": {
+                "const": "withheld"
+              }
+            }
           }
         }
       }

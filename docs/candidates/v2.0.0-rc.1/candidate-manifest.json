@@ -57,11 +57,11 @@
     },
     "semantic_decision": {
       "path": "docs/decisions/0002-source-neutral-transport-completeness-v2-candidate.md",
-      "sha256": "sha256:664cebe7ca8ab70dc1455a13bd666c67de9553b9758beb0af07067104a0a5ef1"
+      "sha256": "sha256:66b00bf4a510c79d679e421de83aa16a1c1a02c782cf0c51ae3fee0edf984073"
     },
     "protocol_candidate": {
       "path": "spec/protocol-v2-candidate.md",
-      "sha256": "sha256:242bef4383d960edf69989f17b1d664de55eeb5f0e9d8799fffd882ecddd9699"
+      "sha256": "sha256:bbe64ba6a78ac75e8e629e6ca6257310cd9dde233ae3489f6d262125908f5ec2"
     },
     "domain_catalog": {
       "path": "catalog/domain-catalog.v2.json",
@@ -89,7 +89,7 @@
     },
     "operational_receipt_schema": {
       "path": "schemas/operational-receipt.v2.schema.json",
-      "sha256": "sha256:87eff60633e01e2e8e3393b2c5863c3a4aac57df27d84f22f74a18fa671802be"
+      "sha256": "sha256:0b64562babb5ef5e9f140428aed718f1c8d9c31d276d3d9a2f8ddb09b61c42fc"
     },
     "openinference_source_schema": {
       "path": "schemas/openinference-span.v1.schema.json",
@@ -113,7 +113,7 @@
     },
     "xinsight_openinference_projection": {
       "path": "mappings/xinsight/openinference-span-to-m0-m0.1-v2.json",
-      "sha256": "sha256:b374f7a03c73b6fa94d9fab96ce20d819d4e1471f77d2e4c908df1297c1e49b2"
+      "sha256": "sha256:d5abcabffeb8bb368e5c188b7ed5179b5674092e9421af2c38e548bfdbec7077"
     },
     "v1_to_v2_compatibility_matrix": {
       "path": "compatibility/v1-to-v2-source-neutral-matrix.json",
@@ -193,31 +193,31 @@
     },
     "conformance_contract": {
       "path": "conformance/source-neutral-conformance-contract.v2.json",
-      "sha256": "sha256:e3ab080cbfa633950b859d621e7cf58184881347277a9b30a0973aa4258177b3"
+      "sha256": "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a"
     },
     "vector_bundle": {
       "path": "vectors/source-neutral-vector-bundle.v2.json",
-      "sha256": "sha256:c556051776f5a0ecd2e193f34dd8b240ff5ebef2e8c3877d8f1a8f6d69af95cb"
+      "sha256": "sha256:691c66cad3981354211d46b20865acfbd7834b96cd4c3d12b119f14f3e21f9b4"
     },
     "go_conformance_report": {
       "path": "conformance/reports/go-source-neutral-v2.json",
-      "sha256": "sha256:e7ab8564e00908204a5eec9ca6313a93d02543a4fd46fd67029963d8c8590c4d"
+      "sha256": "sha256:24d77d8b4e04f29fdbd2fbd3cdc7e2d529693d9495e605616703eee1fe01dca3"
     },
     "typescript_conformance_report": {
       "path": "conformance/reports/typescript-source-neutral-v2.json",
-      "sha256": "sha256:d550073abb8cc4e9fa86f920d400051dc1d04f1386d62d61286b242ebb6b2f49"
+      "sha256": "sha256:b47f20ddbdd99b3f57e4946cb2f1cf6222a94abd93b4ba30e05c08fe6181b31d"
     },
     "go_implementation_manifest": {
       "path": "implementations/source-neutral-v2/go/implementation-manifest.v2.json",
-      "sha256": "sha256:3162003f84c021792531c988105cf4295aad1b932da8740d10b112510cf1d765"
+      "sha256": "sha256:897682fde95d4580d2c853ea88b83dff8c3b891e3c6e6fc43a3a0cd4aae38c7b"
     },
     "typescript_implementation_manifest": {
       "path": "implementations/source-neutral-v2/typescript/implementation-manifest.v2.json",
-      "sha256": "sha256:22e355f469b70817ddd38b8fe83b864e523bdffc30347f1a298b26b40c1bb77a"
+      "sha256": "sha256:5d276ae0086b370c6edfbfc69dc38d66156d096d4082c613c365a8e5f0677687"
     },
     "artifact_builder": {
       "path": "scripts/build-source-neutral-v2-artifacts.mjs",
-      "sha256": "sha256:2528242867f0869f04a8c37e08e2dd8857c20121b67f1119438c51ad2619e39d"
+      "sha256": "sha256:fbfb49888af0f3f1c87de57afc67e59c1a16d5368d8b1a929ce94efe07594c8a"
     },
     "implementation_manifest_builder": {
       "path": "scripts/build-source-neutral-v2-implementation-manifests.mjs",
@@ -233,15 +233,15 @@
     },
     "compatibility_validator": {
       "path": "scripts/validate_source_neutral_v2_candidate.py",
-      "sha256": "sha256:4533e87a42bd19376960a4be383e1bf62286f6007a2a6397b52139468ed086e4"
+      "sha256": "sha256:0b6286733ceb4e679b7271ba27e1e328795d78194241f0209c4d66635f1e7d47"
     },
     "conformance_kit": {
       "path": "scripts/run-source-neutral-v2-conformance-kit.sh",
-      "sha256": "sha256:e158480b546fe85371fb602d9d92c29b7540bfae49b5f8e1c7e9dfc785acc7bd"
+      "sha256": "sha256:b1fb1dcf926ec6023b1313a7304cfaac81565e6a536b71641f2dda736fd5035c"
     },
     "schema_audit_main": {
       "path": "tools/schema-audit-v2/main.go",
-      "sha256": "sha256:7a62450a3acf5c4c9e48eca07ea1258961090d10d429c0455c3d0ac1ee08fc8e"
+      "sha256": "sha256:48b7a66591898b5de920b3c096b4681510e0bf0e35348c746b5780e5522fecc4"
     },
     "schema_audit_overlay": {
       "path": "tools/schema-audit-v2/overlay.json",
@@ -253,10 +253,10 @@
     },
     "compatibility_tests": {
       "path": "tests/test_source_neutral_v2_candidate.py",
-      "sha256": "sha256:7adeed2e9777ef82816a08019aedea907fa5339adeb7a4d9810d69c0a985b6b5"
+      "sha256": "sha256:474ecc5e3dc5ceb1ac43d8e8145cc7c36313cb7d62c6d7de0f9254e06a110bfd"
     }
   },
-  "content_digest": "sha256:d4403333a4e932a3383a72918d151a5c6a78f6df35eb29b6d0833e96f95247c1",
+  "content_digest": "sha256:5591a6c3b4b86e3af2d39016a376961a19cf71aea71c3fcb9c6de755a08be163",
   "approvals": {
     "source_domain_owner": "required",
     "projection_owner": "candidate_evidence_pending_exact_digest",

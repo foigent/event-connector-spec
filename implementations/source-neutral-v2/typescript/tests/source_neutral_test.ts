@@ -7,7 +7,7 @@ const bundle = resolve(root, "vectors/source-neutral-vector-bundle.v2.json");
 Deno.test("source-neutral bundle passes all exact cases", async () => {
   const run = await createSourceNeutralReport(bundle);
   assertEquals(run.status, "pass");
-  assertEquals(run.caseCount, 47);
+  assertEquals(run.caseCount, 69);
   const cases = run.report.cases;
   if (!Array.isArray(cases)) {
     throw new Error("report cases are absent");
@@ -41,6 +41,13 @@ Deno.test("source-neutral bundle passes all exact cases", async () => {
     value.case_id.startsWith("openinference_mapping/ordered-")
   );
   assertEquals(ordered.length, 3);
+  const receipts = cases.filter((value) =>
+    typeof value === "object" && value !== null &&
+    !Array.isArray(value) &&
+    typeof value.case_id === "string" &&
+    value.case_id.startsWith("receipts/")
+  );
+  assertEquals(receipts.length, 22);
 });
 
 Deno.test("bundle identity fails closed", async () => {

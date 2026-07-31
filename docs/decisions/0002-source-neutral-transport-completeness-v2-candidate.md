@@ -45,6 +45,25 @@ time and ingestion time are operational state outside the Event Envelope.
 They do not enter Event identity, Event hash or event-linked import
 provenance.
 
+Operational Receipt v2 is fail-closed across mode, operation, status, error,
+counts and acknowledgement:
+
+- each count is a JSON safe integer in `0..9007199254740991`;
+- `accepted` is non-terminal, has no error or outcome counts and never produces
+  a durable acknowledgement or committed pull Checkpoint;
+- `completed` is error-free, has no conflicts or rejected items and accounts
+  for all received items;
+- retryable and permanent error statuses require an Error with the matching
+  `retryable` value;
+- push acknowledgement is durable only for `completed`;
+- `poll`, `receive`/`acknowledge` and `import_bundle` are respectively
+  pull-only, push-only and bounded-offline-only operations.
+
+The Schema enforces the representable field constraints. Independent Go and
+TypeScript Conformance runners enforce the exact count equation
+`received = inserted + duplicate_noop + conflict + rejected` using
+safe-integer arithmetic.
+
 ## Preserved v1 semantics
 
 Protocol v2 keeps these v1 artifacts and semantics byte-identical:

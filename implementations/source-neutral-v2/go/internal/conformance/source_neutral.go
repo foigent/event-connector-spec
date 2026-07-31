@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -20,13 +21,13 @@ import (
 )
 
 const (
-	expectedBundleSHA256   = "sha256:c556051776f5a0ecd2e193f34dd8b240ff5ebef2e8c3877d8f1a8f6d69af95cb"
-	expectedContractSHA256 = "sha256:e3ab080cbfa633950b859d621e7cf58184881347277a9b30a0973aa4258177b3"
+	expectedBundleSHA256   = "sha256:691c66cad3981354211d46b20865acfbd7834b96cd4c3d12b119f14f3e21f9b4"
+	expectedContractSHA256 = "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a"
 	expectedBundleVersion  = "foigent.source-neutral-vector-bundle.v2"
 	expectedProtocol       = "2.0.0"
 	reportVersion          = "foigent.conformance-report.v1"
 	implementationName     = "go"
-	implementationVersion  = "2.0.0-rc.1+independent.2"
+	implementationVersion  = "2.0.0-rc.1+independent.3"
 )
 
 const (
@@ -54,6 +55,7 @@ var requiredClasses = []string{
 	"mode_state_separation",
 	"mutable_delivery_exclusion",
 	"opaque_utf8_preservation",
+	"operational_receipt_semantics",
 	"optional_fact_preservation",
 	"partial_batch_rejection",
 	"privacy_rejection",
@@ -83,6 +85,7 @@ type vectorBundle struct {
 	ManifestSemantics    []genericCase         `json:"manifest_semantics"`
 	Lifecycle            []genericCase         `json:"lifecycle"`
 	Delivery             []genericCase         `json:"delivery"`
+	Receipts             []genericCase         `json:"receipts"`
 	Completeness         []genericCase         `json:"completeness"`
 	CaptureModes         []genericCase         `json:"capture_modes"`
 	MutableDelivery      []mutableDeliveryCase `json:"mutable_delivery"`
@@ -334,7 +337,7 @@ type otlpExport struct {
 }
 
 type otlpResourceSpans struct {
-	Resource   otlpResource   `json:"resource"`
+	Resource   otlpResource    `json:"resource"`
 	ScopeSpans []otlpScopeSpan `json:"scopeSpans"`
 }
 
@@ -438,6 +441,11 @@ func runAll(root string, bundle vectorBundle) []caseObservation {
 	for _, item := range bundle.Delivery {
 		observations = append(observations, runGeneric(
 			"delivery", item, classifyDelivery(item.Input),
+		))
+	}
+	for _, item := range bundle.Receipts {
+		observations = append(observations, runGeneric(
+			"receipts", item, classifyReceipt(item.Input),
 		))
 	}
 	for _, item := range bundle.Completeness {
@@ -922,6 +930,130 @@ func classifyDelivery(input map[string]any) map[string]any {
 		"outcome":              outcome,
 		"receipt_completed":    receipt,
 	}
+}
+
+func classifyReceipt(input map[string]any) map[string]any {
+	mode, _ := input["mode"].(string)
+	operation, _ := input["operation"].(string)
+	status, _ := input["status"].(string)
+	acknowledgement, _ := input["acknowledgement"].(string)
+	checkpointCommitted, _ := input["checkpoint_committed"].(bool)
+	countInput, ok := input["counts"].(map[string]any)
+	if !ok {
+		return invalid("receipt_count_invalid")
+	}
+	counts := make(map[string]int64, 5)
+	for _, name := range []string{
+		"received", "inserted", "duplicate_noop", "conflict", "rejected",
+	} {
+		value, valid := receiptCount(countInput[name])
+		if !valid {
+			return invalid("receipt_count_invalid")
+		}
+		counts[name] = value
+	}
+	errorRetryable, hasError := input["error_retryable"].(bool)
+	switch mode {
+	case "https_pull", "otlp_http_push", "bounded_offline":
+	default:
+		return invalid("receipt_mode_invalid")
+	}
+	allowedOperations := map[string]map[string]bool{
+		"https_pull": {
+			"activate": true, "poll": true, "commit_batch": true,
+			"pause": true, "resume": true, "stop": true, "start": true,
+			"rotate": true, "retire": true,
+		},
+		"otlp_http_push": {
+			"activate": true, "receive": true, "commit_batch": true,
+			"acknowledge": true, "pause": true, "resume": true,
+			"stop": true, "start": true, "rotate": true, "retire": true,
+		},
+		"bounded_offline": {
+			"activate": true, "import_bundle": true, "commit_batch": true,
+			"pause": true, "resume": true, "stop": true, "start": true,
+			"rotate": true, "retire": true,
+		},
+	}
+	if !allowedOperations[mode][operation] {
+		return invalid("receipt_operation_mismatch")
+	}
+	switch status {
+	case "accepted", "completed":
+		if hasError {
+			return invalid("receipt_error_state_mismatch")
+		}
+	case "retryable_error":
+		if !hasError || !errorRetryable {
+			return invalid("receipt_error_state_mismatch")
+		}
+	case "permanent_error":
+		if !hasError || errorRetryable {
+			return invalid("receipt_error_state_mismatch")
+		}
+	default:
+		return invalid("receipt_status_invalid")
+	}
+	if mode == "otlp_http_push" {
+		expected := "withheld"
+		if status == "completed" {
+			expected = "durable"
+		}
+		if acknowledgement != expected {
+			return invalid("receipt_acknowledgement_mismatch")
+		}
+	} else if acknowledgement != "not_applicable" {
+		return invalid("receipt_acknowledgement_not_applicable")
+	}
+	expectedCheckpoint := mode == "https_pull" && status == "completed"
+	if checkpointCommitted != expectedCheckpoint {
+		return invalid("receipt_checkpoint_mismatch")
+	}
+	outcomeCount := counts["inserted"] +
+		counts["duplicate_noop"] +
+		counts["conflict"] +
+		counts["rejected"]
+	if status == "accepted" {
+		if outcomeCount != 0 {
+			return invalid("receipt_accepted_with_outcomes")
+		}
+		return map[string]any{
+			"acknowledgement":      acknowledgement,
+			"checkpoint_committed": checkpointCommitted,
+			"counts_accounted":     false,
+			"receipt_completed":    false,
+			"status":               status,
+			"valid":                true,
+		}
+	}
+	if outcomeCount != counts["received"] {
+		return invalid("receipt_counts_not_accounted")
+	}
+	if status == "completed" &&
+		(counts["conflict"] != 0 || counts["rejected"] != 0) {
+		return invalid("receipt_completed_with_nonconverged_items")
+	}
+	return map[string]any{
+		"acknowledgement":      acknowledgement,
+		"checkpoint_committed": checkpointCommitted,
+		"counts_accounted":     true,
+		"receipt_completed":    mode == "bounded_offline" && status == "completed",
+		"status":               status,
+		"valid":                true,
+	}
+}
+
+func receiptCount(value any) (int64, bool) {
+	number, ok := value.(float64)
+	if !ok ||
+		math.IsNaN(number) ||
+		math.IsInf(number, 0) ||
+		number < 0 ||
+		number > 9007199254740991 ||
+		math.Trunc(number) != number {
+		return 0, false
+	}
+	return int64(number), true
 }
 
 func classifyCompleteness(input map[string]any) map[string]any {

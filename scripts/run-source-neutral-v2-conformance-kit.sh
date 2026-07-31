@@ -22,8 +22,10 @@ node \
   "$protocol_root/scripts/build-source-neutral-v2-implementation-manifests.mjs" \
   --check
 python3 "$protocol_root/scripts/validate_source_neutral_v2_candidate.py"
-python3 -m unittest \
-  "$protocol_root/tests/test_source_neutral_v2_candidate.py"
+(
+  cd "$protocol_root"
+  python3 -m unittest tests.test_source_neutral_v2_candidate
+)
 
 "$protocol_root/tools/schema-audit-v2/run.sh" \
   "$protocol_root" "$kit_tmp/go-cache"

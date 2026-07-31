@@ -26,14 +26,14 @@ import {
 } from "./protocol.ts";
 
 const EXPECTED_BUNDLE_SHA =
-  "sha256:c556051776f5a0ecd2e193f34dd8b240ff5ebef2e8c3877d8f1a8f6d69af95cb";
+  "sha256:691c66cad3981354211d46b20865acfbd7834b96cd4c3d12b119f14f3e21f9b4";
 const EXPECTED_CONTRACT_SHA =
-  "sha256:e3ab080cbfa633950b859d621e7cf58184881347277a9b30a0973aa4258177b3";
+  "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a";
 const EXPECTED_BUNDLE_VERSION = "foigent.source-neutral-vector-bundle.v2";
 const EXPECTED_PROTOCOL = "2.0.0";
 const REPORT_VERSION = "foigent.conformance-report.v1";
 const IMPLEMENTATION = "typescript";
-const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.2";
+const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.3";
 
 const REQUIRED_CLASSES = [
   "bounded_batch_ordering",
@@ -53,6 +53,7 @@ const REQUIRED_CLASSES = [
   "mode_state_separation",
   "mutable_delivery_exclusion",
   "opaque_utf8_preservation",
+  "operational_receipt_semantics",
   "optional_fact_preservation",
   "partial_batch_rejection",
   "privacy_rejection",
@@ -157,6 +158,7 @@ export async function createSourceNeutralReport(
       ["manifest_semantics", classifyManifest],
       ["lifecycle", classifyLifecycle],
       ["delivery", classifyDelivery],
+      ["receipts", classifyReceipt],
       ["completeness", classifyCompleteness],
       ["capture_modes", classifyCaptureModes],
     ] as const
@@ -648,6 +650,152 @@ function classifyDelivery(input: JsonObject): JsonObject {
     checkpoint_committed: checkpointCommitted,
     outcome,
     receipt_completed: receiptCompleted,
+  };
+}
+
+function classifyReceipt(input: JsonObject): JsonObject {
+  const mode = asString(input.mode, "mode");
+  const operation = asString(input.operation, "operation");
+  const status = asString(input.status, "status");
+  const acknowledgement = asString(
+    input.acknowledgement,
+    "acknowledgement",
+  );
+  const checkpointCommitted = asBoolean(
+    input.checkpoint_committed,
+    "checkpoint_committed",
+  );
+  const countInput = asObject(input.counts, "counts");
+  const counts: Record<string, bigint> = {};
+  for (
+    const name of [
+      "received",
+      "inserted",
+      "duplicate_noop",
+      "conflict",
+      "rejected",
+    ] as const
+  ) {
+    const value = countInput[name];
+    if (
+      typeof value !== "number" ||
+      !Number.isSafeInteger(value) ||
+      value < 0
+    ) {
+      return invalid("receipt_count_invalid");
+    }
+    counts[name] = BigInt(value);
+  }
+  const hasError = input.error_retryable !== null;
+  const errorRetryable = hasError
+    ? asBoolean(input.error_retryable, "error_retryable")
+    : false;
+  if (
+    !["https_pull", "otlp_http_push", "bounded_offline"].includes(mode)
+  ) {
+    return invalid("receipt_mode_invalid");
+  }
+  const allowedOperations: Record<string, string[]> = {
+    https_pull: [
+      "activate",
+      "poll",
+      "commit_batch",
+      "pause",
+      "resume",
+      "stop",
+      "start",
+      "rotate",
+      "retire",
+    ],
+    otlp_http_push: [
+      "activate",
+      "receive",
+      "commit_batch",
+      "acknowledge",
+      "pause",
+      "resume",
+      "stop",
+      "start",
+      "rotate",
+      "retire",
+    ],
+    bounded_offline: [
+      "activate",
+      "import_bundle",
+      "commit_batch",
+      "pause",
+      "resume",
+      "stop",
+      "start",
+      "rotate",
+      "retire",
+    ],
+  };
+  if (!allowedOperations[mode]!.includes(operation)) {
+    return invalid("receipt_operation_mismatch");
+  }
+  if (
+    (status === "accepted" || status === "completed") && hasError ||
+    status === "retryable_error" && (!hasError || !errorRetryable) ||
+    status === "permanent_error" && (!hasError || errorRetryable)
+  ) {
+    return invalid("receipt_error_state_mismatch");
+  }
+  if (
+    ![
+      "accepted",
+      "completed",
+      "retryable_error",
+      "permanent_error",
+    ].includes(status)
+  ) {
+    return invalid("receipt_status_invalid");
+  }
+  if (mode === "otlp_http_push") {
+    const expected = status === "completed" ? "durable" : "withheld";
+    if (acknowledgement !== expected) {
+      return invalid("receipt_acknowledgement_mismatch");
+    }
+  } else if (acknowledgement !== "not_applicable") {
+    return invalid("receipt_acknowledgement_not_applicable");
+  }
+  const expectedCheckpoint = mode === "https_pull" && status === "completed";
+  if (checkpointCommitted !== expectedCheckpoint) {
+    return invalid("receipt_checkpoint_mismatch");
+  }
+  const outcomeCount = counts.inserted! +
+    counts.duplicate_noop! +
+    counts.conflict! +
+    counts.rejected!;
+  if (status === "accepted") {
+    if (outcomeCount !== 0n) {
+      return invalid("receipt_accepted_with_outcomes");
+    }
+    return {
+      acknowledgement,
+      checkpoint_committed: checkpointCommitted,
+      counts_accounted: false,
+      receipt_completed: false,
+      status,
+      valid: true,
+    };
+  }
+  if (outcomeCount !== counts.received) {
+    return invalid("receipt_counts_not_accounted");
+  }
+  if (
+    status === "completed" &&
+    (counts.conflict !== 0n || counts.rejected !== 0n)
+  ) {
+    return invalid("receipt_completed_with_nonconverged_items");
+  }
+  return {
+    acknowledgement,
+    checkpoint_committed: checkpointCommitted,
+    counts_accounted: true,
+    receipt_completed: mode === "bounded_offline" && status === "completed",
+    status,
+    valid: true,
   };
 }
 

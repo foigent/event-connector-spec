@@ -8,7 +8,7 @@
     "reviewed_origin_main_tree": "1da84e19b81d52697acedc01f60446782e058023",
     "candidate_relationship": "reviewed_origin_main is an ancestor; candidate is seven commits ahead",
     "preserved_dirty_checkout_head": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
-    "preserved_dirty_checkout_tree": "16a4930f014c35531b01c4bd44c25bd29a53ae8"
+    "preserved_dirty_checkout_tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8"
   },
   "input": {
     "envelope": "foigent://schemas/event-envelope/v1",

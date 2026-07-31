@@ -4,12 +4,12 @@
   "protocol_status": "not_binding",
   "implementation": "typescript",
   "files": {
-    "README.md": "sha256:4a5a41d663c5070cf2d9874224701f814cdddf704a278f4a0aa57e5b8595de76",
+    "README.md": "sha256:ba7dd6ba783fa8a95f357e8c0ee669b371e0072e5a3c32dc8bda1af268f27f42",
     "deno.json": "sha256:30de62b2b9f9b36c33aaf01fbf665e08df2fe5cc3481466d3de2ab59a770402e",
     "src/json.ts": "sha256:8cb99cbae47fb8764f650d8c00426f1268f78bf575808c2ecd0eb875cbd23cef",
     "src/protocol.ts": "sha256:27fc666ff3314364f5b020944d91816a6592e69601459ee80b276fd6757bfe3e",
     "src/runner.ts": "sha256:23cef007bad0973c86bc1fdc73317d169d5eed9d859b3579d04673218c156148",
-    "src/source_neutral.ts": "sha256:a8c44644bcd27f22f12a3dc0f6abb0555837563f2d9274dfdbe4f05e7c3eb271",
-    "tests/source_neutral_test.ts": "sha256:4fb08c9bf00d149568ffdb0bd9e31cfbe3b85acb77c3db01371d7360a03c343e"
+    "src/source_neutral.ts": "sha256:8167db6ed1819f5c55fcc462f745a55a8d11cd8d9163712c2d5071367fd471b4",
+    "tests/source_neutral_test.ts": "sha256:64890842e4c85f197d5e7bc2eb31943c5884cb3cce945d574b730ab40cc7ffc6"
   }
 }

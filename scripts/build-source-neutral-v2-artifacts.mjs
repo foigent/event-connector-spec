@@ -41,9 +41,11 @@ function canonicalize(value) {
     return `[${value.map(canonicalize).join(",")}]`;
   }
   if (typeof value === "object") {
-    return `{${Object.keys(value).sort().map((key) =>
-      `${JSON.stringify(key)}:${canonicalize(value[key])}`
-    ).join(",")}}`;
+    return `{${
+      Object.keys(value).sort().map((key) =>
+        `${JSON.stringify(key)}:${canonicalize(value[key])}`
+      ).join(",")
+    }}`;
   }
   throw new Error(`unsupported JSON type: ${typeof value}`);
 }
@@ -83,12 +85,9 @@ function emit(path, value) {
   }
 }
 
-const rawPath =
-  "fixtures/source/openinference/reference-otlp-export.v1.json";
-const sourcePath =
-  "fixtures/source/openinference/reference-sanitized-span.v1.json";
-const hashInputPath =
-  "fixtures/shared/openinference-span-envelope.hash-input.json";
+const rawPath = "fixtures/source/openinference/reference-otlp-export.v1.json";
+const sourcePath = "fixtures/source/openinference/reference-sanitized-span.v1.json";
+const hashInputPath = "fixtures/shared/openinference-span-envelope.hash-input.json";
 const vectorPath = "vectors/source-neutral-vector-bundle.v2.json";
 
 const rawBytes = readFileSync(resolve(root, rawPath));
@@ -245,8 +244,7 @@ function buildMappedRecord(sourceRecord) {
     spec_version: "foigent.event-envelope.v1",
     event_id: eventID,
     event_type: eventType,
-    schema_ref:
-      "foigent://events/observability/openinference-span-completed/v1",
+    schema_ref: "foigent://events/observability/openinference-span-completed/v1",
     schema_version: "1",
     producer: {
       product: mappingContext.producer_product,
@@ -341,21 +339,17 @@ function llmAttributes({
     ...(prompt === undefined
       ? []
       : [{ key: "llm.token_count.prompt", value: { intValue: prompt } }]),
-    ...(completion === undefined
-      ? []
-      : [{
-        key: "llm.token_count.completion",
-        value: { intValue: completion },
-      }]),
+    ...(completion === undefined ? [] : [{
+      key: "llm.token_count.completion",
+      value: { intValue: completion },
+    }]),
     ...(total === undefined
       ? []
       : [{ key: "llm.token_count.total", value: { intValue: total } }]),
     ...(session === undefined
       ? []
       : [{ key: "session.id", value: { stringValue: session } }]),
-    ...(actor === undefined
-      ? []
-      : [{ key: "user.id", value: { stringValue: actor } }]),
+    ...(actor === undefined ? [] : [{ key: "user.id", value: { stringValue: actor } }]),
   ];
 }
 
@@ -516,10 +510,8 @@ const orderedRaw = {
 const orderedSources = [
   {
     caseID: "ordered-separate-trace",
-    path:
-      "fixtures/source/openinference/ordered-separate-sanitized-span.v1.json",
-    hashPath:
-      "fixtures/shared/openinference-ordered-separate-envelope.hash-input.json",
+    path: "fixtures/source/openinference/ordered-separate-sanitized-span.v1.json",
+    hashPath: "fixtures/shared/openinference-ordered-separate-envelope.hash-input.json",
     source: {
       schema_version: "xinsight.otlp-openinference-span.v1",
       trace_id: orderedTraceA,
@@ -542,10 +534,8 @@ const orderedSources = [
   },
   {
     caseID: "ordered-parent-present",
-    path:
-      "fixtures/source/openinference/ordered-parent-sanitized-span.v1.json",
-    hashPath:
-      "fixtures/shared/openinference-ordered-parent-envelope.hash-input.json",
+    path: "fixtures/source/openinference/ordered-parent-sanitized-span.v1.json",
+    hashPath: "fixtures/shared/openinference-ordered-parent-envelope.hash-input.json",
     source: {
       schema_version: "xinsight.otlp-openinference-span.v1",
       trace_id: orderedTraceB,
@@ -568,10 +558,8 @@ const orderedSources = [
   },
   {
     caseID: "ordered-child-parent-resolved",
-    path:
-      "fixtures/source/openinference/ordered-child-sanitized-span.v1.json",
-    hashPath:
-      "fixtures/shared/openinference-ordered-child-envelope.hash-input.json",
+    path: "fixtures/source/openinference/ordered-child-sanitized-span.v1.json",
+    hashPath: "fixtures/shared/openinference-ordered-child-envelope.hash-input.json",
     source: {
       schema_version: "xinsight.otlp-openinference-span.v1",
       trace_id: orderedTraceB,
@@ -602,8 +590,7 @@ const invalidFixtures = [
   {
     caseID: "unknown-status-code",
     classes: ["source_shape_validation", "status_code_validation"],
-    path:
-      "fixtures/source/openinference/unknown-status-otlp-export.invalid.json",
+    path: "fixtures/source/openinference/unknown-status-otlp-export.invalid.json",
     errorCode: "status_code_invalid",
     raw: (() => {
       const value = deepClone(missingRaw);
@@ -614,8 +601,7 @@ const invalidFixtures = [
   {
     caseID: "end-before-start",
     classes: ["source_shape_validation", "timestamp_normalization"],
-    path:
-      "fixtures/source/openinference/end-before-start-otlp-export.invalid.json",
+    path: "fixtures/source/openinference/end-before-start-otlp-export.invalid.json",
     errorCode: "timestamp_order_invalid",
     raw: (() => {
       const value = deepClone(raw);
@@ -627,8 +613,7 @@ const invalidFixtures = [
   {
     caseID: "malformed-trace-id",
     classes: ["source_shape_validation"],
-    path:
-      "fixtures/source/openinference/malformed-trace-id-otlp-export.invalid.json",
+    path: "fixtures/source/openinference/malformed-trace-id-otlp-export.invalid.json",
     errorCode: "source_shape_invalid",
     raw: (() => {
       const value = deepClone(raw);
@@ -639,8 +624,7 @@ const invalidFixtures = [
   {
     caseID: "span-limit-exceeded",
     classes: ["bounded_batch_ordering", "source_shape_validation"],
-    path:
-      "fixtures/source/openinference/too-many-spans-otlp-export.invalid.json",
+    path: "fixtures/source/openinference/too-many-spans-otlp-export.invalid.json",
     errorCode: "span_limit_exceeded",
     raw: {
       resourceSpans: [{
@@ -680,6 +664,334 @@ const hashInputFile = artifact(hashInputPath);
 const contract = artifact(
   "conformance/source-neutral-conformance-contract.v2.json",
 );
+
+function receiptCounts(
+  received,
+  inserted = 0,
+  duplicateNoop = 0,
+  conflict = 0,
+  rejected = 0,
+) {
+  return {
+    received,
+    inserted,
+    duplicate_noop: duplicateNoop,
+    conflict,
+    rejected,
+  };
+}
+
+function receiptCase(caseID, input, expected) {
+  const defaultOperation = input.mode === "https_pull"
+    ? "poll"
+    : input.mode === "otlp_http_push"
+    ? (input.status === "completed" ? "acknowledge" : "receive")
+    : input.mode === "bounded_offline"
+    ? "import_bundle"
+    : "commit_batch";
+  return {
+    case_id: caseID,
+    case_classes: ["operational_receipt_semantics"],
+    result_kind: "classification",
+    input: {
+      operation: defaultOperation,
+      ...input,
+    },
+    expected,
+  };
+}
+
+function validReceipt(
+  status,
+  acknowledgement,
+  checkpointCommitted,
+  countsAccounted,
+  receiptCompleted,
+) {
+  return {
+    acknowledgement,
+    checkpoint_committed: checkpointCommitted,
+    counts_accounted: countsAccounted,
+    receipt_completed: receiptCompleted,
+    status,
+    valid: true,
+  };
+}
+
+const receiptCases = [
+  receiptCase(
+    "pull-completed",
+    {
+      mode: "https_pull",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: true,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    validReceipt("completed", "not_applicable", true, true, false),
+  ),
+  receiptCase(
+    "push-completed",
+    {
+      mode: "otlp_http_push",
+      status: "completed",
+      acknowledgement: "durable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 1),
+      error_retryable: null,
+    },
+    validReceipt("completed", "durable", false, true, false),
+  ),
+  receiptCase(
+    "offline-completed",
+    {
+      mode: "bounded_offline",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    validReceipt("completed", "not_applicable", false, true, true),
+  ),
+  receiptCase(
+    "push-accepted-safe-count-max",
+    {
+      mode: "otlp_http_push",
+      status: "accepted",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(9007199254740991),
+      error_retryable: null,
+    },
+    validReceipt("accepted", "withheld", false, false, false),
+  ),
+  receiptCase(
+    "push-retryable-error",
+    {
+      mode: "otlp_http_push",
+      status: "retryable_error",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 0, 0, 1),
+      error_retryable: true,
+    },
+    validReceipt("retryable_error", "withheld", false, true, false),
+  ),
+  receiptCase(
+    "offline-permanent-conflict",
+    {
+      mode: "bounded_offline",
+      status: "permanent_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 0, 1),
+      error_retryable: false,
+    },
+    validReceipt("permanent_error", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "push-completed-withheld",
+    {
+      mode: "otlp_http_push",
+      status: "completed",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_acknowledgement_mismatch", valid: false },
+  ),
+  receiptCase(
+    "push-error-durable",
+    {
+      mode: "otlp_http_push",
+      status: "retryable_error",
+      acknowledgement: "durable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 0, 0, 1),
+      error_retryable: true,
+    },
+    { error_code: "receipt_acknowledgement_mismatch", valid: false },
+  ),
+  receiptCase(
+    "completed-with-error",
+    {
+      mode: "otlp_http_push",
+      status: "completed",
+      acknowledgement: "durable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 1),
+      error_retryable: true,
+    },
+    { error_code: "receipt_error_state_mismatch", valid: false },
+  ),
+  receiptCase(
+    "retryable-without-error",
+    {
+      mode: "otlp_http_push",
+      status: "retryable_error",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 0, 0, 1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_error_state_mismatch", valid: false },
+  ),
+  receiptCase(
+    "counts-not-accounted",
+    {
+      mode: "otlp_http_push",
+      status: "completed",
+      acknowledgement: "durable",
+      checkpoint_committed: false,
+      counts: receiptCounts(2, 1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_counts_not_accounted", valid: false },
+  ),
+  receiptCase(
+    "completed-with-conflict",
+    {
+      mode: "bounded_offline",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 0, 1),
+      error_retryable: null,
+    },
+    {
+      error_code: "receipt_completed_with_nonconverged_items",
+      valid: false,
+    },
+  ),
+  receiptCase(
+    "accepted-with-outcome",
+    {
+      mode: "otlp_http_push",
+      status: "accepted",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_accepted_with_outcomes", valid: false },
+  ),
+  receiptCase(
+    "pull-error-checkpoint-committed",
+    {
+      mode: "https_pull",
+      status: "retryable_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: true,
+      counts: receiptCounts(1, 0, 0, 0, 1),
+      error_retryable: true,
+    },
+    { error_code: "receipt_checkpoint_mismatch", valid: false },
+  ),
+  receiptCase(
+    "offline-acknowledgement",
+    {
+      mode: "bounded_offline",
+      status: "completed",
+      acknowledgement: "durable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    {
+      error_code: "receipt_acknowledgement_not_applicable",
+      valid: false,
+    },
+  ),
+  receiptCase(
+    "negative-count",
+    {
+      mode: "otlp_http_push",
+      status: "accepted",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(-1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_count_invalid", valid: false },
+  ),
+  receiptCase(
+    "unknown-delivery-mode",
+    {
+      mode: "unknown",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_mode_invalid", valid: false },
+  ),
+  receiptCase(
+    "cross-mode-operation",
+    {
+      mode: "bounded_offline",
+      operation: "poll",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_operation_mismatch", valid: false },
+  ),
+  receiptCase(
+    "unsafe-count-above-max",
+    {
+      mode: "otlp_http_push",
+      status: "accepted",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(9007199254740992),
+      error_retryable: null,
+    },
+    { error_code: "receipt_count_invalid", valid: false },
+  ),
+  receiptCase(
+    "permanent-with-retryable-error",
+    {
+      mode: "bounded_offline",
+      status: "permanent_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 0, 1),
+      error_retryable: true,
+    },
+    { error_code: "receipt_error_state_mismatch", valid: false },
+  ),
+  receiptCase(
+    "retryable-with-permanent-error",
+    {
+      mode: "otlp_http_push",
+      status: "retryable_error",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 0, 0, 1),
+      error_retryable: false,
+    },
+    { error_code: "receipt_error_state_mismatch", valid: false },
+  ),
+  receiptCase(
+    "unknown-status",
+    {
+      mode: "otlp_http_push",
+      status: "unknown",
+      acknowledgement: "withheld",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 0, 0, 0, 1),
+      error_retryable: true,
+    },
+    { error_code: "receipt_status_invalid", valid: false },
+  ),
+];
+
 const vector = {
   bundle_version: "foigent.source-neutral-vector-bundle.v2",
   protocol_version: "2.0.0",
@@ -1179,6 +1491,7 @@ const vector = {
       },
     },
   ],
+  receipts: receiptCases,
   completeness: [
     {
       case_id: "v1-pull-complete",
@@ -1323,8 +1636,7 @@ const vector = {
       case_id: "unirouter-pull",
       case_classes: ["v1_pull_compatibility"],
       result_kind: "classification",
-      manifest_path:
-        "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+      manifest_path: "manifests/foigent.unirouter.completed-execution-1.0.0.json",
       expected: {
         checkpoint: "required",
         delivery_scope: "poll_page",
@@ -1355,7 +1667,7 @@ const vector = {
       case_classes: ["duplicate_key_rejection"],
       result_kind: "classification",
       kind: "strict_json",
-      input: "{\"trace_id\":\"a\",\"nested\":{\"span_id\":\"b\",\"span_id\":\"c\"}}",
+      input: '{"trace_id":"a","nested":{"span_id":"b","span_id":"c"}}',
       expected: {
         error_code: "duplicate_json_key",
         valid: false,
@@ -1458,16 +1770,19 @@ emit(vectorPath, vector);
 process.stdout.write(
   `source-neutral v2 artifacts ${mode.slice(2)}: ` +
     `${vector.openinference_mapping.length} Envelope, ` +
-    `${[
-      vector.openinference_mapping,
-      vector.idempotency,
-      vector.manifest_semantics,
-      vector.lifecycle,
-      vector.delivery,
-      vector.completeness,
-      vector.capture_modes,
-      vector.mutable_delivery,
-      vector.v1_compatibility,
-      vector.negative,
-    ].reduce((total, section) => total + section.length, 0)} cases\n`,
+    `${
+      [
+        vector.openinference_mapping,
+        vector.idempotency,
+        vector.manifest_semantics,
+        vector.lifecycle,
+        vector.delivery,
+        vector.receipts,
+        vector.completeness,
+        vector.capture_modes,
+        vector.mutable_delivery,
+        vector.v1_compatibility,
+        vector.negative,
+      ].reduce((total, section) => total + section.length, 0)
+    } cases\n`,
 );
