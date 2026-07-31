@@ -1231,7 +1231,7 @@ const receiptCases = [
 const vector = {
   bundle_version: "foigent.source-neutral-vector-bundle.v2",
   protocol_version: "2.0.0",
-  protocol_status: "not_binding",
+  protocol_status: "binding",
   conformance_contract: contract,
   mapping_context: mappingContext,
   openinference_mapping: [

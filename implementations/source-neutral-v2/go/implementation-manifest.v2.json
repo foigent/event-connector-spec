@@ -1,15 +1,15 @@
 {
   "manifest_version": "foigent.conformance-implementation-manifest.v1",
   "protocol_version": "2.0.0",
-  "protocol_status": "not_binding",
+  "protocol_status": "binding",
   "implementation": "go",
   "files": {
-    "README.md": "sha256:4fe372e72230635be8ca166cbfccf41e34afa6c802763cefbc45e1dd515adea9",
+    "README.md": "sha256:c8d571409e112abadca9cdbc94146cfb05d205c086d85cf088e6fa35d37f6d11",
     "cmd/foigent-source-neutral-conformance-go/main.go": "sha256:cbed1f7f98f909c9e14e54a5d85c41d772428313fde7a9b955ebc55e72520b1b",
     "go.mod": "sha256:2443484e2cbeaf05e3c52e6dfaf569e88056eb71ff9c286e78f8126fe62132dd",
     "internal/conformance/core.go": "sha256:b667aabb311ff5a84f8a48eec02a7a6c68e5726482d895323c20e87cde956842",
     "internal/conformance/json.go": "sha256:a9649dcd9a799b0fa0f256d32986b2183cc16d443766a16101081ccf3114816f",
-    "internal/conformance/source_neutral.go": "sha256:369eb7de27de60bf37f7b59cadbd8dbbb43319f2252d615e895d0c1d3119ab3d",
+    "internal/conformance/source_neutral.go": "sha256:ed58606ef3f29ae45a5c8c8e35009a057798b2de64483a63e4f6b699f3535d50",
     "internal/conformance/source_neutral_test.go": "sha256:aa43ce4a20ade88e2f867ca61a991ad8bf458d452d9cc42295a79adcda9cad23",
     "vendor/golang.org/x/text/LICENSE": "sha256:911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
     "vendor/golang.org/x/text/PATENTS": "sha256:96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",

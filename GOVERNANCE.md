@@ -92,8 +92,8 @@ After bootstrap, protocol semantics must flow through reviewed pull requests.
 
 ## 8. Current boundary
 
-B7 established authority and governance. The separately authorized B6–B9 work
-may publish protocol `1.0.0`, its Conformance Kit, immutable release manifest,
-compatibility mappings, and product CI pins. It does not authorize Phase 2
-runtime extraction, deployment, credentials, traffic, cursor/checkpoint, or
+Protocol `2.0.0` may publish its source-neutral contracts, Conformance Kit,
+immutable release manifest, compatibility mappings, and product pin contract.
+The shared protocol release does not authorize product repository migration,
+runtime extraction, deployment, credentials, traffic, Cursor/Checkpoint, or
 database changes.

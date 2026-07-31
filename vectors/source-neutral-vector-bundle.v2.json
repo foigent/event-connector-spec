@@ -1,10 +1,10 @@
 {
   "bundle_version": "foigent.source-neutral-vector-bundle.v2",
   "protocol_version": "2.0.0",
-  "protocol_status": "not_binding",
+  "protocol_status": "binding",
   "conformance_contract": {
     "path": "conformance/source-neutral-conformance-contract.v2.json",
-    "sha256": "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a"
+    "sha256": "sha256:f820936448590144156c2e499134eb4b3142ca0265275b6e9bdf1e5cd7855e14"
   },
   "mapping_context": {
     "producer_product": "openinference",

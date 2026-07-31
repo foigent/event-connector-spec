@@ -11,21 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import validate_source_neutral_v2_candidate as validator  # noqa: E402
+import validate_source_neutral_v2_release as release_validator  # noqa: E402
 
 
 class SourceNeutralV2CandidateTests(unittest.TestCase):
-    def test_repository_candidate_validates(self) -> None:
-        result = validator.validate()
-        self.assertEqual("pass", result["status"])
-        self.assertEqual("not_binding", result["protocol_status"])
-        self.assertEqual(10, result["v1_m0_id_hash_pairs"])
-        self.assertEqual(8, result["v1_gap_rows"])
-        self.assertEqual(2, result["v1_provenance_ids"])
-        self.assertEqual(5, result["openinference_m0_id_hash_pairs"])
-        self.assertEqual(4, result["openinference_gap_events"])
-        self.assertEqual(83, result["conformance_cases"])
-        self.assertEqual(29, result["conformance_classes"])
-        self.assertEqual("none", result["runtime_mutation"])
+    def test_exact_candidate_archive_remains_non_binding(self) -> None:
+        self.assertEqual(60, release_validator.verify_candidate_archive())
 
     def test_strict_loader_rejects_nested_duplicate_keys(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -23,6 +23,7 @@ const (
 	eventBatchV2        = "foigent://schemas/event-batch/v2"
 	errorV2             = "foigent://schemas/connector-error/v2"
 	receiptV2           = "foigent://schemas/operational-receipt/v2"
+	releaseManifestV2   = "foigent://schemas/release-manifest/v2"
 )
 
 func main() {
@@ -94,6 +95,7 @@ func run(args []string) error {
 		eventBatchV2,
 		errorV2,
 		receiptV2,
+		releaseManifestV2,
 	} {
 		if compiled[required] == nil {
 			return fmt.Errorf("required schema is absent: %s", required)
@@ -119,6 +121,18 @@ func run(args []string) error {
 		compiled[connectorManifestV2],
 	); err != nil {
 		return err
+	}
+	releasePath := filepath.Join(root, "releases/v2.0.0/release-manifest.json")
+	if _, err := os.Stat(releasePath); err == nil {
+		if err := validatePath(
+			root,
+			"releases/v2.0.0/release-manifest.json",
+			compiled[releaseManifestV2],
+		); err != nil {
+			return err
+		}
+	} else if !os.IsNotExist(err) {
+		return fmt.Errorf("inspect v2 release manifest: %w", err)
 	}
 	manifest, err := readJSON(filepath.Join(
 		root,

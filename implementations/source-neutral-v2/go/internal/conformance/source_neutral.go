@@ -21,13 +21,13 @@ import (
 )
 
 const (
-	expectedBundleSHA256   = "sha256:2a15ff7c2ecbac3829203fb4692c9a701b9d1fa8880a801e9c845b3e358ab13a"
-	expectedContractSHA256 = "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a"
+	expectedBundleSHA256   = "sha256:9e50bb4570dcc1ff07157ad6198641e937357b641ae052cddcb3420b52ad11ed"
+	expectedContractSHA256 = "sha256:f820936448590144156c2e499134eb4b3142ca0265275b6e9bdf1e5cd7855e14"
 	expectedBundleVersion  = "foigent.source-neutral-vector-bundle.v2"
 	expectedProtocol       = "2.0.0"
 	reportVersion          = "foigent.conformance-report.v1"
 	implementationName     = "go"
-	implementationVersion  = "2.0.0-rc.1+independent.5"
+	implementationVersion  = "2.0.0+independent.1"
 )
 
 const (
@@ -389,7 +389,7 @@ func Execute(bundlePath string, reportPath string) (Summary, int, error) {
 	}
 	if bundle.BundleVersion != expectedBundleVersion ||
 		bundle.ProtocolVersion != expectedProtocol ||
-		bundle.ProtocolStatus != "not_binding" ||
+		bundle.ProtocolStatus != "binding" ||
 		bundle.ConformanceContract.SHA256 != expectedContractSHA256 {
 		return Summary{}, ExitInvalidArtifact, errors.New("bundle identity mismatch")
 	}

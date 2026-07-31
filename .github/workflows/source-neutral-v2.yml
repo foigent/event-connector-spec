@@ -1,0 +1,46 @@
+name: Source-Neutral v2 Release
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  release-conformance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out protocol authority with immutable tags
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          fetch-depth: 0
+      - name: Set up Go 1.24.3
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+        with:
+          go-version: 1.24.3
+          cache: false
+      - name: Set up Deno 2.7.13
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+        with:
+          deno-version: v2.7.13
+      - name: Verify immutable v1.1.2 predecessor
+        run: >-
+          ./scripts/run-v1.1.2-predecessor-kit.sh
+          "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/foigent-v1.1.2-predecessor-kit"
+      - name: Run current v1 compatibility regression
+        run: >-
+          ./scripts/run-v1-compatibility-kit.sh
+          "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/foigent-v1-compatibility-kit"
+      - name: Run source-neutral v2 Release Kit
+        run: >-
+          ./scripts/run-source-neutral-v2-release-kit.sh
+          "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/foigent-source-neutral-v2-release-kit"
+      - name: Require a reproducible checkout
+        run: git diff --exit-code

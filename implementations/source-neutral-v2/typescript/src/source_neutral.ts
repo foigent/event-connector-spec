@@ -26,14 +26,14 @@ import {
 } from "./protocol.ts";
 
 const EXPECTED_BUNDLE_SHA =
-  "sha256:2a15ff7c2ecbac3829203fb4692c9a701b9d1fa8880a801e9c845b3e358ab13a";
+  "sha256:9e50bb4570dcc1ff07157ad6198641e937357b641ae052cddcb3420b52ad11ed";
 const EXPECTED_CONTRACT_SHA =
-  "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a";
+  "sha256:f820936448590144156c2e499134eb4b3142ca0265275b6e9bdf1e5cd7855e14";
 const EXPECTED_BUNDLE_VERSION = "foigent.source-neutral-vector-bundle.v2";
 const EXPECTED_PROTOCOL = "2.0.0";
 const REPORT_VERSION = "foigent.conformance-report.v1";
 const IMPLEMENTATION = "typescript";
-const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.5";
+const IMPLEMENTATION_VERSION = "2.0.0+independent.1";
 
 const REQUIRED_CLASSES = [
   "bounded_batch_ordering",
@@ -116,7 +116,7 @@ export async function createSourceNeutralReport(
       EXPECTED_BUNDLE_VERSION ||
     asString(bundle.protocol_version, "protocol_version") !==
       EXPECTED_PROTOCOL ||
-    asString(bundle.protocol_status, "protocol_status") !== "not_binding"
+    asString(bundle.protocol_status, "protocol_status") !== "binding"
   ) {
     throw new ArtifactFailure("bundle identity mismatch");
   }

@@ -6,9 +6,9 @@
     "tree": "d316d6ada678066ed7679a772856aea6157d869d",
     "content_digest": "sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813"
   },
-  "candidate": {
+  "release": {
     "protocol_version": "2.0.0",
-    "status": "not_binding"
+    "status": "binding"
   },
   "unchanged": [
     "event-envelope.v1 bytes and semantics",
@@ -47,7 +47,7 @@
   "product_compatibility_gates": {
     "unirouter_completed_execution_v1": "must remain byte-identical and load through v1 pull projection",
     "litellm_spend_logs_v1": "must remain byte-identical and load through v1 pull projection",
-    "xinsight_openinference_candidate": "requires product-local provenance and checkpoint migration before activation"
+    "xinsight_openinference_reference": "requires product-local provenance and checkpoint migration before activation"
   },
   "deprecation_window": {
     "manifest_v1": "supported for the entire 2.x major line through explicit compatibility loading",

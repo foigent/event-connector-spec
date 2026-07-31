@@ -70,7 +70,7 @@ function renderManifest(entry) {
     {
       manifest_version: "foigent.conformance-implementation-manifest.v1",
       protocol_version: "2.0.0",
-      protocol_status: "not_binding",
+      protocol_status: "binding",
       implementation: entry.implementation,
       files,
     },
