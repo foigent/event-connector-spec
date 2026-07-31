@@ -80,9 +80,17 @@ proof.
 
 The current X-Insight OpenInference projection is not activation-ready even
 after the shared Schema exists: its product-local provenance still uses
-`contracted_pull`, and its lifecycle test still constructs a pull Checkpoint.
-Those product-local facts are recorded as a fail-closed compatibility gate;
-they are not resolved by weakening this protocol.
+`contracted_pull`, its lifecycle test still constructs a pull Checkpoint, and
+its current bounded sanitizer resolves parent presence with a batch-global
+Span-ID index instead of the trace-scoped parent identity. Those product-local
+facts are recorded as a fail-closed compatibility gate; they are not resolved
+by weakening this protocol.
+
+The candidate conformance evidence covers fully populated records, missing
+optional facts with conditional first-class Gaps, deterministic multi-span
+ordering and trace-scoped parent resolution. Unknown status codes, malformed
+Trace IDs, reversed timestamps and exports above the 200-span bound fail
+closed in both independent implementations.
 
 ## Major-version rationale
 

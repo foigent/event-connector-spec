@@ -11,21 +11,22 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 )
 
 const (
-	expectedBundleSHA256   = "sha256:cbbcc45af8f2c5b0b12bb23e1094953661c352a1b506233c85405be47baf075f"
-	expectedContractSHA256 = "sha256:f11d263a7d2b8e98240a9a9750f349d83c1f8a12263682a49601b74eb7e891d2"
+	expectedBundleSHA256   = "sha256:c556051776f5a0ecd2e193f34dd8b240ff5ebef2e8c3877d8f1a8f6d69af95cb"
+	expectedContractSHA256 = "sha256:e3ab080cbfa633950b859d621e7cf58184881347277a9b30a0973aa4258177b3"
 	expectedBundleVersion  = "foigent.source-neutral-vector-bundle.v2"
 	expectedProtocol       = "2.0.0"
 	reportVersion          = "foigent.conformance-report.v1"
 	implementationName     = "go"
-	implementationVersion  = "2.0.0-rc.1+independent.1"
+	implementationVersion  = "2.0.0-rc.1+independent.2"
 )
 
 const (
@@ -37,10 +38,12 @@ const (
 
 var requiredClasses = []string{
 	"bounded_offline_receipt",
+	"bounded_batch_ordering",
 	"canonical_envelope",
 	"capture_gap_derivation",
 	"capture_mode_separation",
 	"checkpoint_applicability",
+	"conditional_capture_gaps",
 	"content_conflict",
 	"decimal_boundary",
 	"delivery_acknowledgement",
@@ -51,11 +54,14 @@ var requiredClasses = []string{
 	"mode_state_separation",
 	"mutable_delivery_exclusion",
 	"opaque_utf8_preservation",
+	"optional_fact_preservation",
 	"partial_batch_rejection",
 	"privacy_rejection",
 	"protocol_nfc_rejection",
 	"scoped_idempotency",
+	"source_shape_validation",
 	"source_sanitization",
+	"status_code_validation",
 	"timeline_completeness",
 	"timestamp_normalization",
 	"v1_pull_compatibility",
@@ -107,17 +113,20 @@ type caseBase struct {
 
 type mappingCase struct {
 	caseBase
-	RawInputPath          string `json:"raw_input_path"`
-	SourceInputPath       string `json:"source_input_path"`
-	HashInputPath         string `json:"hash_input_path"`
-	RawFileSHA256         string `json:"raw_file_sha256"`
-	SourceFileSHA256      string `json:"source_file_sha256"`
-	HashInputFileSHA256   string `json:"hash_input_file_sha256"`
-	CanonicalSourceSHA256 string `json:"canonical_source_sha256"`
-	CanonicalBytes        int    `json:"canonical_bytes"`
-	EnvelopeHash          string `json:"envelope_hash"`
-	IdempotencyKey        string `json:"idempotency_key"`
-	CaptureGapCount       int    `json:"capture_gap_count"`
+	RawInputPath          string   `json:"raw_input_path"`
+	SourceInputPath       string   `json:"source_input_path"`
+	HashInputPath         string   `json:"hash_input_path"`
+	RawFileSHA256         string   `json:"raw_file_sha256"`
+	SourceFileSHA256      string   `json:"source_file_sha256"`
+	HashInputFileSHA256   string   `json:"hash_input_file_sha256"`
+	CanonicalSourceSHA256 string   `json:"canonical_source_sha256"`
+	CanonicalBytes        int      `json:"canonical_bytes"`
+	EnvelopeHash          string   `json:"envelope_hash"`
+	IdempotencyKey        string   `json:"idempotency_key"`
+	CaptureGapCount       int      `json:"capture_gap_count"`
+	RecordIndex           int      `json:"record_index"`
+	ExpectedRecordOrder   []string `json:"expected_record_order"`
+	ExpectedSkippedNonLLM int      `json:"expected_skipped_non_llm"`
 }
 
 func (value *mappingCase) UnmarshalJSON(data []byte) error {
@@ -315,26 +324,37 @@ type sourceRecord struct {
 	MissingParent    bool   `json:"missing_parent"`
 }
 
+type sanitizedBatch struct {
+	Records       []sourceRecord
+	SkippedNonLLM int
+}
+
 type otlpExport struct {
-	ResourceSpans []struct {
-		Resource struct {
-			Attributes []otlpAttribute `json:"attributes"`
-		} `json:"resource"`
-		ScopeSpans []struct {
-			Spans []struct {
-				TraceID           string          `json:"traceId"`
-				SpanID            string          `json:"spanId"`
-				ParentSpanID      string          `json:"parentSpanId,omitempty"`
-				Name              string          `json:"name"`
-				StartTimeUnixNano string          `json:"startTimeUnixNano"`
-				EndTimeUnixNano   string          `json:"endTimeUnixNano"`
-				Attributes        []otlpAttribute `json:"attributes"`
-				Status            struct {
-					Code any `json:"code"`
-				} `json:"status"`
-			} `json:"spans"`
-		} `json:"scopeSpans"`
-	} `json:"resourceSpans"`
+	ResourceSpans []otlpResourceSpans `json:"resourceSpans"`
+}
+
+type otlpResourceSpans struct {
+	Resource   otlpResource   `json:"resource"`
+	ScopeSpans []otlpScopeSpan `json:"scopeSpans"`
+}
+
+type otlpResource struct {
+	Attributes []otlpAttribute `json:"attributes"`
+}
+
+type otlpScopeSpan struct {
+	Spans []otlpSpan `json:"spans"`
+}
+
+type otlpSpan struct {
+	TraceID           string          `json:"traceId"`
+	SpanID            string          `json:"spanId"`
+	ParentSpanID      string          `json:"parentSpanId,omitempty"`
+	Name              string          `json:"name"`
+	StartTimeUnixNano string          `json:"startTimeUnixNano"`
+	EndTimeUnixNano   string          `json:"endTimeUnixNano"`
+	Attributes        []otlpAttribute `json:"attributes"`
+	Status            json.RawMessage `json:"status,omitempty"`
 }
 
 type otlpAttribute struct {
@@ -437,7 +457,7 @@ func runAll(root string, bundle vectorBundle) []caseObservation {
 		observations = append(observations, runV1Compatibility(root, item))
 	}
 	for _, item := range bundle.Negative {
-		observations = append(observations, runNegative(item))
+		observations = append(observations, runNegative(root, item))
 	}
 	return observations
 }
@@ -466,11 +486,29 @@ func runMapping(
 		return observation
 	}
 
-	source, err := sanitizeOTLP(raw)
+	batch, err := sanitizeOTLP(raw)
 	if err != nil {
 		observation.failures = append(observation.failures, err.Error())
 		return observation
 	}
+	if batch.SkippedNonLLM != item.ExpectedSkippedNonLLM {
+		observation.failures = append(observation.failures, "skipped non-LLM count mismatch")
+	}
+	observedOrder := make([]string, 0, len(batch.Records))
+	for _, record := range batch.Records {
+		observedOrder = append(
+			observedOrder,
+			record.TraceID+":"+record.SpanID,
+		)
+	}
+	if !equalStringSlices(observedOrder, item.ExpectedRecordOrder) {
+		observation.failures = append(observation.failures, "sanitized record order mismatch")
+	}
+	if item.RecordIndex < 0 || item.RecordIndex >= len(batch.Records) {
+		observation.failures = append(observation.failures, "mapping record index is outside batch")
+		return observation
+	}
+	source := batch.Records[item.RecordIndex]
 	sourceCanonical, err := canonicalizeValue(source)
 	if err != nil {
 		observation.failures = append(observation.failures, err.Error())
@@ -664,7 +702,7 @@ func runV1Compatibility(
 	return observation
 }
 
-func runNegative(item negativeCase) caseObservation {
+func runNegative(root string, item negativeCase) caseObservation {
 	observation := baseObservation("negative", item.caseBase)
 	var observed map[string]any
 	switch item.Kind {
@@ -703,6 +741,38 @@ func runNegative(item negativeCase) caseObservation {
 		observed = map[string]any{
 			"utf8_hex": hex.EncodeToString([]byte(value)),
 			"valid":    utf8.ValidString(value),
+		}
+	case "otlp_fixture":
+		input, ok := item.Input.(map[string]any)
+		if !ok {
+			observed = invalid("invalid_negative_fixture")
+			break
+		}
+		path, pathOK := input["path"].(string)
+		digest, digestOK := input["sha256"].(string)
+		if !pathOK || !digestOK {
+			observed = invalid("invalid_negative_fixture")
+			break
+		}
+		raw, err := readPinned(root, path, digest)
+		if err != nil {
+			observation.failures = append(observation.failures, err.Error())
+			observed = invalid("invalid_negative_fixture")
+			break
+		}
+		batch, err := sanitizeOTLP(raw)
+		if err == nil {
+			observed = map[string]any{
+				"record_count": len(batch.Records),
+				"valid":        true,
+			}
+			break
+		}
+		var failure *sanitizationError
+		if errors.As(err, &failure) {
+			observed = invalid(failure.Code)
+		} else {
+			observed = invalid("source_sanitization_failed")
 		}
 	default:
 		observed = map[string]any{"error_code": "unknown_negative_kind", "valid": false}
@@ -765,6 +835,24 @@ func classifyManifest(input map[string]any) map[string]any {
 		"valid":      true,
 	}
 }
+
+type sanitizationError struct {
+	Code    string
+	Message string
+}
+
+func (failure *sanitizationError) Error() string {
+	return failure.Message
+}
+
+func rejectSanitization(code string, message string) error {
+	return &sanitizationError{Code: code, Message: message}
+}
+
+var (
+	traceIDPattern = regexp.MustCompile(`^[0-9a-f]{32}$`)
+	spanIDPattern  = regexp.MustCompile(`^[0-9a-f]{16}$`)
+)
 
 func classifyLifecycle(input map[string]any) map[string]any {
 	mode, _ := input["delivery_mode"].(string)
@@ -875,76 +963,158 @@ func invalid(code string) map[string]any {
 	return map[string]any{"error_code": code, "valid": false}
 }
 
-func sanitizeOTLP(raw []byte) (sourceRecord, error) {
+func equalStringSlices(left []string, right []string) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	for index := range left {
+		if left[index] != right[index] {
+			return false
+		}
+	}
+	return true
+}
+
+func sanitizeOTLP(raw []byte) (sanitizedBatch, error) {
+	if len(raw) == 0 || len(raw) > 8<<20 || !utf8.Valid(raw) {
+		return sanitizedBatch{}, rejectSanitization(
+			"bounded_input_invalid",
+			"OTLP export bytes are outside the bounded UTF-8 input profile",
+		)
+	}
 	if _, err := parseStrictJSON(raw); err != nil {
-		return sourceRecord{}, err
+		return sanitizedBatch{}, rejectSanitization("invalid_json", err.Error())
 	}
 	var export otlpExport
-	if err := decodeStrict(raw, &export); err != nil {
-		return sourceRecord{}, err
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	if err := decoder.Decode(&export); err != nil {
+		return sanitizedBatch{}, rejectSanitization(
+			"otlp_shape_invalid",
+			"OTLP export shape is invalid",
+		)
 	}
-	if len(export.ResourceSpans) != 1 ||
-		len(export.ResourceSpans[0].ScopeSpans) != 1 ||
-		len(export.ResourceSpans[0].ScopeSpans[0].Spans) != 1 {
-		return sourceRecord{}, errors.New("unexpected bounded OTLP shape")
+	var trailing any
+	if err := decoder.Decode(&trailing); !errors.Is(err, io.EOF) {
+		return sanitizedBatch{}, rejectSanitization(
+			"invalid_json",
+			"OTLP export contains trailing content",
+		)
 	}
-	resource, err := attributes(export.ResourceSpans[0].Resource.Attributes)
-	if err != nil {
-		return sourceRecord{}, err
+
+	records := make([]sourceRecord, 0)
+	skipped := 0
+	spanCount := 0
+	for _, resourceGroup := range export.ResourceSpans {
+		resource, err := attributes(resourceGroup.Resource.Attributes)
+		if err != nil {
+			return sanitizedBatch{}, err
+		}
+		for _, scopeGroup := range resourceGroup.ScopeSpans {
+			for _, span := range scopeGroup.Spans {
+				spanCount++
+				if spanCount > 200 {
+					return sanitizedBatch{}, rejectSanitization(
+						"span_limit_exceeded",
+						"OTLP export exceeds the bounded span limit",
+					)
+				}
+				spanAttributes, err := attributes(span.Attributes)
+				if err != nil {
+					return sanitizedBatch{}, err
+				}
+				if spanAttributes["openinference.span.kind"] != "LLM" {
+					skipped++
+					continue
+				}
+				record, err := sourceRecordFromSpan(span, spanAttributes, resource)
+				if err != nil {
+					return sanitizedBatch{}, err
+				}
+				records = append(records, record)
+			}
+		}
 	}
-	span := export.ResourceSpans[0].ScopeSpans[0].Spans[0]
-	attrs, err := attributes(span.Attributes)
-	if err != nil {
-		return sourceRecord{}, err
+	if len(records) == 0 {
+		return sanitizedBatch{}, rejectSanitization(
+			"no_supported_llm_span",
+			"OTLP export contains no supported OpenInference LLM spans",
+		)
 	}
-	if attrs["openinference.span.kind"] != "LLM" {
-		return sourceRecord{}, errors.New("fixture is not an OpenInference LLM span")
+
+	spanIdentities := make(map[string]struct{}, len(records))
+	for _, record := range records {
+		identity := record.TraceID + ":" + record.SpanID
+		if _, duplicate := spanIdentities[identity]; duplicate {
+			return sanitizedBatch{}, rejectSanitization(
+				"duplicate_span_identity",
+				"OTLP export contains a duplicate trace and span identity",
+			)
+		}
+		spanIdentities[identity] = struct{}{}
 	}
+	for index := range records {
+		if records[index].ParentSpanID != "" {
+			parentIdentity := records[index].TraceID + ":" + records[index].ParentSpanID
+			_, parentPresent := spanIdentities[parentIdentity]
+			records[index].MissingParent = !parentPresent
+		}
+		if err := validateSourceRecord(records[index]); err != nil {
+			return sanitizedBatch{}, err
+		}
+	}
+	sort.Slice(records, func(left, right int) bool {
+		if records[left].TraceID == records[right].TraceID {
+			return records[left].SpanID < records[right].SpanID
+		}
+		return records[left].TraceID < records[right].TraceID
+	})
+	return sanitizedBatch{Records: records, SkippedNonLLM: skipped}, nil
+}
+
+func sourceRecordFromSpan(
+	span otlpSpan,
+	spanAttributes map[string]string,
+	resourceAttributes map[string]string,
+) (sourceRecord, error) {
 	start, err := unixNanoToMicrosecond(span.StartTimeUnixNano)
 	if err != nil {
-		return sourceRecord{}, err
+		return sourceRecord{}, rejectSanitization(
+			"timestamp_invalid",
+			"OpenInference start timestamp is not exact microsecond time",
+		)
 	}
 	end, err := unixNanoToMicrosecond(span.EndTimeUnixNano)
 	if err != nil {
-		return sourceRecord{}, err
+		return sourceRecord{}, rejectSanitization(
+			"timestamp_invalid",
+			"OpenInference end timestamp is not exact microsecond time",
+		)
 	}
-	status := "succeeded"
-	if code, ok := span.Status.Code.(string); ok && code == "STATUS_CODE_ERROR" {
-		status = "failed"
+	status, err := spanStatus(span.Status)
+	if err != nil {
+		return sourceRecord{}, err
 	}
 	record := sourceRecord{
 		SchemaVersion:    "xinsight.otlp-openinference-span.v1",
 		TraceID:          strings.ToLower(span.TraceID),
 		SpanID:           strings.ToLower(span.SpanID),
 		ParentSpanID:     strings.ToLower(span.ParentSpanID),
-		SessionID:        attrs["session.id"],
+		SessionID:        spanAttributes["session.id"],
 		SpanName:         span.Name,
 		SpanKind:         "LLM",
 		StartTime:        start,
 		EndTime:          end,
 		Status:           status,
-		Model:            attrs["llm.model_name"],
-		Provider:         attrs["llm.provider"],
-		PromptTokens:     attrs["llm.token_count.prompt"],
-		CompletionTokens: attrs["llm.token_count.completion"],
-		TotalTokens:      attrs["llm.token_count.total"],
-		ActorRef:         attrs["user.id"],
-		ServiceName:      resource["service.name"],
-		MissingParent:    false,
+		Model:            spanAttributes["llm.model_name"],
+		Provider:         spanAttributes["llm.provider"],
+		PromptTokens:     spanAttributes["llm.token_count.prompt"],
+		CompletionTokens: spanAttributes["llm.token_count.completion"],
+		TotalTokens:      spanAttributes["llm.token_count.total"],
+		ActorRef:         spanAttributes["user.id"],
+		ServiceName:      resourceAttributes["service.name"],
 	}
-	if record.TraceID == "" || record.SpanID == "" || record.Model == "" {
-		return sourceRecord{}, errors.New("required OpenInference fact is absent")
-	}
-	if !isValidInt64Decimal(record.PromptTokens) ||
-		!isValidInt64Decimal(record.CompletionTokens) ||
-		!isValidInt64Decimal(record.TotalTokens) {
-		return sourceRecord{}, errors.New("token counter is invalid")
-	}
-	prompt, _ := strconv.ParseInt(record.PromptTokens, 10, 64)
-	completion, _ := strconv.ParseInt(record.CompletionTokens, 10, 64)
-	total, _ := strconv.ParseInt(record.TotalTokens, 10, 64)
-	if prompt+completion != total {
-		return sourceRecord{}, errors.New("token counters are inconsistent")
+	if err := validateSourceRecord(record); err != nil {
+		return sourceRecord{}, err
 	}
 	return record, nil
 }
@@ -952,23 +1122,83 @@ func sanitizeOTLP(raw []byte) (sourceRecord, error) {
 func attributes(entries []otlpAttribute) (map[string]string, error) {
 	result := make(map[string]string, len(entries))
 	for _, entry := range entries {
+		if !validOpaque(entry.Key, 1, 240) {
+			return nil, rejectSanitization(
+				"attribute_key_invalid",
+				"OTLP attribute key is invalid",
+			)
+		}
 		if _, duplicate := result[entry.Key]; duplicate {
-			return nil, errors.New("duplicate OTLP attribute")
+			return nil, rejectSanitization(
+				"duplicate_attribute_key",
+				"OTLP attribute keys must be unique",
+			)
 		}
 		switch {
 		case entry.Value.StringValue != nil && entry.Value.IntValue == nil:
+			if !validOpaque(*entry.Value.StringValue, 0, 512) {
+				return nil, rejectSanitization(
+					"attribute_value_invalid",
+					"OTLP string attribute is invalid",
+				)
+			}
 			result[entry.Key] = *entry.Value.StringValue
 		case entry.Value.StringValue == nil && entry.Value.IntValue != nil:
 			if !isValidInt64Decimal(*entry.Value.IntValue) {
-				return nil, errors.New("OTLP int attribute is invalid")
+				return nil, rejectSanitization(
+					"attribute_encoding_invalid",
+					"OTLP int attribute is outside canonical int64",
+				)
 			}
 			result[entry.Key] = *entry.Value.IntValue
 		case entry.Value.StringValue == nil && entry.Value.IntValue == nil:
 		default:
-			return nil, errors.New("OTLP AnyValue has multiple scalar values")
+			return nil, rejectSanitization(
+				"attribute_encoding_invalid",
+				"OTLP AnyValue has multiple scalar values",
+			)
 		}
 	}
 	return result, nil
+}
+
+func spanStatus(raw json.RawMessage) (string, error) {
+	if len(raw) == 0 {
+		return "succeeded", nil
+	}
+	var status struct {
+		Code any `json:"code"`
+	}
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
+	if err := decoder.Decode(&status); err != nil {
+		return "", rejectSanitization(
+			"status_code_invalid",
+			"OTLP span status is invalid",
+		)
+	}
+	switch code := status.Code.(type) {
+	case string:
+		switch code {
+		case "", "STATUS_CODE_UNSET", "STATUS_CODE_OK":
+			return "succeeded", nil
+		case "STATUS_CODE_ERROR":
+			return "failed", nil
+		}
+	case json.Number:
+		switch code.String() {
+		case "0", "1":
+			return "succeeded", nil
+		case "2":
+			return "failed", nil
+		}
+	case nil:
+		return "succeeded", nil
+	}
+	return "", rejectSanitization(
+		"status_code_invalid",
+		"OTLP span status code is invalid",
+	)
 }
 
 func unixNanoToMicrosecond(value string) (string, error) {
@@ -984,6 +1214,92 @@ func unixNanoToMicrosecond(value string) (string, error) {
 	}
 	return time.Unix(seconds.Int64(), remainder.Int64()).UTC().
 		Format("2006-01-02T15:04:05.000000Z"), nil
+}
+
+func validateSourceRecord(record sourceRecord) error {
+	if record.SchemaVersion != "xinsight.otlp-openinference-span.v1" ||
+		record.SpanKind != "LLM" ||
+		(record.Status != "succeeded" && record.Status != "failed") ||
+		!traceIDPattern.MatchString(record.TraceID) ||
+		!spanIDPattern.MatchString(record.SpanID) ||
+		(record.ParentSpanID != "" && !spanIDPattern.MatchString(record.ParentSpanID)) ||
+		!validOpaque(record.SpanName, 1, 240) ||
+		!validOpaque(record.Model, 1, 240) ||
+		(record.Provider != "" && !validOpaque(record.Provider, 1, 160)) ||
+		(record.SessionID != "" && !validOpaque(record.SessionID, 1, 256)) ||
+		(record.ActorRef != "" && !validOpaque(record.ActorRef, 1, 256)) ||
+		(record.ServiceName != "" && !validOpaque(record.ServiceName, 1, 240)) {
+		return rejectSanitization(
+			"source_shape_invalid",
+			"OpenInference Source record is invalid",
+		)
+	}
+	start, err := time.Parse("2006-01-02T15:04:05.000000Z", record.StartTime)
+	if err != nil {
+		return rejectSanitization(
+			"timestamp_invalid",
+			"OpenInference Source start time is invalid",
+		)
+	}
+	end, err := time.Parse("2006-01-02T15:04:05.000000Z", record.EndTime)
+	if err != nil {
+		return rejectSanitization(
+			"timestamp_invalid",
+			"OpenInference Source end time is invalid",
+		)
+	}
+	if end.Before(start) {
+		return rejectSanitization(
+			"timestamp_order_invalid",
+			"OpenInference Source end time precedes start time",
+		)
+	}
+	for _, counter := range []string{
+		record.PromptTokens,
+		record.CompletionTokens,
+		record.TotalTokens,
+	} {
+		if counter != "" && !isValidInt64Decimal(counter) {
+			return rejectSanitization(
+				"token_counter_invalid",
+				"OpenInference token counter is invalid",
+			)
+		}
+	}
+	if record.PromptTokens != "" &&
+		record.CompletionTokens != "" &&
+		record.TotalTokens != "" {
+		prompt := new(big.Int)
+		completion := new(big.Int)
+		total := new(big.Int)
+		prompt.SetString(record.PromptTokens, 10)
+		completion.SetString(record.CompletionTokens, 10)
+		total.SetString(record.TotalTokens, 10)
+		sum := new(big.Int).Add(prompt, completion)
+		if sum.Cmp(total) != 0 {
+			return rejectSanitization(
+				"token_counter_inconsistent",
+				"OpenInference token counters are inconsistent",
+			)
+		}
+	}
+	return nil
+}
+
+func validOpaque(value string, minimum int, maximum int) bool {
+	if !utf8.ValidString(value) {
+		return false
+	}
+	length := utf8.RuneCountInString(value)
+	if length < minimum || length > maximum {
+		return false
+	}
+	for _, character := range value {
+		if unicode.IsControl(character) {
+			return false
+		}
+	}
+	return true
 }
 
 func mapSourceToEnvelope(
@@ -1007,19 +1323,88 @@ func mapSourceToEnvelope(
 	if err != nil {
 		return nil, nil, err
 	}
-	gaps := []any{}
-	for _, claim := range []string{
-		"billing_authority",
-		"business_outcome",
-		"downstream_side_effects",
-		"routing_decision",
-	} {
+	gapReasons := map[string]string{
+		"billing_authority":       "not_exposed_by_openinference_span_v1",
+		"business_outcome":        "not_exposed_by_openinference_span_v1",
+		"downstream_side_effects": "not_exposed_by_openinference_span_v1",
+		"routing_decision":        "not_exposed_by_openinference_span_v1",
+	}
+	if source.SessionID == "" {
+		gapReasons["authoritative_session"] = "session_id_not_observed"
+	}
+	if source.PromptTokens == "" ||
+		source.CompletionTokens == "" ||
+		source.TotalTokens == "" {
+		gapReasons["token_usage"] = "complete_token_counters_not_observed"
+	}
+	if source.MissingParent {
+		gapReasons["causal_parent"] = "declared_parent_not_in_bounded_batch"
+	}
+	claims := make([]string, 0, len(gapReasons))
+	for claim := range gapReasons {
+		claims = append(claims, claim)
+	}
+	sort.Strings(claims)
+	gaps := make([]any, 0, len(claims))
+	for _, claim := range claims {
 		gaps = append(gaps, map[string]any{
 			"affected_claim": claim,
 			"gap_type":       "not_available_from_source",
-			"reason_code":    "not_exposed_by_openinference_span_v1",
+			"reason_code":    gapReasons[claim],
 			"severity":       "warning",
 		})
+	}
+	scope := map[string]any{
+		"org_ref": context.OrgRef, "project_ref": context.ProjectRef,
+	}
+	if context.TenantRef != nil {
+		scope["tenant_ref"] = *context.TenantRef
+	}
+	actor := map[string]any{"type": "system"}
+	actorProof := "gap"
+	if source.ActorRef != "" {
+		actor = map[string]any{"type": "user", "ref": source.ActorRef}
+		actorProof = "direct"
+	}
+	trace := map[string]any{
+		"trace_id": source.TraceID,
+		"span_id":  source.SpanID,
+	}
+	if source.ParentSpanID != "" {
+		trace["parent_span_id"] = source.ParentSpanID
+	}
+	if source.SessionID != "" {
+		trace["session_id"] = source.SessionID
+	}
+	model := map[string]any{"name": source.Model}
+	if source.Provider != "" {
+		model["provider"] = source.Provider
+	}
+	usage := map[string]any{}
+	if source.PromptTokens != "" {
+		usage["prompt_tokens"] = source.PromptTokens
+	}
+	if source.CompletionTokens != "" {
+		usage["completion_tokens"] = source.CompletionTokens
+	}
+	if source.TotalTokens != "" {
+		usage["total_tokens"] = source.TotalTokens
+	}
+	usageProof := "gap"
+	if len(usage) > 0 {
+		usageProof = "direct"
+	}
+	payload := map[string]any{
+		"terminal":          map[string]any{"status": source.Status},
+		"span":              map[string]any{"kind": source.SpanKind, "name": source.SpanName},
+		"trace":             trace,
+		"model":             model,
+		"usage":             usage,
+		"timeline_complete": false,
+		"capture_gaps":      gaps,
+	}
+	if source.ServiceName != "" {
+		payload["service"] = map[string]any{"name": source.ServiceName}
 	}
 	hashInput := map[string]any{
 		"spec_version":   "foigent.event-envelope.v1",
@@ -1033,11 +1418,9 @@ func mapSourceToEnvelope(
 			"connector_id":      context.ConnectorID,
 			"connector_version": context.ConnectorVersion,
 		},
-		"scope": map[string]any{
-			"org_ref": context.OrgRef, "project_ref": context.ProjectRef,
-		},
+		"scope":   scope,
 		"subject": map[string]any{"type": "span", "ref": source.SpanID},
-		"actor":   map[string]any{"type": "user", "ref": source.ActorRef},
+		"actor":   actor,
 		"time": map[string]any{
 			"occurred_at": source.EndTime, "terminal_at": source.EndTime,
 		},
@@ -1056,31 +1439,15 @@ func mapSourceToEnvelope(
 		"provenance": map[string]any{
 			"adapter_fidelity": "F2",
 			"field_groups": map[string]any{
-				"actor": "direct", "correlation": "direct", "data_policy": "declared",
+				"actor": actorProof, "correlation": "direct", "data_policy": "declared",
 				"identity": "derived", "payload.capture_gaps": "derived",
 				"payload.model": "direct", "payload.span": "direct",
 				"payload.timeline_complete": "declared", "payload.trace": "direct",
-				"payload.usage": "direct", "scope": "declared", "subject": "derived",
+				"payload.usage": usageProof, "scope": "declared", "subject": "derived",
 				"time.occurred_at": "derived", "time.terminal_at": "direct",
 			},
 		},
-		"payload": map[string]any{
-			"terminal": map[string]any{"status": source.Status},
-			"span":     map[string]any{"kind": source.SpanKind, "name": source.SpanName},
-			"trace": map[string]any{
-				"trace_id": source.TraceID, "span_id": source.SpanID,
-				"session_id": source.SessionID,
-			},
-			"model": map[string]any{"name": source.Model, "provider": source.Provider},
-			"usage": map[string]any{
-				"prompt_tokens":     source.PromptTokens,
-				"completion_tokens": source.CompletionTokens,
-				"total_tokens":      source.TotalTokens,
-			},
-			"service":           map[string]any{"name": source.ServiceName},
-			"timeline_complete": false,
-			"capture_gaps":      gaps,
-		},
+		"payload": payload,
 	}
 	return hashInput, identityBytes, nil
 }

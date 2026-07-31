@@ -21,11 +21,13 @@
   ],
   "report_schema": "foigent://schemas/conformance-report/v1",
   "required_case_classes": [
+    "bounded_batch_ordering",
     "bounded_offline_receipt",
     "canonical_envelope",
     "capture_gap_derivation",
     "capture_mode_separation",
     "checkpoint_applicability",
+    "conditional_capture_gaps",
     "content_conflict",
     "decimal_boundary",
     "delivery_acknowledgement",
@@ -36,11 +38,14 @@
     "mode_state_separation",
     "mutable_delivery_exclusion",
     "opaque_utf8_preservation",
+    "optional_fact_preservation",
     "partial_batch_rejection",
     "privacy_rejection",
     "protocol_nfc_rejection",
     "scoped_idempotency",
     "source_sanitization",
+    "source_shape_validation",
+    "status_code_validation",
     "timeline_completeness",
     "timestamp_normalization",
     "v1_pull_compatibility"
@@ -48,12 +53,43 @@
   "case_contract": [
     {
       "section": "openinference_mapping",
-      "case_id": "openinference_mapping/reference-bounded-offline",
-      "case_classes": [
-        "canonical_envelope",
-        "capture_gap_derivation",
-        "source_sanitization"
-      ],
+      "case_id_pattern": "openinference_mapping/<case_id>",
+      "case_classes_by_case": {
+        "reference-bounded-offline": [
+          "canonical_envelope",
+          "capture_gap_derivation",
+          "source_sanitization"
+        ],
+        "missing-optional-facts": [
+          "canonical_envelope",
+          "capture_gap_derivation",
+          "conditional_capture_gaps",
+          "optional_fact_preservation",
+          "source_sanitization",
+          "status_code_validation"
+        ],
+        "ordered-separate-trace": [
+          "bounded_batch_ordering",
+          "canonical_envelope",
+          "capture_gap_derivation",
+          "source_sanitization",
+          "status_code_validation"
+        ],
+        "ordered-parent-present": [
+          "bounded_batch_ordering",
+          "canonical_envelope",
+          "capture_gap_derivation",
+          "source_sanitization",
+          "status_code_validation"
+        ],
+        "ordered-child-parent-resolved": [
+          "bounded_batch_ordering",
+          "canonical_envelope",
+          "capture_gap_derivation",
+          "source_sanitization",
+          "status_code_validation"
+        ]
+      },
       "result_kind": "bytes"
     },
     {
@@ -186,6 +222,21 @@
         ],
         "opaque-source-non-nfc": [
           "opaque_utf8_preservation"
+        ],
+        "unknown-status-code": [
+          "source_shape_validation",
+          "status_code_validation"
+        ],
+        "end-before-start": [
+          "source_shape_validation",
+          "timestamp_normalization"
+        ],
+        "malformed-trace-id": [
+          "source_shape_validation"
+        ],
+        "span-limit-exceeded": [
+          "bounded_batch_ordering",
+          "source_shape_validation"
         ]
       },
       "result_kind": "classification"

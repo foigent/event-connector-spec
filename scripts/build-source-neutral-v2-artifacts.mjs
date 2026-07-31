@@ -93,50 +93,6 @@ const vectorPath = "vectors/source-neutral-vector-bundle.v2.json";
 
 const rawBytes = readFileSync(resolve(root, rawPath));
 const raw = JSON.parse(rawBytes.toString("utf8"));
-const source = readJSON(sourcePath);
-
-const span = raw.resourceSpans[0].scopeSpans[0].spans[0];
-const resourceAttributes = Object.fromEntries(
-  raw.resourceSpans[0].resource.attributes.map((entry) => [
-    entry.key,
-    entry.value.stringValue,
-  ]),
-);
-const spanAttributes = Object.fromEntries(
-  span.attributes.map((entry) => [
-    entry.key,
-    entry.value.stringValue ?? entry.value.intValue,
-  ]),
-);
-const expectedSource = {
-  schema_version: "xinsight.otlp-openinference-span.v1",
-  trace_id: span.traceId.toLowerCase(),
-  span_id: span.spanId.toLowerCase(),
-  session_id: spanAttributes["session.id"],
-  span_name: span.name,
-  span_kind: "LLM",
-  start_time: "2026-07-31T02:00:00.000000Z",
-  end_time: "2026-07-31T02:00:00.123456Z",
-  status: "succeeded",
-  model: spanAttributes["llm.model_name"],
-  provider: spanAttributes["llm.provider"],
-  prompt_tokens: spanAttributes["llm.token_count.prompt"],
-  completion_tokens: spanAttributes["llm.token_count.completion"],
-  total_tokens: spanAttributes["llm.token_count.total"],
-  actor_ref: spanAttributes["user.id"],
-  service_name: resourceAttributes["service.name"],
-  missing_parent: false,
-};
-if (canonicalize(source) !== canonicalize(expectedSource)) {
-  throw new Error("sanitized Source fixture differs from the exact OTLP map");
-}
-if (
-  canonicalize(source).includes("MUST_NOT_SURVIVE_SANITIZATION") ||
-  !rawBytes.includes(Buffer.from("MUST_NOT_SURVIVE_SANITIZATION"))
-) {
-  throw new Error("privacy allowlist proof is invalid");
-}
-
 const mappingContext = {
   producer_product: "openinference",
   producer_instance: "otel-collector-prod-a",
@@ -146,127 +102,284 @@ const mappingContext = {
   connector_id: "foigent.openinference.otlp-spans",
   connector_version: "1.0.0",
 };
-const eventID = `${source.trace_id}:${source.span_id}`;
 const eventType = "observability.span.completed";
-const idInput = identityInput([
-  mappingContext.producer_product,
-  mappingContext.producer_instance,
-  "",
-  mappingContext.org_ref,
-  mappingContext.project_ref,
-  eventType,
-  eventID,
-]);
-const idempotencyKey = sha256(idInput);
-const sourceBytes = Buffer.from(canonicalize(source), "utf8");
-const sourceHash = sha256(sourceBytes);
-const captureGaps = [
-  "billing_authority",
-  "business_outcome",
-  "downstream_side_effects",
-  "routing_decision",
-].map((claim) => ({
-  affected_claim: claim,
-  gap_type: "not_available_from_source",
-  reason_code: "not_exposed_by_openinference_span_v1",
-  severity: "warning",
-}));
-const hashInput = {
-  spec_version: "foigent.event-envelope.v1",
-  event_id: eventID,
-  event_type: eventType,
-  schema_ref:
-    "foigent://events/observability/openinference-span-completed/v1",
-  schema_version: "1",
-  producer: {
-    product: mappingContext.producer_product,
-    instance: mappingContext.producer_instance,
-    connector_id: mappingContext.connector_id,
-    connector_version: mappingContext.connector_version,
-  },
-  scope: {
+
+function deepClone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function attributesFrom(entries) {
+  return Object.fromEntries(
+    entries.map((entry) => [
+      entry.key,
+      entry.value.stringValue ?? entry.value.intValue,
+    ]),
+  );
+}
+
+function sourceFromReference(rawExport) {
+  const span = rawExport.resourceSpans[0].scopeSpans[0].spans[0];
+  const resourceAttributes = attributesFrom(
+    rawExport.resourceSpans[0].resource.attributes,
+  );
+  const spanAttributes = attributesFrom(span.attributes);
+  return {
+    schema_version: "xinsight.otlp-openinference-span.v1",
+    trace_id: span.traceId.toLowerCase(),
+    span_id: span.spanId.toLowerCase(),
+    session_id: spanAttributes["session.id"],
+    span_name: span.name,
+    span_kind: "LLM",
+    start_time: "2026-07-31T02:00:00.000000Z",
+    end_time: "2026-07-31T02:00:00.123456Z",
+    status: "succeeded",
+    model: spanAttributes["llm.model_name"],
+    provider: spanAttributes["llm.provider"],
+    prompt_tokens: spanAttributes["llm.token_count.prompt"],
+    completion_tokens: spanAttributes["llm.token_count.completion"],
+    total_tokens: spanAttributes["llm.token_count.total"],
+    actor_ref: spanAttributes["user.id"],
+    service_name: resourceAttributes["service.name"],
+    missing_parent: false,
+  };
+}
+
+function captureGapsFor(sourceRecord) {
+  const reasons = new Map([
+    ["billing_authority", "not_exposed_by_openinference_span_v1"],
+    ["business_outcome", "not_exposed_by_openinference_span_v1"],
+    ["downstream_side_effects", "not_exposed_by_openinference_span_v1"],
+    ["routing_decision", "not_exposed_by_openinference_span_v1"],
+  ]);
+  if (sourceRecord.session_id === undefined) {
+    reasons.set("authoritative_session", "session_id_not_observed");
+  }
+  if (
+    sourceRecord.prompt_tokens === undefined ||
+    sourceRecord.completion_tokens === undefined ||
+    sourceRecord.total_tokens === undefined
+  ) {
+    reasons.set(
+      "token_usage",
+      "complete_token_counters_not_observed",
+    );
+  }
+  if (sourceRecord.missing_parent) {
+    reasons.set(
+      "causal_parent",
+      "declared_parent_not_in_bounded_batch",
+    );
+  }
+  return [...reasons.keys()].sort().map((claim) => ({
+    affected_claim: claim,
+    gap_type: "not_available_from_source",
+    reason_code: reasons.get(claim),
+    severity: "warning",
+  }));
+}
+
+function buildMappedRecord(sourceRecord) {
+  const eventID = `${sourceRecord.trace_id}:${sourceRecord.span_id}`;
+  const idInput = identityInput([
+    mappingContext.producer_product,
+    mappingContext.producer_instance,
+    mappingContext.tenant_ref ?? "",
+    mappingContext.org_ref,
+    mappingContext.project_ref,
+    eventType,
+    eventID,
+  ]);
+  const idempotencyKey = sha256(idInput);
+  const sourceBytes = Buffer.from(canonicalize(sourceRecord), "utf8");
+  const sourceHash = sha256(sourceBytes);
+  const captureGaps = captureGapsFor(sourceRecord);
+  const scope = {
     org_ref: mappingContext.org_ref,
     project_ref: mappingContext.project_ref,
-  },
-  subject: {
-    type: "span",
-    ref: source.span_id,
-  },
-  actor: {
-    type: "user",
-    ref: source.actor_ref,
-  },
-  time: {
-    occurred_at: source.end_time,
-    terminal_at: source.end_time,
-  },
-  correlation: {
-    request_ref: eventID,
-    trace_ref: source.trace_id,
-    span_ref: source.span_id,
-  },
-  identity: {
-    idempotency_key: idempotencyKey,
-    source_revision: "1",
-  },
-  integrity: {
-    source_hash: sourceHash,
-  },
-  data_policy: {
-    payload_capture_mode: "metadata_only",
-    raw_payload_present: false,
-    redaction_profile: "openinference.metadata-allowlist.v1",
-  },
-  provenance: {
-    adapter_fidelity: "F2",
-    field_groups: {
-      actor: "direct",
-      correlation: "direct",
-      data_policy: "declared",
-      identity: "derived",
-      "payload.capture_gaps": "derived",
-      "payload.model": "direct",
-      "payload.span": "direct",
-      "payload.timeline_complete": "declared",
-      "payload.trace": "direct",
-      "payload.usage": "direct",
-      scope: "declared",
-      subject: "derived",
-      "time.occurred_at": "derived",
-      "time.terminal_at": "direct",
-    },
-  },
-  payload: {
-    terminal: {
-      status: source.status,
-    },
+  };
+  if (mappingContext.tenant_ref !== null) {
+    scope.tenant_ref = mappingContext.tenant_ref;
+  }
+  const trace = {
+    trace_id: sourceRecord.trace_id,
+    span_id: sourceRecord.span_id,
+  };
+  if (sourceRecord.parent_span_id !== undefined) {
+    trace.parent_span_id = sourceRecord.parent_span_id;
+  }
+  if (sourceRecord.session_id !== undefined) {
+    trace.session_id = sourceRecord.session_id;
+  }
+  const model = { name: sourceRecord.model };
+  if (sourceRecord.provider !== undefined) {
+    model.provider = sourceRecord.provider;
+  }
+  const usage = {};
+  for (
+    const key of [
+      "prompt_tokens",
+      "completion_tokens",
+      "total_tokens",
+    ]
+  ) {
+    if (sourceRecord[key] !== undefined) {
+      usage[key] = sourceRecord[key];
+    }
+  }
+  const payload = {
+    terminal: { status: sourceRecord.status },
     span: {
-      kind: source.span_kind,
-      name: source.span_name,
+      kind: sourceRecord.span_kind,
+      name: sourceRecord.span_name,
     },
-    trace: {
-      trace_id: source.trace_id,
-      span_id: source.span_id,
-      session_id: source.session_id,
+    trace,
+    model,
+    usage,
+  };
+  if (sourceRecord.service_name !== undefined) {
+    payload.service = { name: sourceRecord.service_name };
+  }
+  payload.timeline_complete = false;
+  payload.capture_gaps = captureGaps;
+  const hashInput = {
+    spec_version: "foigent.event-envelope.v1",
+    event_id: eventID,
+    event_type: eventType,
+    schema_ref:
+      "foigent://events/observability/openinference-span-completed/v1",
+    schema_version: "1",
+    producer: {
+      product: mappingContext.producer_product,
+      instance: mappingContext.producer_instance,
+      connector_id: mappingContext.connector_id,
+      connector_version: mappingContext.connector_version,
     },
-    model: {
-      name: source.model,
-      provider: source.provider,
+    scope,
+    subject: {
+      type: "span",
+      ref: sourceRecord.span_id,
     },
-    usage: {
-      prompt_tokens: source.prompt_tokens,
-      completion_tokens: source.completion_tokens,
-      total_tokens: source.total_tokens,
+    actor: sourceRecord.actor_ref === undefined
+      ? { type: "system" }
+      : { type: "user", ref: sourceRecord.actor_ref },
+    time: {
+      occurred_at: sourceRecord.end_time,
+      terminal_at: sourceRecord.end_time,
     },
-    service: {
-      name: source.service_name,
+    correlation: {
+      request_ref: eventID,
+      trace_ref: sourceRecord.trace_id,
+      span_ref: sourceRecord.span_id,
     },
-    timeline_complete: false,
-    capture_gaps: captureGaps,
-  },
-};
-const canonicalHashInput = Buffer.from(canonicalize(hashInput), "utf8");
-const envelopeHash = sha256(canonicalHashInput);
+    identity: {
+      idempotency_key: idempotencyKey,
+      source_revision: "1",
+    },
+    integrity: {
+      source_hash: sourceHash,
+    },
+    data_policy: {
+      payload_capture_mode: "metadata_only",
+      raw_payload_present: false,
+      redaction_profile: "openinference.metadata-allowlist.v1",
+    },
+    provenance: {
+      adapter_fidelity: "F2",
+      field_groups: {
+        actor: sourceRecord.actor_ref === undefined ? "gap" : "direct",
+        correlation: "direct",
+        data_policy: "declared",
+        identity: "derived",
+        "payload.capture_gaps": "derived",
+        "payload.model": "direct",
+        "payload.span": "direct",
+        "payload.timeline_complete": "declared",
+        "payload.trace": "direct",
+        "payload.usage": Object.keys(usage).length === 0 ? "gap" : "direct",
+        scope: "declared",
+        subject: "derived",
+        "time.occurred_at": "derived",
+        "time.terminal_at": "direct",
+      },
+    },
+    payload,
+  };
+  const canonicalHashInput = Buffer.from(canonicalize(hashInput), "utf8");
+  return {
+    eventID,
+    idInput,
+    idempotencyKey,
+    sourceHash,
+    captureGaps,
+    hashInput,
+    canonicalHashInput,
+    envelopeHash: sha256(canonicalHashInput),
+  };
+}
+
+function llmAttributes({
+  model,
+  provider,
+  prompt,
+  completion,
+  total,
+  session,
+  actor,
+}) {
+  return [
+    {
+      key: "openinference.span.kind",
+      value: { stringValue: "LLM" },
+    },
+    {
+      key: "llm.model_name",
+      value: { stringValue: model },
+    },
+    ...(provider === undefined
+      ? []
+      : [{ key: "llm.provider", value: { stringValue: provider } }]),
+    ...(prompt === undefined
+      ? []
+      : [{ key: "llm.token_count.prompt", value: { intValue: prompt } }]),
+    ...(completion === undefined
+      ? []
+      : [{
+        key: "llm.token_count.completion",
+        value: { intValue: completion },
+      }]),
+    ...(total === undefined
+      ? []
+      : [{ key: "llm.token_count.total", value: { intValue: total } }]),
+    ...(session === undefined
+      ? []
+      : [{ key: "session.id", value: { stringValue: session } }]),
+    ...(actor === undefined
+      ? []
+      : [{ key: "user.id", value: { stringValue: actor } }]),
+  ];
+}
+
+const source = sourceFromReference(raw);
+if (canonicalize(readJSON(sourcePath)) !== canonicalize(source)) {
+  throw new Error("sanitized Source fixture differs from the exact OTLP map");
+}
+if (
+  canonicalize(source).includes("MUST_NOT_SURVIVE_SANITIZATION") ||
+  !rawBytes.includes(Buffer.from("MUST_NOT_SURVIVE_SANITIZATION"))
+) {
+  throw new Error("privacy allowlist proof is invalid");
+}
+const reference = buildMappedRecord(source);
+const {
+  eventID,
+  idInput,
+  idempotencyKey,
+  sourceHash,
+  captureGaps,
+  hashInput,
+  canonicalHashInput,
+  envelopeHash,
+} = reference;
 if (
   sourceHash !==
     "sha256:533e33c2e02a6a67632107ae99f3993eee1a1da39835029521a4c3fe0ceb4708" ||
@@ -278,7 +391,291 @@ if (
   throw new Error("OpenInference identity or hash differs from X-Insight baseline");
 }
 
+const missingRawPath =
+  "fixtures/source/openinference/missing-optional-otlp-export.v1.json";
+const missingSourcePath =
+  "fixtures/source/openinference/missing-optional-sanitized-span.v1.json";
+const missingHashPath =
+  "fixtures/shared/openinference-missing-optional-envelope.hash-input.json";
+const missingRaw = {
+  resourceSpans: [{
+    resource: { attributes: [] },
+    scopeSpans: [{
+      spans: [{
+        traceId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        spanId: "bbbbbbbbbbbbbbbb",
+        parentSpanId: "cccccccccccccccc",
+        name: "llm",
+        startTimeUnixNano: "1785463200000000000",
+        endTimeUnixNano: "1785463200001000000",
+        attributes: llmAttributes({ model: "model-b" }),
+        status: { code: 2 },
+      }],
+    }],
+  }],
+};
+const missingSource = {
+  schema_version: "xinsight.otlp-openinference-span.v1",
+  trace_id: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  span_id: "bbbbbbbbbbbbbbbb",
+  parent_span_id: "cccccccccccccccc",
+  span_name: "llm",
+  span_kind: "LLM",
+  start_time: "2026-07-31T02:00:00.000000Z",
+  end_time: "2026-07-31T02:00:00.001000Z",
+  status: "failed",
+  model: "model-b",
+  missing_parent: true,
+};
+const missing = buildMappedRecord(missingSource);
+
+const orderedRawPath =
+  "fixtures/source/openinference/ordered-batch-otlp-export.v1.json";
+const orderedTraceA = "11111111111111111111111111111111";
+const orderedTraceB = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+const orderedParentSpan = "1111111111111111";
+const orderedChildSpan = "2222222222222222";
+const orderedSeparateSpan = "ffffffffffffffff";
+const orderedRaw = {
+  resourceSpans: [{
+    resource: {
+      attributes: [{
+        key: "service.name",
+        value: { stringValue: "ordered-agent" },
+      }],
+    },
+    scopeSpans: [{
+      spans: [
+        {
+          traceId: orderedTraceB,
+          spanId: orderedChildSpan,
+          parentSpanId: orderedParentSpan,
+          name: "child",
+          startTimeUnixNano: "1785463200001000000",
+          endTimeUnixNano: "1785463200002000000",
+          attributes: llmAttributes({
+            model: "model-child",
+            provider: "provider-b",
+            prompt: "3",
+            completion: "2",
+            total: "5",
+            session: "session-b",
+            actor: "user-b",
+          }),
+          status: { code: "STATUS_CODE_ERROR" },
+        },
+        {
+          traceId: "cccccccccccccccccccccccccccccccc",
+          spanId: "cccccccccccccccc",
+          name: "retrieval",
+          startTimeUnixNano: "1785463200000000000",
+          endTimeUnixNano: "1785463200001000000",
+          attributes: [{
+            key: "openinference.span.kind",
+            value: { stringValue: "RETRIEVER" },
+          }],
+        },
+        {
+          traceId: orderedTraceA,
+          spanId: orderedSeparateSpan,
+          name: "separate",
+          startTimeUnixNano: "1785463200002000000",
+          endTimeUnixNano: "1785463200003000000",
+          attributes: llmAttributes({
+            model: "model-separate",
+            provider: "provider-a",
+            prompt: "1",
+            completion: "1",
+            total: "2",
+            session: "session-a",
+            actor: "user-a",
+          }),
+          status: { code: 1 },
+        },
+        {
+          traceId: orderedTraceB,
+          spanId: orderedParentSpan,
+          name: "parent",
+          startTimeUnixNano: "1785463200000000000",
+          endTimeUnixNano: "1785463200001000000",
+          attributes: llmAttributes({
+            model: "model-parent",
+            provider: "provider-b",
+            prompt: "2",
+            completion: "1",
+            total: "3",
+            session: "session-b",
+            actor: "user-b",
+          }),
+          status: { code: "STATUS_CODE_UNSET" },
+        },
+      ],
+    }],
+  }],
+};
+const orderedSources = [
+  {
+    caseID: "ordered-separate-trace",
+    path:
+      "fixtures/source/openinference/ordered-separate-sanitized-span.v1.json",
+    hashPath:
+      "fixtures/shared/openinference-ordered-separate-envelope.hash-input.json",
+    source: {
+      schema_version: "xinsight.otlp-openinference-span.v1",
+      trace_id: orderedTraceA,
+      span_id: orderedSeparateSpan,
+      span_name: "separate",
+      span_kind: "LLM",
+      start_time: "2026-07-31T02:00:00.002000Z",
+      end_time: "2026-07-31T02:00:00.003000Z",
+      status: "succeeded",
+      model: "model-separate",
+      provider: "provider-a",
+      session_id: "session-a",
+      prompt_tokens: "1",
+      completion_tokens: "1",
+      total_tokens: "2",
+      actor_ref: "user-a",
+      service_name: "ordered-agent",
+      missing_parent: false,
+    },
+  },
+  {
+    caseID: "ordered-parent-present",
+    path:
+      "fixtures/source/openinference/ordered-parent-sanitized-span.v1.json",
+    hashPath:
+      "fixtures/shared/openinference-ordered-parent-envelope.hash-input.json",
+    source: {
+      schema_version: "xinsight.otlp-openinference-span.v1",
+      trace_id: orderedTraceB,
+      span_id: orderedParentSpan,
+      span_name: "parent",
+      span_kind: "LLM",
+      start_time: "2026-07-31T02:00:00.000000Z",
+      end_time: "2026-07-31T02:00:00.001000Z",
+      status: "succeeded",
+      model: "model-parent",
+      provider: "provider-b",
+      session_id: "session-b",
+      prompt_tokens: "2",
+      completion_tokens: "1",
+      total_tokens: "3",
+      actor_ref: "user-b",
+      service_name: "ordered-agent",
+      missing_parent: false,
+    },
+  },
+  {
+    caseID: "ordered-child-parent-resolved",
+    path:
+      "fixtures/source/openinference/ordered-child-sanitized-span.v1.json",
+    hashPath:
+      "fixtures/shared/openinference-ordered-child-envelope.hash-input.json",
+    source: {
+      schema_version: "xinsight.otlp-openinference-span.v1",
+      trace_id: orderedTraceB,
+      span_id: orderedChildSpan,
+      parent_span_id: orderedParentSpan,
+      span_name: "child",
+      span_kind: "LLM",
+      start_time: "2026-07-31T02:00:00.001000Z",
+      end_time: "2026-07-31T02:00:00.002000Z",
+      status: "failed",
+      model: "model-child",
+      provider: "provider-b",
+      session_id: "session-b",
+      prompt_tokens: "3",
+      completion_tokens: "2",
+      total_tokens: "5",
+      actor_ref: "user-b",
+      service_name: "ordered-agent",
+      missing_parent: false,
+    },
+  },
+].map((entry) => ({ ...entry, mapped: buildMappedRecord(entry.source) }));
+const orderedRecordOrder = orderedSources.map((entry) =>
+  `${entry.source.trace_id}:${entry.source.span_id}`
+);
+
+const invalidFixtures = [
+  {
+    caseID: "unknown-status-code",
+    classes: ["source_shape_validation", "status_code_validation"],
+    path:
+      "fixtures/source/openinference/unknown-status-otlp-export.invalid.json",
+    errorCode: "status_code_invalid",
+    raw: (() => {
+      const value = deepClone(missingRaw);
+      value.resourceSpans[0].scopeSpans[0].spans[0].status.code = 9;
+      return value;
+    })(),
+  },
+  {
+    caseID: "end-before-start",
+    classes: ["source_shape_validation", "timestamp_normalization"],
+    path:
+      "fixtures/source/openinference/end-before-start-otlp-export.invalid.json",
+    errorCode: "timestamp_order_invalid",
+    raw: (() => {
+      const value = deepClone(raw);
+      value.resourceSpans[0].scopeSpans[0].spans[0].endTimeUnixNano =
+        "1785463199999000000";
+      return value;
+    })(),
+  },
+  {
+    caseID: "malformed-trace-id",
+    classes: ["source_shape_validation"],
+    path:
+      "fixtures/source/openinference/malformed-trace-id-otlp-export.invalid.json",
+    errorCode: "source_shape_invalid",
+    raw: (() => {
+      const value = deepClone(raw);
+      value.resourceSpans[0].scopeSpans[0].spans[0].traceId = "not-a-trace";
+      return value;
+    })(),
+  },
+  {
+    caseID: "span-limit-exceeded",
+    classes: ["bounded_batch_ordering", "source_shape_validation"],
+    path:
+      "fixtures/source/openinference/too-many-spans-otlp-export.invalid.json",
+    errorCode: "span_limit_exceeded",
+    raw: {
+      resourceSpans: [{
+        resource: { attributes: [] },
+        scopeSpans: [{
+          spans: Array.from({ length: 201 }, (_, index) => ({
+            traceId: "dddddddddddddddddddddddddddddddd",
+            spanId: index.toString(16).padStart(16, "0"),
+            name: "bounded",
+            startTimeUnixNano: "1785463200000000000",
+            endTimeUnixNano: "1785463200001000000",
+            attributes: [{
+              key: "openinference.span.kind",
+              value: { stringValue: "CHAIN" },
+            }],
+          })),
+        }],
+      }],
+    },
+  },
+];
+
 emit(hashInputPath, hashInput);
+emit(missingRawPath, missingRaw);
+emit(missingSourcePath, missingSource);
+emit(missingHashPath, missing.hashInput);
+emit(orderedRawPath, orderedRaw);
+for (const entry of orderedSources) {
+  emit(entry.path, entry.source);
+  emit(entry.hashPath, entry.mapped.hashInput);
+}
+for (const entry of invalidFixtures) {
+  emit(entry.path, entry.raw);
+}
+
 const hashInputFile = artifact(hashInputPath);
 const contract = artifact(
   "conformance/source-neutral-conformance-contract.v2.json",
@@ -309,7 +706,61 @@ const vector = {
       envelope_hash: envelopeHash,
       idempotency_key: idempotencyKey,
       capture_gap_count: captureGaps.length,
+      record_index: 0,
+      expected_record_order: [eventID],
+      expected_skipped_non_llm: 0,
     },
+    {
+      case_id: "missing-optional-facts",
+      case_classes: [
+        "canonical_envelope",
+        "capture_gap_derivation",
+        "conditional_capture_gaps",
+        "optional_fact_preservation",
+        "source_sanitization",
+        "status_code_validation",
+      ],
+      result_kind: "bytes",
+      raw_input_path: missingRawPath,
+      source_input_path: missingSourcePath,
+      hash_input_path: missingHashPath,
+      raw_file_sha256: artifact(missingRawPath).sha256,
+      source_file_sha256: artifact(missingSourcePath).sha256,
+      hash_input_file_sha256: artifact(missingHashPath).sha256,
+      canonical_source_sha256: missing.sourceHash,
+      canonical_bytes: missing.canonicalHashInput.length,
+      envelope_hash: missing.envelopeHash,
+      idempotency_key: missing.idempotencyKey,
+      capture_gap_count: missing.captureGaps.length,
+      record_index: 0,
+      expected_record_order: [missing.eventID],
+      expected_skipped_non_llm: 0,
+    },
+    ...orderedSources.map((entry, recordIndex) => ({
+      case_id: entry.caseID,
+      case_classes: [
+        "bounded_batch_ordering",
+        "canonical_envelope",
+        "capture_gap_derivation",
+        "source_sanitization",
+        "status_code_validation",
+      ],
+      result_kind: "bytes",
+      raw_input_path: orderedRawPath,
+      source_input_path: entry.path,
+      hash_input_path: entry.hashPath,
+      raw_file_sha256: artifact(orderedRawPath).sha256,
+      source_file_sha256: artifact(entry.path).sha256,
+      hash_input_file_sha256: artifact(entry.hashPath).sha256,
+      canonical_source_sha256: entry.mapped.sourceHash,
+      canonical_bytes: entry.mapped.canonicalHashInput.length,
+      envelope_hash: entry.mapped.envelopeHash,
+      idempotency_key: entry.mapped.idempotencyKey,
+      capture_gap_count: entry.mapped.captureGaps.length,
+      record_index: recordIndex,
+      expected_record_order: orderedRecordOrder,
+      expected_skipped_non_llm: 1,
+    })),
   ],
   idempotency: [
     {
@@ -989,6 +1440,17 @@ const vector = {
         valid: true,
       },
     },
+    ...invalidFixtures.map((entry) => ({
+      case_id: entry.caseID,
+      case_classes: entry.classes,
+      result_kind: "classification",
+      kind: "otlp_fixture",
+      input: artifact(entry.path),
+      expected: {
+        error_code: entry.errorCode,
+        valid: false,
+      },
+    })),
   ],
 };
 emit(vectorPath, vector);
@@ -996,8 +1458,16 @@ emit(vectorPath, vector);
 process.stdout.write(
   `source-neutral v2 artifacts ${mode.slice(2)}: ` +
     `${vector.openinference_mapping.length} Envelope, ` +
-    `${vector.manifest_semantics.length + vector.lifecycle.length +
-      vector.delivery.length + vector.completeness.length +
-      vector.capture_modes.length + vector.mutable_delivery.length +
-      vector.v1_compatibility.length + vector.negative.length + 1} cases\n`,
+    `${[
+      vector.openinference_mapping,
+      vector.idempotency,
+      vector.manifest_semantics,
+      vector.lifecycle,
+      vector.delivery,
+      vector.completeness,
+      vector.capture_modes,
+      vector.mutable_delivery,
+      vector.v1_compatibility,
+      vector.negative,
+    ].reduce((total, section) => total + section.length, 0)} cases\n`,
 );

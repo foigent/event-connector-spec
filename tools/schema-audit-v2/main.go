@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
@@ -176,6 +177,91 @@ func run(args []string) error {
 	if err := expectValid(compiled[openInferenceEvent], payload, "OpenInference payload"); err != nil {
 		return err
 	}
+	additionalFixtures := []struct {
+		source   string
+		envelope string
+	}{
+		{
+			source:   "fixtures/source/openinference/missing-optional-sanitized-span.v1.json",
+			envelope: "fixtures/shared/openinference-missing-optional-envelope.hash-input.json",
+		},
+		{
+			source:   "fixtures/source/openinference/ordered-separate-sanitized-span.v1.json",
+			envelope: "fixtures/shared/openinference-ordered-separate-envelope.hash-input.json",
+		},
+		{
+			source:   "fixtures/source/openinference/ordered-parent-sanitized-span.v1.json",
+			envelope: "fixtures/shared/openinference-ordered-parent-envelope.hash-input.json",
+		},
+		{
+			source:   "fixtures/source/openinference/ordered-child-sanitized-span.v1.json",
+			envelope: "fixtures/shared/openinference-ordered-child-envelope.hash-input.json",
+		},
+	}
+	for _, fixture := range additionalFixtures {
+		if err := validatePath(root, fixture.source, compiled[openInferenceSource]); err != nil {
+			return err
+		}
+		hashInput, err := readJSON(filepath.Join(root, fixture.envelope))
+		if err != nil {
+			return err
+		}
+		candidate := cloneObject(hashInput)
+		candidateIntegrity, ok := candidate["integrity"].(map[string]any)
+		if !ok {
+			return fmt.Errorf("%s: integrity is not an object", fixture.envelope)
+		}
+		candidateIntegrity["envelope_hash"] = "sha256:" + strings.Repeat("0", 64)
+		if err := expectValid(
+			compiled[eventEnvelopeV1],
+			candidate,
+			fixture.envelope,
+		); err != nil {
+			return err
+		}
+		candidatePayload, ok := candidate["payload"].(map[string]any)
+		if !ok {
+			return fmt.Errorf("%s: payload is not an object", fixture.envelope)
+		}
+		if err := expectValid(
+			compiled[openInferenceEvent],
+			candidatePayload,
+			fixture.envelope+" payload",
+		); err != nil {
+			return err
+		}
+	}
+	missingEnvelope, err := readJSON(filepath.Join(
+		root,
+		"fixtures/shared/openinference-missing-optional-envelope.hash-input.json",
+	))
+	if err != nil {
+		return err
+	}
+	missingActor, _ := missingEnvelope.(map[string]any)["actor"].(map[string]any)
+	missingPayload, _ := missingEnvelope.(map[string]any)["payload"].(map[string]any)
+	missingUsage, _ := missingPayload["usage"].(map[string]any)
+	missingGaps, _ := missingPayload["capture_gaps"].([]any)
+	if missingActor["type"] != "system" ||
+		len(missingActor) != 1 ||
+		len(missingUsage) != 0 ||
+		len(missingGaps) != 7 {
+		return errors.New("missing optional OpenInference facts were fabricated or gaps were lost")
+	}
+	orderedChild, err := readJSON(filepath.Join(
+		root,
+		"fixtures/shared/openinference-ordered-child-envelope.hash-input.json",
+	))
+	if err != nil {
+		return err
+	}
+	orderedPayload, _ := orderedChild.(map[string]any)["payload"].(map[string]any)
+	orderedTrace, _ := orderedPayload["trace"].(map[string]any)
+	orderedGaps, _ := orderedPayload["capture_gaps"].([]any)
+	if orderedTrace["parent_span_id"] != "1111111111111111" ||
+		len(orderedGaps) != 4 {
+		return errors.New("bounded parent resolution or conditional Gap semantics changed")
+	}
 	payloadAboveInt64 := cloneObject(payload)
 	usage, ok := payloadAboveInt64["usage"].(map[string]any)
 	if !ok {
@@ -204,7 +290,7 @@ func run(args []string) error {
 
 	fmt.Printf(
 		"source-neutral v2 schema audit passed: %d schemas, %d manifests, "+
-			"3 modes, 1 Source fixture, Envelope/payload/operational boundaries\n",
+			"3 modes, 5 Source fixtures, Envelope/payload/operational boundaries\n",
 		len(compiled),
 		len(v1Names)+1,
 	)

@@ -1,0 +1,40 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": []
+      },
+      "scopeSpans": [
+        {
+          "spans": [
+            {
+              "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "spanId": "bbbbbbbbbbbbbbbb",
+              "parentSpanId": "cccccccccccccccc",
+              "name": "llm",
+              "startTimeUnixNano": "1785463200000000000",
+              "endTimeUnixNano": "1785463200001000000",
+              "attributes": [
+                {
+                  "key": "openinference.span.kind",
+                  "value": {
+                    "stringValue": "LLM"
+                  }
+                },
+                {
+                  "key": "llm.model_name",
+                  "value": {
+                    "stringValue": "model-b"
+                  }
+                }
+              ],
+              "status": {
+                "code": 2
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

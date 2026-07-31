@@ -120,6 +120,8 @@ EXPECTED_OPENINFERENCE_M0 = [
         "sha256:00eac75af3083ddcad31c1d0f4abd217dd8d4bcf614dafd4d6174e61f958cd67",
     ),
 ]
+EXPECTED_CONFORMANCE_CASES = 47
+EXPECTED_CONFORMANCE_CLASSES = 28
 
 
 class ValidationError(RuntimeError):
@@ -143,6 +145,15 @@ def load_json_strict(path: Path) -> Any:
         return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=pairs)
     except (json.JSONDecodeError, UnicodeDecodeError) as error:
         raise ValidationError(f"{path}: invalid UTF-8 JSON: {error}") from error
+
+
+def canonical_bytes(value: Any) -> bytes:
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
 
 
 def require(condition: bool, message: str) -> None:
@@ -274,6 +285,11 @@ def verify_openinference_compatibility(matrix: dict[str, Any]) -> None:
         gate["required_state"]["checkpoint"] == "not_applicable",
         "bounded-offline Checkpoint boundary changed",
     )
+    require(
+        gate["required_state"]["parent_resolution_scope"]
+        == "resolve parent presence by trace_id + parent_span_id within sanitized LLM records",
+        "trace-scoped parent resolution gate changed",
+    )
     preserved = matrix["v1_reference_connector_preservation"]
     require(
         preserved["compatibility_seed"]["sha256"] == V1_XINSIGHT_SEED_SHA,
@@ -297,7 +313,10 @@ def verify_reports() -> tuple[int, int]:
     for implementation, report in [("go", go), ("typescript", typescript)]:
         require(report["implementation"] == implementation, "wrong report implementation")
         require(report["status"] == "pass", f"{implementation} report did not pass")
-        require(len(report["cases"]) == 39, f"{implementation} case count changed")
+        require(
+            len(report["cases"]) == EXPECTED_CONFORMANCE_CASES,
+            f"{implementation} case count changed",
+        )
     go_comparable = {key: value for key, value in go.items() if key not in {
         "implementation", "implementation_version"
     }}
@@ -314,13 +333,120 @@ def verify_reports() -> tuple[int, int]:
             for class_name in case["case_classes"]
         }
     )
-    require(len(classes) == 23, "source-neutral case-class coverage changed")
+    require(
+        len(classes) == EXPECTED_CONFORMANCE_CLASSES,
+        "source-neutral case-class coverage changed",
+    )
     return len(go["cases"]), len(classes)
+
+
+def verify_openinference_vectors() -> None:
+    vector = load_json_strict(ROOT / "vectors/source-neutral-vector-bundle.v2.json")
+    mappings = vector["openinference_mapping"]
+    require(len(mappings) == 5, "OpenInference mapping case count changed")
+    require(
+        [case["case_id"] for case in mappings]
+        == [
+            "reference-bounded-offline",
+            "missing-optional-facts",
+            "ordered-separate-trace",
+            "ordered-parent-present",
+            "ordered-child-parent-resolved",
+        ],
+        "OpenInference mapping case order changed",
+    )
+    for case in mappings:
+        source_path = ROOT / case["source_input_path"]
+        hash_input_path = ROOT / case["hash_input_path"]
+        raw_path = ROOT / case["raw_input_path"]
+        require(sha256(source_path) == case["source_file_sha256"], "Source fixture pin is stale")
+        require(sha256(hash_input_path) == case["hash_input_file_sha256"], "Envelope fixture pin is stale")
+        require(sha256(raw_path) == case["raw_file_sha256"], "raw OTLP fixture pin is stale")
+        source = load_json_strict(source_path)
+        require(
+            "sha256:" + hashlib.sha256(canonical_bytes(source)).hexdigest()
+            == case["canonical_source_sha256"],
+            "canonical Source hash is stale",
+        )
+        hash_input = load_json_strict(hash_input_path)
+        require(
+            "sha256:" + hashlib.sha256(canonical_bytes(hash_input)).hexdigest()
+            == case["envelope_hash"],
+            "canonical Envelope hash is stale",
+        )
+        require(
+            len(canonical_bytes(hash_input)) == case["canonical_bytes"],
+            "canonical Envelope byte count is stale",
+        )
+    reference = mappings[0]
+    require(reference["canonical_source_sha256"] == OPENINFERENCE_SOURCE_SHA, "reference Source hash changed")
+    require(reference["idempotency_key"] == OPENINFERENCE_IDEMPOTENCY, "reference idempotency changed")
+    require(reference["envelope_hash"] == OPENINFERENCE_ENVELOPE_HASH, "reference Envelope hash changed")
+    missing_source = load_json_strict(ROOT / mappings[1]["source_input_path"])
+    require(
+        missing_source["status"] == "failed"
+        and missing_source["missing_parent"] is True
+        and all(
+            key not in missing_source
+            for key in [
+                "session_id",
+                "provider",
+                "prompt_tokens",
+                "completion_tokens",
+                "total_tokens",
+                "actor_ref",
+                "service_name",
+            ]
+        ),
+        "missing optional Source facts were fabricated",
+    )
+    missing_envelope = load_json_strict(ROOT / mappings[1]["hash_input_path"])
+    missing_payload = missing_envelope["payload"]
+    require(missing_envelope["actor"] == {"type": "system"}, "missing actor fallback changed")
+    require(missing_payload["usage"] == {}, "missing usage was zero-filled")
+    require(
+        [gap["affected_claim"] for gap in missing_payload["capture_gaps"]]
+        == [
+            "authoritative_session",
+            "billing_authority",
+            "business_outcome",
+            "causal_parent",
+            "downstream_side_effects",
+            "routing_decision",
+            "token_usage",
+        ],
+        "conditional Capture Gap derivation changed",
+    )
+    expected_order = [
+        "11111111111111111111111111111111:ffffffffffffffff",
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:1111111111111111",
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:2222222222222222",
+    ]
+    for case in mappings[2:]:
+        require(case["expected_record_order"] == expected_order, "bounded batch order changed")
+        require(case["expected_skipped_non_llm"] == 1, "non-LLM skip count changed")
+        require(case["capture_gap_count"] == 4, "resolved parent produced an extra Gap")
+    negative = {
+        case["case_id"]: case
+        for case in vector["negative"]
+        if case["kind"] == "otlp_fixture"
+    }
+    require(
+        {case_id: case["expected"]["error_code"] for case_id, case in negative.items()}
+        == {
+            "unknown-status-code": "status_code_invalid",
+            "end-before-start": "timestamp_order_invalid",
+            "malformed-trace-id": "source_shape_invalid",
+            "span-limit-exceeded": "span_limit_exceeded",
+        },
+        "OpenInference negative fixture contract changed",
+    )
 
 
 def validate() -> dict[str, Any]:
     predecessor_components = verify_predecessor_release()
     verify_v1_xinsight_seed()
+    verify_openinference_vectors()
     decision = (ROOT / "docs/decisions/0002-source-neutral-transport-completeness-v2-candidate.md").read_text(
         encoding="utf-8"
     )
@@ -442,6 +568,11 @@ def validate() -> dict[str, Any]:
         projection["activation_gate"]["status"]
         == "blocked_product_migration_required",
         "X-Insight activation gate opened",
+    )
+    require(
+        "parent presence is resolved by trace_id + parent_span_id rather than a batch-global span_id lookup"
+        in projection["activation_gate"]["must_pass_before_activation"],
+        "X-Insight parent-resolution migration gate is absent",
     )
     excluded = projection["provenance"]["mutable_delivery_excluded"]
     for name in [

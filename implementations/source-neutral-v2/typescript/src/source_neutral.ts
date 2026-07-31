@@ -26,21 +26,23 @@ import {
 } from "./protocol.ts";
 
 const EXPECTED_BUNDLE_SHA =
-  "sha256:cbbcc45af8f2c5b0b12bb23e1094953661c352a1b506233c85405be47baf075f";
+  "sha256:c556051776f5a0ecd2e193f34dd8b240ff5ebef2e8c3877d8f1a8f6d69af95cb";
 const EXPECTED_CONTRACT_SHA =
-  "sha256:f11d263a7d2b8e98240a9a9750f349d83c1f8a12263682a49601b74eb7e891d2";
+  "sha256:e3ab080cbfa633950b859d621e7cf58184881347277a9b30a0973aa4258177b3";
 const EXPECTED_BUNDLE_VERSION = "foigent.source-neutral-vector-bundle.v2";
 const EXPECTED_PROTOCOL = "2.0.0";
 const REPORT_VERSION = "foigent.conformance-report.v1";
 const IMPLEMENTATION = "typescript";
-const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.1";
+const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.2";
 
 const REQUIRED_CLASSES = [
+  "bounded_batch_ordering",
   "bounded_offline_receipt",
   "canonical_envelope",
   "capture_gap_derivation",
   "capture_mode_separation",
   "checkpoint_applicability",
+  "conditional_capture_gaps",
   "content_conflict",
   "decimal_boundary",
   "delivery_acknowledgement",
@@ -51,11 +53,14 @@ const REQUIRED_CLASSES = [
   "mode_state_separation",
   "mutable_delivery_exclusion",
   "opaque_utf8_preservation",
+  "optional_fact_preservation",
   "partial_batch_rejection",
   "privacy_rejection",
   "protocol_nfc_rejection",
   "scoped_idempotency",
+  "source_shape_validation",
   "source_sanitization",
+  "status_code_validation",
   "timeline_completeness",
   "timestamp_normalization",
   "v1_pull_compatibility",
@@ -63,6 +68,19 @@ const REQUIRED_CLASSES = [
 
 export class ArtifactFailure extends Error {
   override name = "ArtifactFailure";
+}
+
+class SanitizationFailure extends Error {
+  override name = "SanitizationFailure";
+
+  constructor(readonly code: string, message: string) {
+    super(message);
+  }
+}
+
+interface SanitizedBatch {
+  records: JsonObject[];
+  skippedNonLLM: number;
 }
 
 interface Observation {
@@ -175,7 +193,9 @@ export async function createSourceNeutralReport(
     );
   }
   for (const value of asArray(bundle.negative, "negative")) {
-    observations.push(runNegative(asObject(value, "negative case")));
+    observations.push(
+      await runNegative(root, asObject(value, "negative case")),
+    );
   }
 
   const report = buildReport(observations);
@@ -211,7 +231,34 @@ async function runMapping(
       asString(item.hash_input_path, "hash_input_path"),
       asString(item.hash_input_file_sha256, "hash_input_file_sha256"),
     );
-    const source = sanitizeOTLP(raw);
+    const batch = sanitizeOTLP(raw);
+    if (
+      batch.skippedNonLLM !==
+        asSafeInteger(
+          item.expected_skipped_non_llm,
+          "expected_skipped_non_llm",
+        )
+    ) {
+      observation.failures.push("skipped non-LLM count mismatch");
+    }
+    const observedOrder = batch.records.map((record) =>
+      `${asString(record.trace_id, "trace_id")}:${asString(record.span_id, "span_id")}`
+    );
+    const expectedOrder = asArray(
+      item.expected_record_order,
+      "expected_record_order",
+    ).map((value, index) => asString(value, `expected_record_order[${index}]`));
+    if (
+      observedOrder.length !== expectedOrder.length ||
+      observedOrder.some((value, index) => value !== expectedOrder[index])
+    ) {
+      observation.failures.push("sanitized record order mismatch");
+    }
+    const recordIndex = asSafeInteger(item.record_index, "record_index");
+    const source = batch.records[recordIndex];
+    if (source === undefined) {
+      throw new Error("mapping record index is outside batch");
+    }
     const sourceBytes = canonicalBytes(source);
     const fixtureBytes = canonicalBytes(
       parseStrictJsonBytes(sourceFixture),
@@ -382,7 +429,10 @@ async function runV1Compatibility(
   return observation;
 }
 
-function runNegative(item: JsonObject): Observation {
+async function runNegative(
+  root: string,
+  item: JsonObject,
+): Promise<Observation> {
   const observation = baseObservation("negative", item);
   let observed: JsonObject;
   const kind = asString(item.kind, "negative kind");
@@ -434,6 +484,23 @@ function runNegative(item: JsonObject): Observation {
     case "opaque_unicode": {
       const bytes = opaqueUtf8(asString(item.input, "opaque Unicode input"));
       observed = { utf8_hex: toHex(bytes), valid: true };
+      break;
+    }
+    case "otlp_fixture": {
+      const input = asObject(item.input, "OTLP negative fixture");
+      const raw = await readPinned(
+        root,
+        asString(input.path, "OTLP negative fixture path"),
+        asString(input.sha256, "OTLP negative fixture sha256"),
+      );
+      try {
+        const batch = sanitizeOTLP(raw);
+        observed = { record_count: batch.records.length, valid: true };
+      } catch (error) {
+        observed = error instanceof SanitizationFailure
+          ? { error_code: error.code, valid: false }
+          : { error_code: "source_sanitization_failed", valid: false };
+      }
       break;
     }
     default:
@@ -629,75 +696,158 @@ function invalid(errorCode: string): JsonObject {
   return { error_code: errorCode, valid: false };
 }
 
-function sanitizeOTLP(raw: Uint8Array): JsonObject {
-  const document = asObject(parseStrictJsonBytes(raw), "OTLP export");
-  const resourceSpans = asArray(document.resourceSpans, "resourceSpans");
-  if (resourceSpans.length !== 1) {
-    throw new Error("unexpected bounded OTLP shape");
+function sanitizeOTLP(raw: Uint8Array): SanitizedBatch {
+  if (raw.length === 0 || raw.length > 8 * 1024 * 1024) {
+    throw new SanitizationFailure(
+      "bounded_input_invalid",
+      "OTLP export bytes are outside the bounded input profile",
+    );
   }
-  const resourceGroup = asObject(resourceSpans[0], "resourceSpans[0]");
-  const resource = asObject(resourceGroup.resource, "resource");
-  const resourceAttributes = attributes(
-    asArray(resource.attributes, "resource attributes"),
+  let document: JsonObject;
+  try {
+    document = asObject(parseStrictJsonBytes(raw), "OTLP export");
+  } catch (error) {
+    throw new SanitizationFailure(
+      "invalid_json",
+      error instanceof Error ? error.message : "OTLP JSON is invalid",
+    );
+  }
+  const resourceSpans = optionalArray(
+    document.resourceSpans,
+    "resourceSpans",
   );
-  const scopeSpans = asArray(resourceGroup.scopeSpans, "scopeSpans");
-  if (scopeSpans.length !== 1) {
-    throw new Error("unexpected bounded OTLP scope");
+  const records: JsonObject[] = [];
+  let skippedNonLLM = 0;
+  let spanCount = 0;
+  for (let resourceIndex = 0; resourceIndex < resourceSpans.length; resourceIndex++) {
+    const resourceGroup = asObject(
+      resourceSpans[resourceIndex],
+      `resourceSpans[${resourceIndex}]`,
+    );
+    const resource = resourceGroup.resource === undefined
+      ? Object.create(null) as JsonObject
+      : asObject(resourceGroup.resource, "resource");
+    const resourceAttributes = attributes(
+      optionalArray(resource.attributes, "resource attributes"),
+    );
+    const scopeSpans = optionalArray(resourceGroup.scopeSpans, "scopeSpans");
+    for (let scopeIndex = 0; scopeIndex < scopeSpans.length; scopeIndex++) {
+      const scope = asObject(
+        scopeSpans[scopeIndex],
+        `scopeSpans[${scopeIndex}]`,
+      );
+      const spans = optionalArray(scope.spans, "spans");
+      for (let spanIndex = 0; spanIndex < spans.length; spanIndex++) {
+        spanCount++;
+        if (spanCount > 200) {
+          throw new SanitizationFailure(
+            "span_limit_exceeded",
+            "OTLP export exceeds the bounded span limit",
+          );
+        }
+        const span = asObject(spans[spanIndex], `spans[${spanIndex}]`);
+        const spanAttributes = attributes(
+          optionalArray(span.attributes, "span attributes"),
+        );
+        if (spanAttributes.get("openinference.span.kind") !== "LLM") {
+          skippedNonLLM++;
+          continue;
+        }
+        records.push(
+          sourceRecordFromSpan(span, spanAttributes, resourceAttributes),
+        );
+      }
+    }
   }
-  const spans = asArray(
-    asObject(scopeSpans[0], "scopeSpans[0]").spans,
-    "spans",
-  );
-  if (spans.length !== 1) {
-    throw new Error("unexpected bounded OTLP span count");
+  if (records.length === 0) {
+    throw new SanitizationFailure(
+      "no_supported_llm_span",
+      "OTLP export contains no supported OpenInference LLM spans",
+    );
   }
-  const span = asObject(spans[0], "span");
-  const spanAttributes = attributes(asArray(span.attributes, "attributes"));
-  if (spanAttributes.get("openinference.span.kind") !== "LLM") {
-    throw new Error("fixture is not an OpenInference LLM span");
+  const identities = new Set<string>();
+  for (const record of records) {
+    const identity = `${asString(record.trace_id, "trace_id")}:${
+      asString(record.span_id, "span_id")
+    }`;
+    if (identities.has(identity)) {
+      throw new SanitizationFailure(
+        "duplicate_span_identity",
+        "OTLP export contains a duplicate trace and span identity",
+      );
+    }
+    identities.add(identity);
   }
-  const prompt = requiredAttribute(
-    spanAttributes,
-    "llm.token_count.prompt",
-  );
-  const completion = requiredAttribute(
-    spanAttributes,
-    "llm.token_count.completion",
-  );
-  const total = requiredAttribute(spanAttributes, "llm.token_count.total");
-  if (
-    !validInt64Decimal(prompt) ||
-    !validInt64Decimal(completion) ||
-    !validInt64Decimal(total) ||
-    BigInt(prompt) + BigInt(completion) !== BigInt(total)
-  ) {
-    throw new Error("token counters are invalid");
+  for (const record of records) {
+    if (typeof record.parent_span_id === "string") {
+      record.missing_parent = !identities.has(
+        `${asString(record.trace_id, "trace_id")}:${record.parent_span_id}`,
+      );
+    }
+    validateSourceRecord(record);
   }
-  const status = asObject(span.status, "span.status");
-  const code = asString(status.code, "span.status.code");
-  return {
+  records.sort((left, right) => {
+    const leftTrace = asString(left.trace_id, "trace_id");
+    const rightTrace = asString(right.trace_id, "trace_id");
+    if (leftTrace !== rightTrace) {
+      return leftTrace < rightTrace ? -1 : 1;
+    }
+    const leftSpan = asString(left.span_id, "span_id");
+    const rightSpan = asString(right.span_id, "span_id");
+    return leftSpan < rightSpan ? -1 : leftSpan > rightSpan ? 1 : 0;
+  });
+  return { records, skippedNonLLM };
+}
+
+function sourceRecordFromSpan(
+  span: JsonObject,
+  spanAttributes: Map<string, string>,
+  resourceAttributes: Map<string, string>,
+): JsonObject {
+  let startTime: string;
+  let endTime: string;
+  try {
+    startTime = unixNanoToMicrosecond(
+      asString(span.startTimeUnixNano, "startTimeUnixNano"),
+    );
+    endTime = unixNanoToMicrosecond(
+      asString(span.endTimeUnixNano, "endTimeUnixNano"),
+    );
+  } catch {
+    throw new SanitizationFailure(
+      "timestamp_invalid",
+      "OpenInference timestamp is not exact microsecond time",
+    );
+  }
+  const record: JsonObject = {
     schema_version: "xinsight.otlp-openinference-span.v1",
     trace_id: asString(span.traceId, "traceId").toLowerCase(),
     span_id: asString(span.spanId, "spanId").toLowerCase(),
-    session_id: requiredAttribute(spanAttributes, "session.id"),
     span_name: asString(span.name, "span.name"),
     span_kind: "LLM",
-    start_time: unixNanoToMicrosecond(
-      asString(span.startTimeUnixNano, "startTimeUnixNano"),
-    ),
-    end_time: unixNanoToMicrosecond(
-      asString(span.endTimeUnixNano, "endTimeUnixNano"),
-    ),
-    status: code === "STATUS_CODE_ERROR" ? "failed" : "succeeded",
+    start_time: startTime,
+    end_time: endTime,
+    status: spanStatus(span.status),
     model: requiredAttribute(spanAttributes, "llm.model_name"),
-    provider: requiredAttribute(spanAttributes, "llm.provider"),
-    prompt_tokens: prompt,
-    completion_tokens: completion,
-    total_tokens: total,
-    actor_ref: requiredAttribute(spanAttributes, "user.id"),
-    service_name: requiredAttribute(resourceAttributes, "service.name"),
     missing_parent: false,
   };
+  const optionalFields = [
+    ["parent_span_id", optionalString(span.parentSpanId, "parentSpanId")],
+    ["session_id", spanAttributes.get("session.id")],
+    ["provider", spanAttributes.get("llm.provider")],
+    ["prompt_tokens", spanAttributes.get("llm.token_count.prompt")],
+    ["completion_tokens", spanAttributes.get("llm.token_count.completion")],
+    ["total_tokens", spanAttributes.get("llm.token_count.total")],
+    ["actor_ref", spanAttributes.get("user.id")],
+    ["service_name", resourceAttributes.get("service.name")],
+  ] as const;
+  for (const [key, value] of optionalFields) {
+    if (value !== undefined && value !== "") {
+      record[key] = key === "parent_span_id" ? value.toLowerCase() : value;
+    }
+  }
+  validateSourceRecord(record);
+  return record;
 }
 
 function attributes(values: JsonValue[]): Map<string, string> {
@@ -705,21 +855,42 @@ function attributes(values: JsonValue[]): Map<string, string> {
   for (const value of values) {
     const attribute = asObject(value, "attribute");
     const key = asString(attribute.key, "attribute.key");
+    if (!validOpaque(key, 1, 240)) {
+      throw new SanitizationFailure(
+        "attribute_key_invalid",
+        "OTLP attribute key is invalid",
+      );
+    }
     if (result.has(key)) {
-      throw new Error("duplicate OTLP attribute");
+      throw new SanitizationFailure(
+        "duplicate_attribute_key",
+        "OTLP attribute keys must be unique",
+      );
     }
     const raw = asObject(attribute.value, "attribute.value");
     const stringValue = raw.stringValue;
     const intValue = raw.intValue;
     if (typeof stringValue === "string" && intValue === undefined) {
+      if (!validOpaque(stringValue, 0, 512)) {
+        throw new SanitizationFailure(
+          "attribute_value_invalid",
+          "OTLP string attribute is invalid",
+        );
+      }
       result.set(key, stringValue);
     } else if (stringValue === undefined && typeof intValue === "string") {
       if (!validInt64Decimal(intValue)) {
-        throw new Error("OTLP int attribute is invalid");
+        throw new SanitizationFailure(
+          "attribute_encoding_invalid",
+          "OTLP int attribute is outside canonical int64",
+        );
       }
       result.set(key, intValue);
     } else if (stringValue !== undefined || intValue !== undefined) {
-      throw new Error("OTLP AnyValue has multiple scalar values");
+      throw new SanitizationFailure(
+        "attribute_encoding_invalid",
+        "OTLP AnyValue has multiple scalar values",
+      );
     }
   }
   return result;
@@ -728,18 +899,63 @@ function attributes(values: JsonValue[]): Map<string, string> {
 function requiredAttribute(values: Map<string, string>, key: string): string {
   const value = values.get(key);
   if (value === undefined) {
-    throw new Error(`required attribute ${key} is absent`);
+    throw new SanitizationFailure(
+      "source_shape_invalid",
+      `required attribute ${key} is absent`,
+    );
   }
   return value;
 }
 
+function spanStatus(raw: JsonValue | undefined): string {
+  if (raw === undefined) {
+    return "succeeded";
+  }
+  const status = asObject(raw, "span.status");
+  const code = status.code;
+  if (
+    code === undefined || code === null || code === "" ||
+    code === "STATUS_CODE_UNSET" || code === "STATUS_CODE_OK" ||
+    code === 0 || code === 1 || code === 0n || code === 1n
+  ) {
+    return "succeeded";
+  }
+  if (code === "STATUS_CODE_ERROR" || code === 2 || code === 2n) {
+    return "failed";
+  }
+  throw new SanitizationFailure(
+    "status_code_invalid",
+    "OTLP span status code is invalid",
+  );
+}
+
+function optionalArray(
+  value: JsonValue | undefined,
+  name: string,
+): JsonValue[] {
+  return value === undefined ? [] : asArray(value, name);
+}
+
+function optionalString(
+  value: JsonValue | undefined,
+  name: string,
+): string | undefined {
+  return value === undefined ? undefined : asString(value, name);
+}
+
 function unixNanoToMicrosecond(value: string): string {
   if (!validInt64Decimal(value)) {
-    throw new Error("timestamp is outside canonical int64");
+    throw new SanitizationFailure(
+      "timestamp_invalid",
+      "timestamp is outside canonical int64",
+    );
   }
   const nanos = BigInt(value);
   if (nanos % 1000n !== 0n) {
-    throw new Error("timestamp_precision_loss");
+    throw new SanitizationFailure(
+      "timestamp_invalid",
+      "timestamp has sub-microsecond precision",
+    );
   }
   const seconds = nanos / 1_000_000_000n;
   const remainder = nanos % 1_000_000_000n;
@@ -747,6 +963,94 @@ function unixNanoToMicrosecond(value: string): string {
   const base = new Date(millis).toISOString().slice(0, 19);
   const micros = (remainder / 1000n).toString().padStart(6, "0");
   return `${base}.${micros}Z`;
+}
+
+function validateSourceRecord(record: JsonObject): void {
+  const traceID = asString(record.trace_id, "trace_id");
+  const spanID = asString(record.span_id, "span_id");
+  const parentSpanID = record.parent_span_id === undefined
+    ? undefined
+    : asString(record.parent_span_id, "parent_span_id");
+  if (
+    asString(record.schema_version, "schema_version") !==
+      "xinsight.otlp-openinference-span.v1" ||
+    asString(record.span_kind, "span_kind") !== "LLM" ||
+    !["succeeded", "failed"].includes(asString(record.status, "status")) ||
+    !/^[0-9a-f]{32}$/.test(traceID) ||
+    !/^[0-9a-f]{16}$/.test(spanID) ||
+    (parentSpanID !== undefined && !/^[0-9a-f]{16}$/.test(parentSpanID)) ||
+    !validOpaque(asString(record.span_name, "span_name"), 1, 240) ||
+    !validOpaque(asString(record.model, "model"), 1, 240) ||
+    !validOptionalOpaque(record.provider, 160) ||
+    !validOptionalOpaque(record.session_id, 256) ||
+    !validOptionalOpaque(record.actor_ref, 256) ||
+    !validOptionalOpaque(record.service_name, 240)
+  ) {
+    throw new SanitizationFailure(
+      "source_shape_invalid",
+      "OpenInference Source record is invalid",
+    );
+  }
+  const startTime = asString(record.start_time, "start_time");
+  const endTime = asString(record.end_time, "end_time");
+  if (
+    !/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{6}Z$/
+      .test(startTime) ||
+    !/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{6}Z$/
+      .test(endTime)
+  ) {
+    throw new SanitizationFailure(
+      "timestamp_invalid",
+      "OpenInference Source timestamp is invalid",
+    );
+  }
+  if (endTime < startTime) {
+    throw new SanitizationFailure(
+      "timestamp_order_invalid",
+      "OpenInference Source end time precedes start time",
+    );
+  }
+  const counters = [
+    record.prompt_tokens,
+    record.completion_tokens,
+    record.total_tokens,
+  ];
+  for (const counter of counters) {
+    if (
+      counter !== undefined &&
+      (typeof counter !== "string" || !validInt64Decimal(counter))
+    ) {
+      throw new SanitizationFailure(
+        "token_counter_invalid",
+        "OpenInference token counter is invalid",
+      );
+    }
+  }
+  if (
+    typeof record.prompt_tokens === "string" &&
+    typeof record.completion_tokens === "string" &&
+    typeof record.total_tokens === "string"
+  ) {
+    const prompt = record.prompt_tokens;
+    const completion = record.completion_tokens;
+    const total = record.total_tokens;
+    if (BigInt(prompt) + BigInt(completion) !== BigInt(total)) {
+      throw new SanitizationFailure(
+        "token_counter_inconsistent",
+        "OpenInference token counters are inconsistent",
+      );
+    }
+  }
+}
+
+function validOptionalOpaque(value: JsonValue | undefined, maximum: number): boolean {
+  return value === undefined ||
+    (typeof value === "string" && validOpaque(value, 1, maximum));
+}
+
+function validOpaque(value: string, minimum: number, maximum: number): boolean {
+  const length = [...value].length;
+  return length >= minimum && length <= maximum && !/\p{Cc}/u.test(value);
 }
 
 function mapSourceToEnvelope(
@@ -773,17 +1077,87 @@ function mapSourceToEnvelope(
     eventType: "observability.span.completed",
     eventId: eventID,
   });
-  const gaps = [
-    "billing_authority",
-    "business_outcome",
-    "downstream_side_effects",
-    "routing_decision",
-  ].map((claim): JsonObject => ({
+  const gapReasons = new Map<string, string>([
+    ["billing_authority", "not_exposed_by_openinference_span_v1"],
+    ["business_outcome", "not_exposed_by_openinference_span_v1"],
+    ["downstream_side_effects", "not_exposed_by_openinference_span_v1"],
+    ["routing_decision", "not_exposed_by_openinference_span_v1"],
+  ]);
+  if (source.session_id === undefined) {
+    gapReasons.set("authoritative_session", "session_id_not_observed");
+  }
+  if (
+    source.prompt_tokens === undefined ||
+    source.completion_tokens === undefined ||
+    source.total_tokens === undefined
+  ) {
+    gapReasons.set(
+      "token_usage",
+      "complete_token_counters_not_observed",
+    );
+  }
+  if (asBoolean(source.missing_parent, "missing_parent")) {
+    gapReasons.set(
+      "causal_parent",
+      "declared_parent_not_in_bounded_batch",
+    );
+  }
+  const gaps = [...gapReasons.keys()].sort().map((claim): JsonObject => ({
     affected_claim: claim,
     gap_type: "not_available_from_source",
-    reason_code: "not_exposed_by_openinference_span_v1",
+    reason_code: gapReasons.get(claim)!,
     severity: "warning",
   }));
+  const scope: JsonObject = {
+    org_ref: asString(context.org_ref, "org_ref"),
+    project_ref: asString(context.project_ref, "project_ref"),
+  };
+  if (context.tenant_ref !== null) {
+    scope.tenant_ref = asString(context.tenant_ref, "tenant_ref");
+  }
+  const actor: JsonObject = source.actor_ref === undefined
+    ? { type: "system" }
+    : { type: "user", ref: asString(source.actor_ref, "actor_ref") };
+  const trace: JsonObject = { trace_id: traceID, span_id: spanID };
+  if (source.parent_span_id !== undefined) {
+    trace.parent_span_id = asString(source.parent_span_id, "parent_span_id");
+  }
+  if (source.session_id !== undefined) {
+    trace.session_id = asString(source.session_id, "session_id");
+  }
+  const model: JsonObject = { name: asString(source.model, "model") };
+  if (source.provider !== undefined) {
+    model.provider = asString(source.provider, "provider");
+  }
+  const usage: JsonObject = {};
+  for (
+    const key of [
+      "prompt_tokens",
+      "completion_tokens",
+      "total_tokens",
+    ] as const
+  ) {
+    if (source[key] !== undefined) {
+      usage[key] = asString(source[key], key);
+    }
+  }
+  const payload: JsonObject = {
+    terminal: { status: asString(source.status, "status") },
+    span: {
+      kind: asString(source.span_kind, "span_kind"),
+      name: asString(source.span_name, "span_name"),
+    },
+    trace,
+    model,
+    usage,
+    timeline_complete: false,
+    capture_gaps: gaps,
+  };
+  if (source.service_name !== undefined) {
+    payload.service = {
+      name: asString(source.service_name, "service_name"),
+    };
+  }
   const endTime = asString(source.end_time, "end_time");
   const hashInput: JsonObject = {
     spec_version: "foigent.event-envelope.v1",
@@ -800,15 +1174,9 @@ function mapSourceToEnvelope(
         "connector_version",
       ),
     },
-    scope: {
-      org_ref: asString(context.org_ref, "org_ref"),
-      project_ref: asString(context.project_ref, "project_ref"),
-    },
+    scope,
     subject: { type: "span", ref: spanID },
-    actor: {
-      type: "user",
-      ref: asString(source.actor_ref, "actor_ref"),
-    },
+    actor,
     time: { occurred_at: endTime, terminal_at: endTime },
     correlation: {
       request_ref: eventID,
@@ -828,7 +1196,7 @@ function mapSourceToEnvelope(
     provenance: {
       adapter_fidelity: "F2",
       field_groups: {
-        actor: "direct",
+        actor: source.actor_ref === undefined ? "gap" : "direct",
         correlation: "direct",
         data_policy: "declared",
         identity: "derived",
@@ -837,40 +1205,14 @@ function mapSourceToEnvelope(
         "payload.span": "direct",
         "payload.timeline_complete": "declared",
         "payload.trace": "direct",
-        "payload.usage": "direct",
+        "payload.usage": Object.keys(usage).length === 0 ? "gap" : "direct",
         scope: "declared",
         subject: "derived",
         "time.occurred_at": "derived",
         "time.terminal_at": "direct",
       },
     },
-    payload: {
-      terminal: { status: asString(source.status, "status") },
-      span: {
-        kind: asString(source.span_kind, "span_kind"),
-        name: asString(source.span_name, "span_name"),
-      },
-      trace: {
-        trace_id: traceID,
-        span_id: spanID,
-        session_id: asString(source.session_id, "session_id"),
-      },
-      model: {
-        name: asString(source.model, "model"),
-        provider: asString(source.provider, "provider"),
-      },
-      usage: {
-        prompt_tokens: asString(source.prompt_tokens, "prompt_tokens"),
-        completion_tokens: asString(
-          source.completion_tokens,
-          "completion_tokens",
-        ),
-        total_tokens: asString(source.total_tokens, "total_tokens"),
-      },
-      service: { name: asString(source.service_name, "service_name") },
-      timeline_complete: false,
-      capture_gaps: gaps,
-    },
+    payload,
   };
   return { hashInput, identityInput };
 }

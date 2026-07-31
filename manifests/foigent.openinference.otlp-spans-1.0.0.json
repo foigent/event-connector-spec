@@ -117,11 +117,11 @@
     "reference_profile": "xinsight.foigent-envelope-to-m0.openinference-span.v1",
     "reference_projection_contract": {
       "path": "mappings/xinsight/openinference-span-to-m0-m0.1-v2.json",
-      "sha256": "sha256:ce95a7299290469c992da1b8f0056c6c45bd550f237a408d08dcb9cf4afbc610"
+      "sha256": "sha256:b374f7a03c73b6fa94d9fab96ce20d819d4e1471f77d2e4c908df1297c1e49b2"
     },
     "reference_compatibility_vector_bundle": {
       "path": "compatibility/foigent-openinference-bounded-export-1.0.0-to-xinsight-m0.1.json",
-      "sha256": "sha256:f49ba2f9494e74824527db9165766f2ccd958194f9bc167cf9c1b7b13d6f3d92"
+      "sha256": "sha256:0dd606acf3ee1111987d2d74a2f8ad3b9881ca5daf4ad5920351ba5c643e4f60"
     },
     "source_revision": "1",
     "retention": "7d"

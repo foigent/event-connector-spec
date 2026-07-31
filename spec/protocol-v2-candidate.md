@@ -198,9 +198,9 @@ Mode-specific rules:
 
 ## 10. OpenInference bounded-offline reference
 
-The candidate Reference Connector consumes one synthetic bounded OTLP JSON
-export, produces a strict metadata-only sanitized Source record and maps it to
-`observability.span.completed`.
+The candidate Reference Connector consumes bounded synthetic OTLP JSON
+exports, produces strict metadata-only sanitized Source records and maps them
+to `observability.span.completed`.
 
 `catalog/domain-catalog.v2.json` is the candidate domain index. The sanitized
 Source record retains the historical
@@ -219,6 +219,21 @@ The parent Event:
 - reports `payload.timeline_complete=false`;
 - emits deterministic sorted Capture Gap claims;
 - never persists raw input, output or message content.
+
+The frozen candidate evidence also proves:
+
+- at most 200 selected plus skipped spans per bounded export;
+- deterministic `trace_id`, then `span_id` Source ordering;
+- parent presence resolved by `trace_id + parent_span_id` inside the sanitized
+  LLM records, never by a batch-global Span ID;
+- optional session, provider, token, actor and service facts remain absent
+  rather than receiving synthetic zero or empty values;
+- absent actor becomes `system`, absent complete token usage and session facts
+  produce explicit Capture Gaps, and a declared absent parent produces a
+  causal-parent Gap;
+- symbolic and numeric OTLP `UNSET`, `OK` and `ERROR` statuses are accepted,
+  while unknown statuses, malformed identities, reversed timestamps,
+  and over-bound batches fail closed.
 
 The first manifest uses `bounded_offline`. `otlp_http_push` remains a supported
 protocol mode without an activation claim.

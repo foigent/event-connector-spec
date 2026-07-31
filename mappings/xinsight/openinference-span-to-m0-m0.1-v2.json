@@ -102,6 +102,7 @@
       "product-local integration and assurance modes no longer claim pull",
       "no Connector Checkpoint is created for bounded_offline",
       "bundle receipt remains outside event identity, hash and event-linked provenance",
+      "parent presence is resolved by trace_id + parent_span_id rather than a batch-global span_id lookup",
       "existing UniRouter and LiteLLM M0 compatibility vectors remain byte-identical"
     ]
   }

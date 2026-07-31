@@ -34,7 +34,9 @@
     "$.payload.usage": "only observed canonical token counters",
     "$.payload.service": "source service_name when observed",
     "$.payload.timeline_complete": "declared false",
-    "$.payload.capture_gaps": "deterministic sorted first-class claims"
+    "$.payload.capture_gaps": "deterministic sorted first-class claims",
+    "$.provenance.field_groups.actor": "direct when actor_ref is observed; gap when the system fallback is derived from absence",
+    "$.provenance.field_groups.payload.usage": "direct when at least one counter is observed; gap when the usage object is empty"
   },
   "capture_gaps": {
     "always": [

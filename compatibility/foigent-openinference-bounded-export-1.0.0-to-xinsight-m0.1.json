@@ -114,12 +114,14 @@
     "current_nonconforming_state": {
       "integration_mode": "connector_pull",
       "assurance_mode": "contracted_pull",
-      "checkpoint_test": "constructs a pull Cursor and high-watermark"
+      "checkpoint_test": "constructs a pull Cursor and high-watermark",
+      "parent_resolution_scope": "candidate source sanitizer indexes parent presence by span_id across the complete bounded batch"
     },
     "required_state": {
       "integration_mode": "connector_bounded_offline",
       "assurance_mode": "bounded_offline_import",
       "checkpoint": "not_applicable",
+      "parent_resolution_scope": "resolve parent presence by trace_id + parent_span_id within sanitized LLM records",
       "operational_state": "durable bundle receipt outside Event identity/hash/provenance"
     },
     "event_compatibility_requirement": "The five current M0 ids and hashes above must remain unchanged by the provenance/checkpoint migration."

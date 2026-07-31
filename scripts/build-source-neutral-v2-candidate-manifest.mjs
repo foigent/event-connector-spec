@@ -68,6 +68,34 @@ const componentPaths = {
     "fixtures/source/openinference/reference-sanitized-span.v1.json",
   openinference_envelope_hash_input:
     "fixtures/shared/openinference-span-envelope.hash-input.json",
+  openinference_missing_optional_raw_fixture:
+    "fixtures/source/openinference/missing-optional-otlp-export.v1.json",
+  openinference_missing_optional_source_fixture:
+    "fixtures/source/openinference/missing-optional-sanitized-span.v1.json",
+  openinference_missing_optional_envelope_hash_input:
+    "fixtures/shared/openinference-missing-optional-envelope.hash-input.json",
+  openinference_ordered_batch_raw_fixture:
+    "fixtures/source/openinference/ordered-batch-otlp-export.v1.json",
+  openinference_ordered_separate_source_fixture:
+    "fixtures/source/openinference/ordered-separate-sanitized-span.v1.json",
+  openinference_ordered_separate_envelope_hash_input:
+    "fixtures/shared/openinference-ordered-separate-envelope.hash-input.json",
+  openinference_ordered_parent_source_fixture:
+    "fixtures/source/openinference/ordered-parent-sanitized-span.v1.json",
+  openinference_ordered_parent_envelope_hash_input:
+    "fixtures/shared/openinference-ordered-parent-envelope.hash-input.json",
+  openinference_ordered_child_source_fixture:
+    "fixtures/source/openinference/ordered-child-sanitized-span.v1.json",
+  openinference_ordered_child_envelope_hash_input:
+    "fixtures/shared/openinference-ordered-child-envelope.hash-input.json",
+  openinference_unknown_status_negative_fixture:
+    "fixtures/source/openinference/unknown-status-otlp-export.invalid.json",
+  openinference_end_before_start_negative_fixture:
+    "fixtures/source/openinference/end-before-start-otlp-export.invalid.json",
+  openinference_malformed_trace_negative_fixture:
+    "fixtures/source/openinference/malformed-trace-id-otlp-export.invalid.json",
+  openinference_span_limit_negative_fixture:
+    "fixtures/source/openinference/too-many-spans-otlp-export.invalid.json",
   conformance_contract:
     "conformance/source-neutral-conformance-contract.v2.json",
   vector_bundle: "vectors/source-neutral-vector-bundle.v2.json",

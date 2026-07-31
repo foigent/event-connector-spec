@@ -1,6 +1,7 @@
 package conformance
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,11 +17,100 @@ func TestSourceNeutralBundlePasses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
-	if exitCode != ExitPass || summary.Status != "pass" || summary.CaseCount != 39 {
+	if exitCode != ExitPass || summary.Status != "pass" || summary.CaseCount != 47 {
 		t.Fatalf("unexpected summary: %+v exit=%d", summary, exitCode)
 	}
 	if info, err := os.Stat(reportPath); err != nil || info.Size() == 0 {
 		t.Fatalf("report not written: info=%v err=%v", info, err)
+	}
+}
+
+func TestOpenInferenceOptionalFactsAndBatchOrdering(t *testing.T) {
+	root := protocolRoot(t)
+	missingRaw, err := os.ReadFile(filepath.Join(
+		root,
+		"fixtures/source/openinference/missing-optional-otlp-export.v1.json",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	missing, err := sanitizeOTLP(missingRaw)
+	if err != nil {
+		t.Fatalf("sanitize missing facts: %v", err)
+	}
+	if len(missing.Records) != 1 ||
+		!missing.Records[0].MissingParent ||
+		missing.Records[0].Status != "failed" ||
+		missing.Records[0].SessionID != "" ||
+		missing.Records[0].TotalTokens != "" {
+		t.Fatalf("missing-fact semantics differ: %+v", missing)
+	}
+	envelope, _, err := mapSourceToEnvelope(
+		missing.Records[0],
+		mappingContext{
+			ProducerProduct: "openinference", ProducerInstance: "otel-collector-prod-a",
+			OrgRef: "1", ProjectRef: "7",
+			ConnectorID: "foigent.openinference.otlp-spans", ConnectorVersion: "1.0.0",
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	actor := envelope["actor"].(map[string]any)
+	payload := envelope["payload"].(map[string]any)
+	if actor["type"] != "system" ||
+		len(payload["usage"].(map[string]any)) != 0 ||
+		len(payload["capture_gaps"].([]any)) != 7 {
+		t.Fatalf("optional facts were fabricated or gaps lost: %v", envelope)
+	}
+
+	orderedRaw, err := os.ReadFile(filepath.Join(
+		root,
+		"fixtures/source/openinference/ordered-batch-otlp-export.v1.json",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	ordered, err := sanitizeOTLP(orderedRaw)
+	if err != nil {
+		t.Fatalf("sanitize ordered batch: %v", err)
+	}
+	identities := make([]string, 0, len(ordered.Records))
+	for _, record := range ordered.Records {
+		identities = append(identities, record.TraceID+":"+record.SpanID)
+	}
+	expected := []string{
+		"11111111111111111111111111111111:ffffffffffffffff",
+		"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:1111111111111111",
+		"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:2222222222222222",
+	}
+	if !equalStringSlices(identities, expected) ||
+		ordered.SkippedNonLLM != 1 ||
+		ordered.Records[2].MissingParent {
+		t.Fatalf("bounded batch semantics differ: %+v", ordered)
+	}
+}
+
+func TestOpenInferenceNegativeFixturesReturnStableCodes(t *testing.T) {
+	root := protocolRoot(t)
+	cases := map[string]string{
+		"unknown-status-otlp-export.invalid.json":     "status_code_invalid",
+		"end-before-start-otlp-export.invalid.json":   "timestamp_order_invalid",
+		"malformed-trace-id-otlp-export.invalid.json": "source_shape_invalid",
+		"too-many-spans-otlp-export.invalid.json":     "span_limit_exceeded",
+	}
+	for name, expected := range cases {
+		raw, err := os.ReadFile(filepath.Join(
+			root, "fixtures/source/openinference", name,
+		))
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = sanitizeOTLP(raw)
+		var failure *sanitizationError
+		if !errors.As(err, &failure) || failure.Code != expected {
+			t.Fatalf("%s: got %v, want %s", name, err, expected)
+		}
 	}
 }
 
