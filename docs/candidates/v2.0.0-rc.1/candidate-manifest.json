@@ -1,0 +1,215 @@
+{
+  "candidate_manifest_version": "foigent.protocol-candidate-manifest.v1",
+  "protocol_version": "2.0.0",
+  "protocol_status": "not_binding",
+  "authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565
+  },
+  "predecessor": {
+    "protocol_version": "1.1.2",
+    "tag": "v1.1.2",
+    "tag_commit": "fd82aeca9877bea8064b25c365a3cdcdd0bb3d16",
+    "tree": "d316d6ada678066ed7679a772856aea6157d869d",
+    "content_digest": "sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813",
+    "release_digest": "sha256:0b414d5d59e5a7ca5c05505cb58d7992c544537da1c84a57256ec205618d9cd1"
+  },
+  "components": {
+    "governance": {
+      "path": "GOVERNANCE.md",
+      "sha256": "sha256:6349385e2be52b20af10dd08bcff937e86970fb43173e2ba35a2819c428219af"
+    },
+    "predecessor_release_manifest": {
+      "path": "releases/v1.1.2/release-manifest.json",
+      "sha256": "sha256:e7637eb3162e4076f991588c54cbeb083bcf39d8795587c2594ea45940a9b750"
+    },
+    "preserved_event_envelope_schema": {
+      "path": "schemas/event-envelope.v1.schema.json",
+      "sha256": "sha256:6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26"
+    },
+    "preserved_capture_gap_schema": {
+      "path": "schemas/capture-gap.v1.schema.json",
+      "sha256": "sha256:1a5be69da99f62033ceadf05f66d45296d1d5f8b662830f77c0fc6af49edaec8"
+    },
+    "preserved_conformance_report_schema": {
+      "path": "schemas/conformance-report.v1.schema.json",
+      "sha256": "sha256:42048fbf5a5edc2ca4476727563ab41e96a8fb6d3788d446e0e0d7c4154a31a7"
+    },
+    "preserved_unirouter_manifest": {
+      "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+      "sha256": "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79"
+    },
+    "preserved_litellm_manifest": {
+      "path": "manifests/foigent.litellm.spend-logs-1.0.0.json",
+      "sha256": "sha256:86a10565a8c66abe5b31d6c39e853cebf5e9b90721d6784ea0bf7c28d2c20693"
+    },
+    "preserved_xinsight_compatibility_seed": {
+      "path": "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
+      "sha256": "sha256:5cd40aa6c0256a70ad7317c05e078759685e0469be77a3e960a976adc3158e8e"
+    },
+    "preserved_unirouter_compatibility_matrix": {
+      "path": "compatibility/foigent-unirouter-completed-execution-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:03fb035134b173165e6a03f348d40a58fe1d28d82c24bacb1dec553c8b769c89"
+    },
+    "preserved_litellm_compatibility_matrix": {
+      "path": "compatibility/foigent-litellm-spend-logs-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:3b0a2c5e3bfa89dc060299fa0b4351edcd33d92b2702cf95c99b1f26b51dd4ec"
+    },
+    "semantic_decision": {
+      "path": "docs/decisions/0002-source-neutral-transport-completeness-v2-candidate.md",
+      "sha256": "sha256:57f3543a9040c263ff022a269ce564cfaa62efcb75fd24bf61823106bac7cfa3"
+    },
+    "protocol_candidate": {
+      "path": "spec/protocol-v2-candidate.md",
+      "sha256": "sha256:fe1ee4934522e028b0dfafcfdf9651154c1f09abe44dd678ada09be69e7fec9b"
+    },
+    "domain_catalog": {
+      "path": "catalog/domain-catalog.v2.json",
+      "sha256": "sha256:7adfd8210a0dc52e205c714aea0d5e7a26b7617b45cf6e27cbb2ca9d382633fa"
+    },
+    "connector_manifest_schema": {
+      "path": "schemas/connector-manifest.v2.schema.json",
+      "sha256": "sha256:ce1e8e84b49e50d0740366e42c64a6899b27834c3cf83116a63a35d3c1a901e5"
+    },
+    "connector_lifecycle_schema": {
+      "path": "schemas/connector-lifecycle.v2.schema.json",
+      "sha256": "sha256:b2b8475605fe58e75b97ebe2c6fdab567647757a64112dfeed1b1d4b48afefd0"
+    },
+    "connector_checkpoint_schema": {
+      "path": "schemas/connector-checkpoint.v2.schema.json",
+      "sha256": "sha256:80bf1e98b24424a25a14985f36aa179c838363c4deb540c7521b20582eccdd6b"
+    },
+    "event_batch_schema": {
+      "path": "schemas/event-batch.v2.schema.json",
+      "sha256": "sha256:36e7da64aa6c33e74e60379274d8426459f1e2ee520e44d0d935fc794b4925da"
+    },
+    "connector_error_schema": {
+      "path": "schemas/connector-error.v2.schema.json",
+      "sha256": "sha256:bae3e9a0ee4096feb01655e1f9fc0e4032b3656c0cd0e2a7cad78ec7379a3dee"
+    },
+    "operational_receipt_schema": {
+      "path": "schemas/operational-receipt.v2.schema.json",
+      "sha256": "sha256:87eff60633e01e2e8e3393b2c5863c3a4aac57df27d84f22f74a18fa671802be"
+    },
+    "openinference_source_schema": {
+      "path": "schemas/openinference-span.v1.schema.json",
+      "sha256": "sha256:b5f4da5b586ca4d34af716d52215955c843e5b824f7af7fdbc9a1dfda728b29a"
+    },
+    "openinference_payload_schema": {
+      "path": "schemas/observability-openinference-span-completed.v1.schema.json",
+      "sha256": "sha256:b40e06b7ddc0f5c2800aa81c7562f3d79e35074fd9ba692cb663741491e2c0ce"
+    },
+    "openinference_manifest": {
+      "path": "manifests/foigent.openinference.otlp-spans-1.0.0.json",
+      "sha256": "sha256:f3d2bd45fb5777ce665401ac7f9038da66a68975c140d43b447f5cccbd006814"
+    },
+    "openinference_otlp_source_mapping": {
+      "path": "mappings/openinference/otlp-json-to-sanitized-span.v1.json",
+      "sha256": "sha256:20e37f2eb45b83c6fc2231d362a041d824096322fa0c78e50750ac81ddafe4b6"
+    },
+    "openinference_event_mapping": {
+      "path": "mappings/openinference/sanitized-span-to-event-envelope.v1.json",
+      "sha256": "sha256:da22c9c5f9ff9274cec9f66bac5233614ea7ffd30fcc261fe02904a2e7a37b0f"
+    },
+    "xinsight_openinference_projection": {
+      "path": "mappings/xinsight/openinference-span-to-m0-m0.1-v2.json",
+      "sha256": "sha256:4e5629d4c3969a91d30d0068d7f934bc209996687218dd613f857b74918276ab"
+    },
+    "v1_to_v2_compatibility_matrix": {
+      "path": "compatibility/v1-to-v2-source-neutral-matrix.json",
+      "sha256": "sha256:901bf79c4781fb3667c673e18e6e5f9d62495969f57491159b6c68bada6a70e2"
+    },
+    "xinsight_openinference_compatibility_matrix": {
+      "path": "compatibility/foigent-openinference-bounded-export-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:5a3f0bfa2bd5a89a86aa5da0457eff207f20167929fa5f4769717921e2470a9f"
+    },
+    "openinference_raw_fixture": {
+      "path": "fixtures/source/openinference/reference-otlp-export.v1.json",
+      "sha256": "sha256:8b26b6e47a019eb2540ceb4be0177fc3e69dd0248449ff50fa19b55c10fe057c"
+    },
+    "openinference_source_fixture": {
+      "path": "fixtures/source/openinference/reference-sanitized-span.v1.json",
+      "sha256": "sha256:bb59520c7b9bbf9f53bdd52499985e32c31858dbdfc9a49d33fecd087c26ce0d"
+    },
+    "openinference_envelope_hash_input": {
+      "path": "fixtures/shared/openinference-span-envelope.hash-input.json",
+      "sha256": "sha256:ec6956ba4e8674faaa341923168b4d1f45e8a4b4b8c362568d7d0c6b815471c9"
+    },
+    "conformance_contract": {
+      "path": "conformance/source-neutral-conformance-contract.v2.json",
+      "sha256": "sha256:f11d263a7d2b8e98240a9a9750f349d83c1f8a12263682a49601b74eb7e891d2"
+    },
+    "vector_bundle": {
+      "path": "vectors/source-neutral-vector-bundle.v2.json",
+      "sha256": "sha256:cbbcc45af8f2c5b0b12bb23e1094953661c352a1b506233c85405be47baf075f"
+    },
+    "go_conformance_report": {
+      "path": "conformance/reports/go-source-neutral-v2.json",
+      "sha256": "sha256:3d234682fa6b924f9a77b1cbee9b3d14436cb8e935469528a026ce091fc55a97"
+    },
+    "typescript_conformance_report": {
+      "path": "conformance/reports/typescript-source-neutral-v2.json",
+      "sha256": "sha256:08b390097713a2f4d68ad81ca60006f57a0b838d2161ab23c1fb2bcf41225313"
+    },
+    "go_implementation_manifest": {
+      "path": "implementations/source-neutral-v2/go/implementation-manifest.v2.json",
+      "sha256": "sha256:e002d639181577a13e42d0d9650a2081bb778fa60f18a8eca5a4fe70929ec4fb"
+    },
+    "typescript_implementation_manifest": {
+      "path": "implementations/source-neutral-v2/typescript/implementation-manifest.v2.json",
+      "sha256": "sha256:e8ca589842034f883c8b49e6e4e226a8bc776854c768e20e9d0b5837b63d4ed7"
+    },
+    "artifact_builder": {
+      "path": "scripts/build-source-neutral-v2-artifacts.mjs",
+      "sha256": "sha256:588f48f5c28a892c1be8fa514181cff9e45f1c83da6f2a34756e04635a55c27f"
+    },
+    "implementation_manifest_builder": {
+      "path": "scripts/build-source-neutral-v2-implementation-manifests.mjs",
+      "sha256": "sha256:3f7d32b5978b9889200e4bf7e5ed24c10e5543e27e2ba6aab21c15ce2b3cbcf8"
+    },
+    "candidate_manifest_builder": {
+      "path": "scripts/build-source-neutral-v2-candidate-manifest.mjs",
+      "sha256": "sha256:11526ed5e26a08b2b440e2676cf45b3de4caa987c84bc1315f0bbb36c7d4e9b1"
+    },
+    "conformance_comparator": {
+      "path": "scripts/compare-source-neutral-conformance.mjs",
+      "sha256": "sha256:3d21f54fd95aff7859a1d92e74408e5c974f6b9f6e10599242ff066f1c83796f"
+    },
+    "compatibility_validator": {
+      "path": "scripts/validate_source_neutral_v2_candidate.py",
+      "sha256": "sha256:066c9924a6ac5f29894973e819d9a58dad42f1276bb3a221b11313ea6d1d7f7a"
+    },
+    "conformance_kit": {
+      "path": "scripts/run-source-neutral-v2-conformance-kit.sh",
+      "sha256": "sha256:e158480b546fe85371fb602d9d92c29b7540bfae49b5f8e1c7e9dfc785acc7bd"
+    },
+    "schema_audit_main": {
+      "path": "tools/schema-audit-v2/main.go",
+      "sha256": "sha256:090c7dadea63ca66cf1aa6ecb9664b520b00606fffe7f4a23ca206581384ab3b"
+    },
+    "schema_audit_overlay": {
+      "path": "tools/schema-audit-v2/overlay.json",
+      "sha256": "sha256:fcbe83a5cc2969a6ff5bd74189ed533bd21bf71dccab8366553c8db2a9b876cc"
+    },
+    "schema_audit_runner": {
+      "path": "tools/schema-audit-v2/run.sh",
+      "sha256": "sha256:36b7cd24d2669bd473f8c5d98d5636dfaee9b2d20ffce94dcd1cf3053289e5fc"
+    },
+    "compatibility_tests": {
+      "path": "tests/test_source_neutral_v2_candidate.py",
+      "sha256": "sha256:8196a785579b2352eabe7cdf08b8e02e46c84b639f4cf2819c07b8d7fedc06a4"
+    }
+  },
+  "content_digest": "sha256:4b38f32735ff3612f70f394c63a27fc33b7a0673e727ed35a470b55751d41123",
+  "approvals": {
+    "source_domain_owner": "required",
+    "projection_owner": "candidate_evidence_pending_exact_digest",
+    "coordinator": "required"
+  },
+  "boundary": {
+    "binding_release": false,
+    "immutable_tag": "absent",
+    "product_adoption": "not_authorized",
+    "runtime_mutation": "none"
+  }
+}

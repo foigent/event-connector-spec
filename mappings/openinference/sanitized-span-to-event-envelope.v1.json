@@ -1,0 +1,91 @@
+{
+  "mapping_version": "foigent.openinference-sanitized-span-to-event-envelope.v1",
+  "source_schema": "xinsight.otlp-openinference-span.v1",
+  "event_envelope_schema": "foigent://schemas/event-envelope/v1",
+  "domain_payload_schema": "foigent://events/observability/openinference-span-completed/v1",
+  "identity": {
+    "event_id": "trace_id + ':' + span_id",
+    "idempotency": "foigent.event-idempotency.v1 over producer.product, producer.instance, tenant_ref, org_ref, project_ref, event_type and event_id",
+    "source_hash": "sha256 of RFC 8785 canonical sanitized Source record bytes",
+    "envelope_hash": "sha256 of RFC 8785 canonical Event Envelope bytes with integrity.envelope_hash absent",
+    "source_revision": "1"
+  },
+  "field_mapping": {
+    "$.spec_version": "declared foigent.event-envelope.v1",
+    "$.event_type": "declared observability.span.completed",
+    "$.schema_ref": "declared foigent://events/observability/openinference-span-completed/v1",
+    "$.producer.product": "declared openinference",
+    "$.producer.instance": "mapping context producer_instance exact UTF-8 bytes",
+    "$.scope": "mapping context tenant_ref when present, org_ref and project_ref",
+    "$.subject": "derived type=span and ref=span_id",
+    "$.actor": "user with actor_ref when observed; otherwise system without ref",
+    "$.time.occurred_at": "source end_time",
+    "$.time.terminal_at": "source end_time",
+    "$.time.observed_at": "absent",
+    "$.correlation.request_ref": "event_id",
+    "$.correlation.trace_ref": "trace_id",
+    "$.correlation.span_ref": "span_id",
+    "$.data_policy.payload_capture_mode": "declared metadata_only",
+    "$.data_policy.raw_payload_present": "declared false",
+    "$.payload.terminal.status": "source status",
+    "$.payload.span": "source span_kind and span_name",
+    "$.payload.trace": "source trace, span, optional parent and session identities",
+    "$.payload.model": "source model and optional provider",
+    "$.payload.usage": "only observed canonical token counters",
+    "$.payload.service": "source service_name when observed",
+    "$.payload.timeline_complete": "declared false",
+    "$.payload.capture_gaps": "deterministic sorted first-class claims"
+  },
+  "capture_gaps": {
+    "always": [
+      {
+        "affected_claim": "billing_authority",
+        "reason_code": "not_exposed_by_openinference_span_v1"
+      },
+      {
+        "affected_claim": "business_outcome",
+        "reason_code": "not_exposed_by_openinference_span_v1"
+      },
+      {
+        "affected_claim": "downstream_side_effects",
+        "reason_code": "not_exposed_by_openinference_span_v1"
+      },
+      {
+        "affected_claim": "routing_decision",
+        "reason_code": "not_exposed_by_openinference_span_v1"
+      }
+    ],
+    "conditional": [
+      {
+        "when": "session_id absent",
+        "affected_claim": "authoritative_session",
+        "reason_code": "session_id_not_observed"
+      },
+      {
+        "when": "any token counter absent",
+        "affected_claim": "token_usage",
+        "reason_code": "complete_token_counters_not_observed"
+      },
+      {
+        "when": "missing_parent true",
+        "affected_claim": "causal_parent",
+        "reason_code": "declared_parent_not_in_bounded_batch"
+      }
+    ],
+    "ordering": "affected_claim_utf8_ascending",
+    "gap_type": "not_available_from_source",
+    "severity": "warning"
+  },
+  "mutable_delivery_exclusions": [
+    "delivery_mode",
+    "cursor",
+    "high_watermark",
+    "page_time",
+    "request_id",
+    "bundle_id",
+    "bundle_sha256",
+    "retry_state",
+    "receipt_time",
+    "ingestion_time"
+  ]
+}

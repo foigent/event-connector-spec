@@ -1,0 +1,33 @@
+{
+  "manifest_version": "foigent.conformance-implementation-manifest.v1",
+  "protocol_version": "2.0.0",
+  "protocol_status": "not_binding",
+  "implementation": "go",
+  "files": {
+    "README.md": "sha256:85a5cb4990efa3b90c539080d8d4db5124dfb0972a8989c2eb12f7b01f6bf66b",
+    "cmd/foigent-source-neutral-conformance-go/main.go": "sha256:cbed1f7f98f909c9e14e54a5d85c41d772428313fde7a9b955ebc55e72520b1b",
+    "go.mod": "sha256:2443484e2cbeaf05e3c52e6dfaf569e88056eb71ff9c286e78f8126fe62132dd",
+    "internal/conformance/core.go": "sha256:b667aabb311ff5a84f8a48eec02a7a6c68e5726482d895323c20e87cde956842",
+    "internal/conformance/json.go": "sha256:a9649dcd9a799b0fa0f256d32986b2183cc16d443766a16101081ccf3114816f",
+    "internal/conformance/source_neutral.go": "sha256:918abb434b43537bd62d70049464cd24497132349c072408bdec0572997147b6",
+    "internal/conformance/source_neutral_test.go": "sha256:721ed5c825a8722627a2be98b8e46fb66370b96f16351444a82efb699abc6f2e",
+    "vendor/golang.org/x/text/LICENSE": "sha256:911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+    "vendor/golang.org/x/text/PATENTS": "sha256:96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+    "vendor/golang.org/x/text/transform/transform.go": "sha256:7716301e210f42b764ec78f4adffb05075f1d5103446a40b8a38043f5a7abd88",
+    "vendor/golang.org/x/text/unicode/norm/composition.go": "sha256:3d1be52960f2693926472819b747646e7d2371d2bb5f53097cf9d46c913052df",
+    "vendor/golang.org/x/text/unicode/norm/forminfo.go": "sha256:b8d7e1fd095038fee9db7ea058bea492c55d642de2178475569ee763eebe25d7",
+    "vendor/golang.org/x/text/unicode/norm/input.go": "sha256:965b431790bb139543d71a9c497920ef7d9a15af417456a2bbd0cdb629330e8d",
+    "vendor/golang.org/x/text/unicode/norm/iter.go": "sha256:16a40d326f9b37c5430a18894f718007728ce8324afb08d8c0a17ce7289714b0",
+    "vendor/golang.org/x/text/unicode/norm/normalize.go": "sha256:b9e7aeff51e6cb036ff4e8c6255410e7068c112e329a137d333e639f63c4a8ab",
+    "vendor/golang.org/x/text/unicode/norm/readwriter.go": "sha256:d600d1f6cff2536dbb49a0f6bb8c06f6fc05f2754dad2dc05f1d44f9e8e48a35",
+    "vendor/golang.org/x/text/unicode/norm/tables10.0.0.go": "sha256:ed995d92759262b7a75ce1eb05dccdbe32edd4c02d831df79372000edc6fb446",
+    "vendor/golang.org/x/text/unicode/norm/tables11.0.0.go": "sha256:6dc6e8633bca4b2cca76eca486ffe719f023fd0189238475c51df54fba994a06",
+    "vendor/golang.org/x/text/unicode/norm/tables12.0.0.go": "sha256:4569659ddd6489bfaf44c68fe7107b4dc1d7fcb871cde87c9cae5d2df8374ffc",
+    "vendor/golang.org/x/text/unicode/norm/tables13.0.0.go": "sha256:37740aa89edd65916230decb83a3bcc5ee32e1d87287f3abe2adf92c3648eeed",
+    "vendor/golang.org/x/text/unicode/norm/tables15.0.0.go": "sha256:61f78dd80390fdfff02b4e49aea4feac75dde7919b9a5d9c63042ab3e2dc1d6e",
+    "vendor/golang.org/x/text/unicode/norm/tables9.0.0.go": "sha256:42f5946044610a9990f6ea6e272e63f72efaafaa0f685d604a46d3cae9ea4490",
+    "vendor/golang.org/x/text/unicode/norm/transform.go": "sha256:6f8014595643e2acae76d47ed6abe8ace969a0c9070dbfa5a89c86bebcec812d",
+    "vendor/golang.org/x/text/unicode/norm/trie.go": "sha256:d87793d558251ee8824954f0b7bc5564803e4c9d59a8c4eebb4c3c5cfbd19492",
+    "vendor/modules.txt": "sha256:da234dccd4251f92adf5665a7a1f7fe9eb3d07cf9ebd68bea129ce03a0e7b1ec"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "mapping_version": "foigent.openinference-otlp-json-to-sanitized-span.v1",
+  "input": {
+    "format": "otlp.export-trace-service-request.json.v1",
+    "fixture": "fixtures/source/openinference/reference-otlp-export.v1.json",
+    "bounds": {
+      "max_bytes": 8388608,
+      "max_spans": 200
+    }
+  },
+  "output": {
+    "schema_id": "xinsight.otlp-openinference-span.v1",
+    "schema_path": "schemas/openinference-span.v1.schema.json",
+    "fixture": "fixtures/source/openinference/reference-sanitized-span.v1.json",
+    "ordering": "trace_id_then_span_id_utf8"
+  },
+  "selection": {
+    "predicate": "attributes['openinference.span.kind'] == 'LLM'",
+    "nonmatching": "skip_and_count"
+  },
+  "field_mapping": {
+    "$.trace_id": "$.resourceSpans[*].scopeSpans[*].spans[*].traceId lowercased",
+    "$.span_id": "$.resourceSpans[*].scopeSpans[*].spans[*].spanId lowercased",
+    "$.parent_span_id": "$.resourceSpans[*].scopeSpans[*].spans[*].parentSpanId lowercased when present",
+    "$.session_id": "span attribute session.id when present",
+    "$.span_name": "$.resourceSpans[*].scopeSpans[*].spans[*].name",
+    "$.span_kind": "declared LLM after selection",
+    "$.start_time": "startTimeUnixNano losslessly converted to UTC microsecond time",
+    "$.end_time": "endTimeUnixNano losslessly converted to UTC microsecond time",
+    "$.status": "OTLP OK/UNSET -> succeeded; ERROR -> failed",
+    "$.model": "span attribute llm.model_name",
+    "$.provider": "span attribute llm.provider when present",
+    "$.prompt_tokens": "span attribute llm.token_count.prompt as canonical decimal string",
+    "$.completion_tokens": "span attribute llm.token_count.completion as canonical decimal string",
+    "$.total_tokens": "span attribute llm.token_count.total as canonical decimal string",
+    "$.actor_ref": "span attribute user.id when present",
+    "$.service_name": "resource attribute service.name when present",
+    "$.missing_parent": "true only when parent_span_id is declared but absent from this bounded bundle"
+  },
+  "strictness": [
+    "reject nested duplicate JSON keys",
+    "reject duplicate OTLP attribute keys",
+    "reject sub-microsecond timestamp precision",
+    "reject token counters not encoded as protobuf JSON strings",
+    "reject canonical decimal counters above 9223372036854775807",
+    "reject inconsistent prompt plus completion versus total",
+    "preserve source-derived opaque UTF-8 without NFC normalization"
+  ],
+  "privacy": {
+    "allowlist_only": true,
+    "always_drop": [
+      "input.value",
+      "output.value",
+      "llm.input_messages",
+      "llm.output_messages",
+      "credentials",
+      "network addresses",
+      "arbitrary unrecognized attributes"
+    ],
+    "raw_bundle_persisted": false
+  }
+}

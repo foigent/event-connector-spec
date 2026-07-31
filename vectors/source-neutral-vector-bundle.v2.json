@@ -1,0 +1,745 @@
+{
+  "bundle_version": "foigent.source-neutral-vector-bundle.v2",
+  "protocol_version": "2.0.0",
+  "protocol_status": "not_binding",
+  "conformance_contract": {
+    "path": "conformance/source-neutral-conformance-contract.v2.json",
+    "sha256": "sha256:f11d263a7d2b8e98240a9a9750f349d83c1f8a12263682a49601b74eb7e891d2"
+  },
+  "mapping_context": {
+    "producer_product": "openinference",
+    "producer_instance": "otel-collector-prod-a",
+    "tenant_ref": null,
+    "org_ref": "1",
+    "project_ref": "7",
+    "connector_id": "foigent.openinference.otlp-spans",
+    "connector_version": "1.0.0"
+  },
+  "openinference_mapping": [
+    {
+      "case_id": "reference-bounded-offline",
+      "case_classes": [
+        "canonical_envelope",
+        "capture_gap_derivation",
+        "source_sanitization"
+      ],
+      "result_kind": "bytes",
+      "raw_input_path": "fixtures/source/openinference/reference-otlp-export.v1.json",
+      "source_input_path": "fixtures/source/openinference/reference-sanitized-span.v1.json",
+      "hash_input_path": "fixtures/shared/openinference-span-envelope.hash-input.json",
+      "raw_file_sha256": "sha256:8b26b6e47a019eb2540ceb4be0177fc3e69dd0248449ff50fa19b55c10fe057c",
+      "source_file_sha256": "sha256:bb59520c7b9bbf9f53bdd52499985e32c31858dbdfc9a49d33fecd087c26ce0d",
+      "hash_input_file_sha256": "sha256:ec6956ba4e8674faaa341923168b4d1f45e8a4b4b8c362568d7d0c6b815471c9",
+      "canonical_source_sha256": "sha256:533e33c2e02a6a67632107ae99f3993eee1a1da39835029521a4c3fe0ceb4708",
+      "canonical_bytes": 2605,
+      "envelope_hash": "sha256:02dc4475ff08b58ded11359de849f23c0b1d2dd378d376adfe6c2f09e7ea6819",
+      "idempotency_key": "sha256:7e955832524e293df668d87d39c5a17303916c25b2e8ff87b5fbf4ca8bac851b",
+      "capture_gap_count": 4
+    }
+  ],
+  "idempotency": [
+    {
+      "case_id": "openinference-reference",
+      "case_classes": [
+        "scoped_idempotency"
+      ],
+      "result_kind": "bytes",
+      "components": [
+        "openinference",
+        "otel-collector-prod-a",
+        null,
+        "1",
+        "7",
+        "observability.span.completed",
+        "0123456789abcdef0123456789abcdef:0123456789abcdef"
+      ],
+      "identity_input_hex": "666f6967656e742e6576656e742d6964656d706f74656e63792e76310000000d6f70656e696e666572656e6365000000156f74656c2d636f6c6c6563746f722d70726f642d6100000000000000013100000001370000001c6f62736572766162696c6974792e7370616e2e636f6d706c657465640000003130313233343536373839616263646566303132333435363738396162636465663a30313233343536373839616263646566",
+      "idempotency_key": "sha256:7e955832524e293df668d87d39c5a17303916c25b2e8ff87b5fbf4ca8bac851b"
+    }
+  ],
+  "manifest_semantics": [
+    {
+      "case_id": "valid-pull",
+      "case_classes": [
+        "checkpoint_applicability",
+        "manifest_mode_union",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "transport": "https_pull",
+        "delivery": "https_pull",
+        "activation": "activation_forward",
+        "checkpoint": "required",
+        "ingestion_capture_mode": "api_pull_import",
+        "delivery_scope": "poll_page",
+        "partial_acceptance": "reject_batch"
+      },
+      "expected": {
+        "checkpoint": "required",
+        "mode": "https_pull",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "valid-push",
+      "case_classes": [
+        "checkpoint_applicability",
+        "manifest_mode_union",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "transport": "otlp_http_push",
+        "delivery": "otlp_http_push",
+        "activation": "receiver_activation_forward",
+        "checkpoint": "not_applicable",
+        "ingestion_capture_mode": "otlp_http_receive",
+        "delivery_scope": "accepted_request",
+        "partial_acceptance": "reject_batch"
+      },
+      "expected": {
+        "checkpoint": "not_applicable",
+        "mode": "otlp_http_push",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "valid-offline",
+      "case_classes": [
+        "checkpoint_applicability",
+        "manifest_mode_union",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "transport": "bounded_offline",
+        "delivery": "bounded_offline",
+        "activation": "explicit_bounded_import",
+        "checkpoint": "not_applicable",
+        "ingestion_capture_mode": "bounded_offline_import",
+        "delivery_scope": "bounded_bundle",
+        "partial_acceptance": "reject_batch"
+      },
+      "expected": {
+        "checkpoint": "not_applicable",
+        "mode": "bounded_offline",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "hybrid-push-pull-delivery",
+      "case_classes": [
+        "checkpoint_applicability",
+        "manifest_mode_union",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "transport": "otlp_http_push",
+        "delivery": "https_pull",
+        "activation": "receiver_activation_forward",
+        "checkpoint": "not_applicable",
+        "ingestion_capture_mode": "otlp_http_receive",
+        "delivery_scope": "accepted_request",
+        "partial_acceptance": "reject_batch"
+      },
+      "expected": {
+        "error_code": "mode_axis_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "push-with-checkpoint",
+      "case_classes": [
+        "checkpoint_applicability",
+        "manifest_mode_union",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "transport": "otlp_http_push",
+        "delivery": "otlp_http_push",
+        "activation": "receiver_activation_forward",
+        "checkpoint": "required",
+        "ingestion_capture_mode": "otlp_http_receive",
+        "delivery_scope": "accepted_request",
+        "partial_acceptance": "reject_batch"
+      },
+      "expected": {
+        "error_code": "checkpoint_not_applicable",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "offline-partial-acceptance",
+      "case_classes": [
+        "checkpoint_applicability",
+        "manifest_mode_union",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "transport": "bounded_offline",
+        "delivery": "bounded_offline",
+        "activation": "explicit_bounded_import",
+        "checkpoint": "not_applicable",
+        "ingestion_capture_mode": "bounded_offline_import",
+        "delivery_scope": "bounded_bundle",
+        "partial_acceptance": "allow_partial"
+      },
+      "expected": {
+        "error_code": "partial_acceptance_forbidden",
+        "valid": false
+      }
+    }
+  ],
+  "lifecycle": [
+    {
+      "case_id": "pull-polling-steady",
+      "case_classes": [
+        "checkpoint_applicability",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_mode": "https_pull",
+        "processing": "polling",
+        "checkpoint": "required",
+        "checkpoint_state": "steady"
+      },
+      "expected": {
+        "checkpoint_state": "steady",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-receiving",
+      "case_classes": [
+        "checkpoint_applicability",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_mode": "otlp_http_push",
+        "processing": "receiving",
+        "checkpoint": "not_applicable"
+      },
+      "expected": {
+        "checkpoint_state": "not_applicable",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "offline-importing",
+      "case_classes": [
+        "checkpoint_applicability",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_mode": "bounded_offline",
+        "processing": "importing",
+        "checkpoint": "not_applicable"
+      },
+      "expected": {
+        "checkpoint_state": "not_applicable",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-checkpoint-invalid",
+      "case_classes": [
+        "checkpoint_applicability",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_mode": "otlp_http_push",
+        "processing": "receiving",
+        "checkpoint": "required",
+        "checkpoint_state": "steady"
+      },
+      "expected": {
+        "error_code": "checkpoint_not_applicable",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "offline-polling-invalid",
+      "case_classes": [
+        "checkpoint_applicability",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_mode": "bounded_offline",
+        "processing": "polling",
+        "checkpoint": "not_applicable"
+      },
+      "expected": {
+        "error_code": "processing_mode_mismatch",
+        "valid": false
+      }
+    }
+  ],
+  "delivery": [
+    {
+      "case_id": "pull-all-converged",
+      "case_classes": [
+        "checkpoint_applicability",
+        "delivery_acknowledgement"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "https_pull",
+        "relation": "new",
+        "all_items_converged": true
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": true,
+        "outcome": "inserted",
+        "receipt_completed": false
+      }
+    },
+    {
+      "case_id": "pull-partial-failure",
+      "case_classes": [
+        "checkpoint_applicability",
+        "partial_batch_rejection"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "https_pull",
+        "relation": "new",
+        "all_items_converged": false
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "outcome": "retry_batch",
+        "receipt_completed": false
+      }
+    },
+    {
+      "case_id": "push-duplicate-noop",
+      "case_classes": [
+        "delivery_acknowledgement",
+        "duplicate_noop"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "otlp_http_push",
+        "relation": "same_identity_same_hash",
+        "all_items_converged": true
+      },
+      "expected": {
+        "acknowledgement": "durable",
+        "checkpoint_committed": false,
+        "outcome": "duplicate_noop",
+        "receipt_completed": false
+      }
+    },
+    {
+      "case_id": "push-content-conflict",
+      "case_classes": [
+        "content_conflict",
+        "delivery_acknowledgement"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "otlp_http_push",
+        "relation": "same_identity_different_hash",
+        "all_items_converged": false
+      },
+      "expected": {
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "outcome": "conflict",
+        "receipt_completed": false
+      }
+    },
+    {
+      "case_id": "push-partial-failure",
+      "case_classes": [
+        "delivery_acknowledgement",
+        "partial_batch_rejection"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "otlp_http_push",
+        "relation": "new",
+        "all_items_converged": false
+      },
+      "expected": {
+        "acknowledgement": "withheld",
+        "checkpoint_committed": false,
+        "outcome": "retry_batch",
+        "receipt_completed": false
+      }
+    },
+    {
+      "case_id": "offline-all-converged",
+      "case_classes": [
+        "bounded_offline_receipt",
+        "delivery_acknowledgement"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "bounded_offline",
+        "relation": "new",
+        "all_items_converged": true
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "outcome": "inserted",
+        "receipt_completed": true
+      }
+    },
+    {
+      "case_id": "offline-duplicate-noop",
+      "case_classes": [
+        "bounded_offline_receipt",
+        "duplicate_noop"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "bounded_offline",
+        "relation": "same_identity_same_hash",
+        "all_items_converged": true
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "outcome": "duplicate_noop",
+        "receipt_completed": true
+      }
+    },
+    {
+      "case_id": "offline-content-conflict",
+      "case_classes": [
+        "bounded_offline_receipt",
+        "content_conflict"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "bounded_offline",
+        "relation": "same_identity_different_hash",
+        "all_items_converged": false
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "outcome": "conflict",
+        "receipt_completed": false
+      }
+    },
+    {
+      "case_id": "offline-partial-failure",
+      "case_classes": [
+        "bounded_offline_receipt",
+        "partial_batch_rejection"
+      ],
+      "result_kind": "state_transition",
+      "input": {
+        "mode": "bounded_offline",
+        "relation": "new",
+        "all_items_converged": false
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "outcome": "retry_batch",
+        "receipt_completed": false
+      }
+    }
+  ],
+  "completeness": [
+    {
+      "case_id": "v1-pull-complete",
+      "case_classes": [
+        "delivery_completeness",
+        "timeline_completeness"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_scope": "poll_page",
+        "delivery_scope_complete": true,
+        "execution_timeline": "complete",
+        "assertion_basis": "source_contract"
+      },
+      "expected": {
+        "delivery_complete": true,
+        "timeline_claim": "complete",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "openinference-offline-partial",
+      "case_classes": [
+        "delivery_completeness",
+        "timeline_completeness"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_scope": "bounded_bundle",
+        "delivery_scope_complete": true,
+        "execution_timeline": "partial",
+        "assertion_basis": "connector_observation"
+      },
+      "expected": {
+        "delivery_complete": true,
+        "timeline_claim": "partial",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-not-asserted",
+      "case_classes": [
+        "delivery_completeness",
+        "timeline_completeness"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_scope": "accepted_request",
+        "delivery_scope_complete": true,
+        "execution_timeline": "not_asserted",
+        "assertion_basis": "connector_observation"
+      },
+      "expected": {
+        "delivery_complete": true,
+        "timeline_claim": "not_asserted",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "partial-delivery-invalid",
+      "case_classes": [
+        "delivery_completeness",
+        "timeline_completeness"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "delivery_scope": "bounded_bundle",
+        "delivery_scope_complete": false,
+        "execution_timeline": "partial",
+        "assertion_basis": "connector_observation"
+      },
+      "expected": {
+        "error_code": "partial_delivery_scope_forbidden",
+        "valid": false
+      }
+    }
+  ],
+  "capture_modes": [
+    {
+      "case_id": "offline-metadata-only",
+      "case_classes": [
+        "capture_mode_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "ingestion_capture_mode": "bounded_offline_import",
+        "payload_capture_mode": "metadata_only"
+      },
+      "expected": {
+        "ingestion_capture_mode": "bounded_offline_import",
+        "payload_capture_mode": "metadata_only",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "collapsed-mode-invalid",
+      "case_classes": [
+        "capture_mode_separation"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "ingestion_capture_mode": "metadata_only",
+        "payload_capture_mode": "metadata_only"
+      },
+      "expected": {
+        "error_code": "ingestion_capture_mode_invalid",
+        "valid": false
+      }
+    }
+  ],
+  "mutable_delivery": [
+    {
+      "case_id": "wrapper-state-excluded",
+      "case_classes": [
+        "mutable_delivery_exclusion"
+      ],
+      "result_kind": "classification",
+      "hash_input_path": "fixtures/shared/openinference-span-envelope.hash-input.json",
+      "variants": [
+        {
+          "mode": "https_pull",
+          "cursor": "cursor-a",
+          "high_watermark": "watermark-a",
+          "observed_at": "2026-07-31T02:01:00.000000Z"
+        },
+        {
+          "mode": "otlp_http_push",
+          "request_id": "request-a",
+          "received_at": "2026-07-31T02:02:00.000000Z"
+        },
+        {
+          "mode": "bounded_offline",
+          "bundle_id": "bundle-a",
+          "bundle_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "imported_at": "2026-07-31T02:03:00.000000Z"
+        }
+      ],
+      "expected": {
+        "envelope_hash": "sha256:02dc4475ff08b58ded11359de849f23c0b1d2dd378d376adfe6c2f09e7ea6819",
+        "idempotency_key": "sha256:7e955832524e293df668d87d39c5a17303916c25b2e8ff87b5fbf4ca8bac851b",
+        "unchanged": true
+      }
+    }
+  ],
+  "v1_compatibility": [
+    {
+      "case_id": "unirouter-pull",
+      "case_classes": [
+        "v1_pull_compatibility"
+      ],
+      "result_kind": "classification",
+      "manifest_path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+      "expected": {
+        "checkpoint": "required",
+        "delivery_scope": "poll_page",
+        "execution_timeline": "complete",
+        "ingestion_capture_mode": "api_pull_import",
+        "original_manifest_version": "foigent.connector-manifest.v1",
+        "projected_mode": "https_pull"
+      }
+    },
+    {
+      "case_id": "litellm-pull",
+      "case_classes": [
+        "v1_pull_compatibility"
+      ],
+      "result_kind": "classification",
+      "manifest_path": "manifests/foigent.litellm.spend-logs-1.0.0.json",
+      "expected": {
+        "checkpoint": "required",
+        "delivery_scope": "poll_page",
+        "execution_timeline": "complete",
+        "ingestion_capture_mode": "api_pull_import",
+        "original_manifest_version": "foigent.connector-manifest.v1",
+        "projected_mode": "https_pull"
+      }
+    }
+  ],
+  "negative": [
+    {
+      "case_id": "duplicate-json-key",
+      "case_classes": [
+        "duplicate_key_rejection"
+      ],
+      "result_kind": "classification",
+      "kind": "strict_json",
+      "input": "{\"trace_id\":\"a\",\"nested\":{\"span_id\":\"b\",\"span_id\":\"c\"}}",
+      "expected": {
+        "error_code": "duplicate_json_key",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "raw-payload-leak",
+      "case_classes": [
+        "privacy_rejection"
+      ],
+      "result_kind": "classification",
+      "kind": "privacy",
+      "input": {
+        "schema_version": "xinsight.otlp-openinference-span.v1",
+        "input_value": "forbidden"
+      },
+      "expected": {
+        "error_code": "raw_payload_forbidden",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "decimal-int64-max",
+      "case_classes": [
+        "decimal_boundary"
+      ],
+      "result_kind": "classification",
+      "kind": "decimal",
+      "input": "9223372036854775807",
+      "expected": {
+        "valid": true,
+        "value": "9223372036854775807"
+      }
+    },
+    {
+      "case_id": "decimal-above-int64",
+      "case_classes": [
+        "decimal_boundary"
+      ],
+      "result_kind": "classification",
+      "kind": "decimal",
+      "input": "9223372036854775808",
+      "expected": {
+        "valid": false,
+        "value": "9223372036854775808"
+      }
+    },
+    {
+      "case_id": "timestamp-exact-microsecond",
+      "case_classes": [
+        "timestamp_normalization"
+      ],
+      "result_kind": "classification",
+      "kind": "timestamp",
+      "input": "2026-07-31T10:00:00.123456+08:00",
+      "expected": {
+        "normalized": "2026-07-31T02:00:00.123456Z",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "timestamp-submicrosecond",
+      "case_classes": [
+        "timestamp_normalization"
+      ],
+      "result_kind": "classification",
+      "kind": "timestamp",
+      "input": "2026-07-31T02:00:00.123456001Z",
+      "expected": {
+        "error_code": "timestamp_precision_loss",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "protocol-non-nfc",
+      "case_classes": [
+        "protocol_nfc_rejection"
+      ],
+      "result_kind": "classification",
+      "kind": "protocol_unicode",
+      "input": "café",
+      "expected": {
+        "valid": false
+      }
+    },
+    {
+      "case_id": "opaque-source-non-nfc",
+      "case_classes": [
+        "opaque_utf8_preservation"
+      ],
+      "result_kind": "classification",
+      "kind": "opaque_unicode",
+      "input": "café",
+      "expected": {
+        "utf8_hex": "63616665cc81",
+        "valid": true
+      }
+    }
+  ]
+}

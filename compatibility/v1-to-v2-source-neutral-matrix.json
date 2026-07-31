@@ -1,0 +1,56 @@
+{
+  "matrix_version": "foigent.connector-v1-to-v2-compatibility.v1",
+  "predecessor": {
+    "protocol_version": "1.1.2",
+    "tag_commit": "fd82aeca9877bea8064b25c365a3cdcdd0bb3d16",
+    "tree": "d316d6ada678066ed7679a772856aea6157d869d",
+    "content_digest": "sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813"
+  },
+  "candidate": {
+    "protocol_version": "2.0.0",
+    "status": "not_binding"
+  },
+  "unchanged": [
+    "event-envelope.v1 bytes and semantics",
+    "foigent.event-idempotency.v1 identity tuple and LP encoding",
+    "source hash and envelope hash domains",
+    "RFC 8785 safe-integer canonicalization profile",
+    "decimal int64 strings and numerical upper bound 9223372036854775807",
+    "lossless UTC microsecond normalization",
+    "strict nested duplicate-key rejection",
+    "NFC protocol-control and opaque Source UTF-8 rules",
+    "duplicate-noop, fail-closed conflict and at-least-once convergence",
+    "first-class Capture Gaps",
+    "all v1.1.2 artifacts and product compatibility seeds"
+  ],
+  "v1_pull_projection": {
+    "$.transport.mode": "$.transport.mode=https_pull",
+    "$.delivery.checkpoint_commit": "$.delivery.convergence=after_all_items_converge",
+    "$.delivery.conflict": "$.delivery.conflict",
+    "$.delivery.empty_page_cursor_advance": "$.delivery.empty_page_cursor_advance",
+    "$.bootstrap.mode": "$.activation.mode=activation_forward",
+    "$.bootstrap.broad_backfill": "$.activation.broad_backfill",
+    "$.checkpoint.strategy": "$.state_progression.strategy",
+    "$.checkpoint.cursor_ownership": "$.state_progression.cursor_ownership",
+    "$.payload_policy.ingestion_capture_mode=api_import": "$.payload_policy.ingestion_capture_mode=api_pull_import",
+    "$.compatibility.timeline_complete=true": "$.completeness.execution_timeline=complete",
+    "v1 page completeness": "$.completeness.delivery_scope=poll_page and delivery_scope_complete=true"
+  },
+  "loading_rule": "A v2 consumer may project an immutable v1 manifest into the v2 pull semantics above. It must retain the original v1 bytes, version and digest and must not serialize the projection back as the same artifact.",
+  "breaking_changes": [
+    "Connector Manifest v2 is a new Schema and v1 documents do not validate as v2",
+    "transport, delivery, activation and state progression are mode-discriminated",
+    "Checkpoint is not applicable to push or bounded-offline delivery",
+    "compatibility.timeline_complete is replaced by a separate completeness object",
+    "operational receipt and error phases have source-neutral v2 forms"
+  ],
+  "product_compatibility_gates": {
+    "unirouter_completed_execution_v1": "must remain byte-identical and load through v1 pull projection",
+    "litellm_spend_logs_v1": "must remain byte-identical and load through v1 pull projection",
+    "xinsight_openinference_candidate": "requires product-local provenance and checkpoint migration before activation"
+  },
+  "deprecation_window": {
+    "manifest_v1": "supported for the entire 2.x major line through explicit compatibility loading",
+    "event_envelope_v1": "not deprecated"
+  }
+}

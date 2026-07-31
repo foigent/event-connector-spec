@@ -1,0 +1,939 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/connector-manifest/v2",
+  "title": "Foigent Connector Manifest V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "connector_id",
+    "connector_version",
+    "connector_class",
+    "direction",
+    "source_product",
+    "event_identity_profile",
+    "supported_source_schemas",
+    "emitted_event_schemas",
+    "transport",
+    "delivery",
+    "activation",
+    "state_progression",
+    "coverage",
+    "instance_binding",
+    "payload_policy",
+    "required_capabilities",
+    "declared_capture_gaps",
+    "completeness",
+    "compatibility"
+  ],
+  "properties": {
+    "manifest_version": {
+      "const": "foigent.connector-manifest.v2"
+    },
+    "connector_id": {
+      "$ref": "#/$defs/connectorID"
+    },
+    "connector_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "connector_class": {
+      "enum": [
+        "integration",
+        "value",
+        "enforcement"
+      ]
+    },
+    "direction": {
+      "enum": [
+        "source",
+        "sink",
+        "bidirectional"
+      ]
+    },
+    "source_product": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$",
+      "maxLength": 64
+    },
+    "source_release": {
+      "$ref": "#/$defs/sourceRelease"
+    },
+    "event_identity_profile": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_-]*)+$",
+      "maxLength": 200
+    },
+    "supported_source_schemas": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_id",
+          "sha256"
+        ],
+        "properties": {
+          "schema_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256Ref"
+          }
+        }
+      }
+    },
+    "emitted_event_schemas": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_type",
+          "schema_ref",
+          "schema_version"
+        ],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*)+$",
+            "maxLength": 128
+          },
+          "schema_ref": {
+            "type": "string",
+            "pattern": "^foigent://events/[a-z0-9][a-z0-9/_-]*/v[1-9][0-9]*$",
+            "maxLength": 200
+          },
+          "schema_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          }
+        }
+      }
+    },
+    "transport": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/httpsPullTransport"
+        },
+        {
+          "$ref": "#/$defs/otlpHTTPPushTransport"
+        },
+        {
+          "$ref": "#/$defs/boundedOfflineTransport"
+        }
+      ]
+    },
+    "delivery": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/httpsPullDelivery"
+        },
+        {
+          "$ref": "#/$defs/otlpHTTPPushDelivery"
+        },
+        {
+          "$ref": "#/$defs/boundedOfflineDelivery"
+        }
+      ]
+    },
+    "activation": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/pullActivation"
+        },
+        {
+          "$ref": "#/$defs/pushActivation"
+        },
+        {
+          "$ref": "#/$defs/offlineActivation"
+        }
+      ]
+    },
+    "state_progression": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/pullState"
+        },
+        {
+          "$ref": "#/$defs/pushState"
+        },
+        {
+          "$ref": "#/$defs/offlineState"
+        }
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included",
+        "excluded"
+      ],
+      "properties": {
+        "included": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/boundedText"
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/boundedText"
+          }
+        }
+      }
+    },
+    "instance_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_field",
+        "envelope_field",
+        "comparison",
+        "change_semantics"
+      ],
+      "properties": {
+        "source_field": {
+          "const": "source_instance"
+        },
+        "envelope_field": {
+          "const": "producer.instance"
+        },
+        "comparison": {
+          "const": "exact_utf8_bytes"
+        },
+        "change_semantics": {
+          "const": "new_connector_instance_identity_domain"
+        }
+      }
+    },
+    "payload_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ingestion_capture_mode",
+        "payload_capture_mode",
+        "raw_payload_present"
+      ],
+      "properties": {
+        "ingestion_capture_mode": {
+          "enum": [
+            "api_pull_import",
+            "otlp_http_receive",
+            "bounded_offline_import"
+          ]
+        },
+        "payload_capture_mode": {
+          "enum": [
+            "none",
+            "metadata_only",
+            "redacted",
+            "full"
+          ]
+        },
+        "raw_payload_present": {
+          "type": "boolean"
+        }
+      }
+    },
+    "required_capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_.-]*$",
+        "maxLength": 128
+      }
+    },
+    "declared_capture_gaps": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "affected_claim",
+          "reason_code"
+        ],
+        "properties": {
+          "affected_claim": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.-]*$",
+            "maxLength": 128
+          },
+          "reason_code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.-]*$",
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "completeness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "delivery_scope",
+        "delivery_scope_complete",
+        "execution_timeline",
+        "assertion_basis",
+        "capture_gap_policy"
+      ],
+      "properties": {
+        "delivery_scope": {
+          "enum": [
+            "poll_page",
+            "accepted_request",
+            "bounded_bundle"
+          ]
+        },
+        "delivery_scope_complete": {
+          "const": true
+        },
+        "execution_timeline": {
+          "enum": [
+            "complete",
+            "partial",
+            "not_asserted"
+          ]
+        },
+        "assertion_basis": {
+          "enum": [
+            "source_contract",
+            "connector_observation",
+            "operator_declaration"
+          ]
+        },
+        "capture_gap_policy": {
+          "const": "first_class_required"
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference_profile",
+        "reference_projection_contract",
+        "reference_compatibility_vector_bundle",
+        "source_revision",
+        "retention"
+      ],
+      "properties": {
+        "reference_profile": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "reference_projection_contract": {
+          "$ref": "#/$defs/componentRef"
+        },
+        "reference_compatibility_vector_bundle": {
+          "$ref": "#/$defs/componentRef"
+        },
+        "source_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "retention": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*[dhm]$",
+          "maxLength": 32
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "transport": {
+            "properties": {
+              "mode": {
+                "const": "https_pull"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          }
+        },
+        "required": [
+          "transport"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "$ref": "#/$defs/httpsPullDelivery"
+          },
+          "activation": {
+            "$ref": "#/$defs/pullActivation"
+          },
+          "state_progression": {
+            "$ref": "#/$defs/pullState"
+          },
+          "payload_policy": {
+            "properties": {
+              "ingestion_capture_mode": {
+                "const": "api_pull_import"
+              }
+            }
+          },
+          "completeness": {
+            "properties": {
+              "delivery_scope": {
+                "const": "poll_page"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transport": {
+            "properties": {
+              "mode": {
+                "const": "otlp_http_push"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          }
+        },
+        "required": [
+          "transport"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "$ref": "#/$defs/otlpHTTPPushDelivery"
+          },
+          "activation": {
+            "$ref": "#/$defs/pushActivation"
+          },
+          "state_progression": {
+            "$ref": "#/$defs/pushState"
+          },
+          "payload_policy": {
+            "properties": {
+              "ingestion_capture_mode": {
+                "const": "otlp_http_receive"
+              }
+            }
+          },
+          "completeness": {
+            "properties": {
+              "delivery_scope": {
+                "const": "accepted_request"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transport": {
+            "properties": {
+              "mode": {
+                "const": "bounded_offline"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          }
+        },
+        "required": [
+          "transport"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "$ref": "#/$defs/boundedOfflineDelivery"
+          },
+          "activation": {
+            "$ref": "#/$defs/offlineActivation"
+          },
+          "state_progression": {
+            "$ref": "#/$defs/offlineState"
+          },
+          "payload_policy": {
+            "properties": {
+              "ingestion_capture_mode": {
+                "const": "bounded_offline_import"
+              }
+            }
+          },
+          "completeness": {
+            "properties": {
+              "delivery_scope": {
+                "const": "bounded_bundle"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "connectorID": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_-]*)+$",
+      "maxLength": 160
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "sha256Ref": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "boundedText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 320
+    },
+    "componentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._/-]+$",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256Ref"
+        }
+      }
+    },
+    "sourceRelease": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "git_commit",
+        "image",
+        "platform_manifests",
+        "signature"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "git_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repository",
+            "index_digest"
+          ],
+          "properties": {
+            "repository": {
+              "type": "string",
+              "pattern": "^[a-z0-9.-]+(/[a-z0-9._-]+)+$",
+              "maxLength": 200
+            },
+            "index_digest": {
+              "$ref": "#/$defs/sha256Ref"
+            }
+          }
+        },
+        "platform_manifests": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "linux_amd64",
+            "linux_arm64"
+          ],
+          "properties": {
+            "linux_amd64": {
+              "$ref": "#/$defs/sha256Ref"
+            },
+            "linux_arm64": {
+              "$ref": "#/$defs/sha256Ref"
+            }
+          }
+        },
+        "signature": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scheme",
+            "public_key_sha256",
+            "verified_index_digest"
+          ],
+          "properties": {
+            "scheme": {
+              "const": "cosign-key-v1"
+            },
+            "public_key_sha256": {
+              "$ref": "#/$defs/sha256Ref"
+            },
+            "verified_index_digest": {
+              "$ref": "#/$defs/sha256Ref"
+            }
+          }
+        }
+      }
+    },
+    "httpsPullTransport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "route",
+        "page_schema",
+        "max_items",
+        "max_bytes"
+      ],
+      "properties": {
+        "mode": {
+          "const": "https_pull"
+        },
+        "route": {
+          "type": "string",
+          "pattern": "^/[A-Za-z0-9_./-]+$",
+          "maxLength": 240
+        },
+        "page_schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "max_items": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "max_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        }
+      }
+    },
+    "otlpHTTPPushTransport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "receiver_route",
+        "request_schema",
+        "response_schema",
+        "max_items",
+        "max_bytes"
+      ],
+      "properties": {
+        "mode": {
+          "const": "otlp_http_push"
+        },
+        "receiver_route": {
+          "type": "string",
+          "pattern": "^/[A-Za-z0-9_./-]+$",
+          "maxLength": 240
+        },
+        "request_schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "response_schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "max_items": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "max_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        }
+      }
+    },
+    "boundedOfflineTransport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "bundle_schema",
+        "bundle_identity",
+        "max_items",
+        "max_bytes"
+      ],
+      "properties": {
+        "mode": {
+          "const": "bounded_offline"
+        },
+        "bundle_schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "bundle_identity": {
+          "const": "sha256_exact_bytes"
+        },
+        "max_items": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "max_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 268435456
+        }
+      }
+    },
+    "httpsPullDelivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "guarantee",
+        "convergence",
+        "conflict",
+        "partial_acceptance",
+        "empty_page_cursor_advance"
+      ],
+      "properties": {
+        "mode": {
+          "const": "https_pull"
+        },
+        "guarantee": {
+          "const": "at_least_once"
+        },
+        "convergence": {
+          "const": "after_all_items_converge"
+        },
+        "conflict": {
+          "const": "fail_closed"
+        },
+        "partial_acceptance": {
+          "const": "reject_batch"
+        },
+        "empty_page_cursor_advance": {
+          "const": "fail_closed"
+        }
+      }
+    },
+    "otlpHTTPPushDelivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "guarantee",
+        "convergence",
+        "conflict",
+        "partial_acceptance",
+        "acknowledgement"
+      ],
+      "properties": {
+        "mode": {
+          "const": "otlp_http_push"
+        },
+        "guarantee": {
+          "const": "at_least_once"
+        },
+        "convergence": {
+          "const": "after_all_items_converge"
+        },
+        "conflict": {
+          "const": "fail_closed"
+        },
+        "partial_acceptance": {
+          "const": "reject_batch"
+        },
+        "acknowledgement": {
+          "const": "durable_response_after_all_items_converge"
+        }
+      }
+    },
+    "boundedOfflineDelivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "guarantee",
+        "convergence",
+        "conflict",
+        "partial_acceptance",
+        "receipt"
+      ],
+      "properties": {
+        "mode": {
+          "const": "bounded_offline"
+        },
+        "guarantee": {
+          "const": "at_least_once"
+        },
+        "convergence": {
+          "const": "after_all_items_converge"
+        },
+        "conflict": {
+          "const": "fail_closed"
+        },
+        "partial_acceptance": {
+          "const": "reject_batch"
+        },
+        "receipt": {
+          "const": "durable_receipt_after_all_items_converge"
+        }
+      }
+    },
+    "pullActivation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "broad_backfill"
+      ],
+      "properties": {
+        "mode": {
+          "const": "activation_forward"
+        },
+        "broad_backfill": {
+          "const": false
+        }
+      }
+    },
+    "pushActivation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "broad_backfill"
+      ],
+      "properties": {
+        "mode": {
+          "const": "receiver_activation_forward"
+        },
+        "broad_backfill": {
+          "const": false
+        }
+      }
+    },
+    "offlineActivation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "scope",
+        "broad_backfill"
+      ],
+      "properties": {
+        "mode": {
+          "const": "explicit_bounded_import"
+        },
+        "scope": {
+          "const": "declared_bundle_only"
+        },
+        "broad_backfill": {
+          "const": false
+        }
+      }
+    },
+    "pullState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "checkpoint",
+        "strategy",
+        "cursor_ownership"
+      ],
+      "properties": {
+        "mode": {
+          "const": "https_pull"
+        },
+        "checkpoint": {
+          "const": "required"
+        },
+        "strategy": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "maxLength": 128
+        },
+        "cursor_ownership": {
+          "const": "connector_state_only"
+        }
+      }
+    },
+    "pushState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "checkpoint",
+        "replay_identity"
+      ],
+      "properties": {
+        "mode": {
+          "const": "otlp_http_push"
+        },
+        "checkpoint": {
+          "const": "not_applicable"
+        },
+        "replay_identity": {
+          "const": "event_identity_and_hash"
+        }
+      }
+    },
+    "offlineState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "checkpoint",
+        "replay_identity"
+      ],
+      "properties": {
+        "mode": {
+          "const": "bounded_offline"
+        },
+        "checkpoint": {
+          "const": "not_applicable"
+        },
+        "replay_identity": {
+          "const": "bundle_digest_and_event_identity"
+        }
+      }
+    }
+  }
+}

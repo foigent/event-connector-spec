@@ -1,0 +1,205 @@
+{
+  "contract_version": "foigent.source-neutral-connector-conformance.v2",
+  "protocol_version": "2.0.0",
+  "protocol_status": "not_binding",
+  "runner": {
+    "invocation": "<runner> --bundle <bundle> --report <report>",
+    "network": "forbidden",
+    "credentials": "forbidden",
+    "runtime_state": "forbidden",
+    "customer_data": "forbidden",
+    "exit_codes": {
+      "0": "all cases passed",
+      "2": "invalid bundle or protocol artifact",
+      "3": "conformance mismatch",
+      "4": "runner internal failure"
+    }
+  },
+  "required_independent_implementations": [
+    "go",
+    "typescript"
+  ],
+  "report_schema": "foigent://schemas/conformance-report/v1",
+  "required_case_classes": [
+    "bounded_offline_receipt",
+    "canonical_envelope",
+    "capture_gap_derivation",
+    "capture_mode_separation",
+    "checkpoint_applicability",
+    "content_conflict",
+    "decimal_boundary",
+    "delivery_acknowledgement",
+    "delivery_completeness",
+    "duplicate_key_rejection",
+    "duplicate_noop",
+    "manifest_mode_union",
+    "mode_state_separation",
+    "mutable_delivery_exclusion",
+    "opaque_utf8_preservation",
+    "partial_batch_rejection",
+    "privacy_rejection",
+    "protocol_nfc_rejection",
+    "scoped_idempotency",
+    "source_sanitization",
+    "timeline_completeness",
+    "timestamp_normalization",
+    "v1_pull_compatibility"
+  ],
+  "case_contract": [
+    {
+      "section": "openinference_mapping",
+      "case_id": "openinference_mapping/reference-bounded-offline",
+      "case_classes": [
+        "canonical_envelope",
+        "capture_gap_derivation",
+        "source_sanitization"
+      ],
+      "result_kind": "bytes"
+    },
+    {
+      "section": "idempotency",
+      "case_id": "idempotency/openinference-reference",
+      "case_classes": [
+        "scoped_idempotency"
+      ],
+      "result_kind": "bytes"
+    },
+    {
+      "section": "manifest_semantics",
+      "case_id_pattern": "manifest_semantics/<case_id>",
+      "case_classes": [
+        "checkpoint_applicability",
+        "manifest_mode_union",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification"
+    },
+    {
+      "section": "lifecycle",
+      "case_id_pattern": "lifecycle/<case_id>",
+      "case_classes": [
+        "checkpoint_applicability",
+        "mode_state_separation"
+      ],
+      "result_kind": "classification"
+    },
+    {
+      "section": "delivery",
+      "case_id_pattern": "delivery/<case_id>",
+      "case_classes_by_case": {
+        "pull-all-converged": [
+          "checkpoint_applicability",
+          "delivery_acknowledgement"
+        ],
+        "pull-partial-failure": [
+          "checkpoint_applicability",
+          "partial_batch_rejection"
+        ],
+        "push-duplicate-noop": [
+          "delivery_acknowledgement",
+          "duplicate_noop"
+        ],
+        "push-content-conflict": [
+          "content_conflict",
+          "delivery_acknowledgement"
+        ],
+        "push-partial-failure": [
+          "delivery_acknowledgement",
+          "partial_batch_rejection"
+        ],
+        "offline-all-converged": [
+          "bounded_offline_receipt",
+          "delivery_acknowledgement"
+        ],
+        "offline-duplicate-noop": [
+          "bounded_offline_receipt",
+          "duplicate_noop"
+        ],
+        "offline-content-conflict": [
+          "bounded_offline_receipt",
+          "content_conflict"
+        ],
+        "offline-partial-failure": [
+          "bounded_offline_receipt",
+          "partial_batch_rejection"
+        ]
+      },
+      "result_kind": "state_transition"
+    },
+    {
+      "section": "completeness",
+      "case_id_pattern": "completeness/<case_id>",
+      "case_classes": [
+        "delivery_completeness",
+        "timeline_completeness"
+      ],
+      "result_kind": "classification"
+    },
+    {
+      "section": "capture_modes",
+      "case_id_pattern": "capture_modes/<case_id>",
+      "case_classes": [
+        "capture_mode_separation"
+      ],
+      "result_kind": "classification"
+    },
+    {
+      "section": "mutable_delivery",
+      "case_id": "mutable_delivery/wrapper-state-excluded",
+      "case_classes": [
+        "mutable_delivery_exclusion"
+      ],
+      "result_kind": "classification"
+    },
+    {
+      "section": "v1_compatibility",
+      "case_id_pattern": "v1_compatibility/<case_id>",
+      "case_classes": [
+        "v1_pull_compatibility"
+      ],
+      "result_kind": "classification"
+    },
+    {
+      "section": "negative",
+      "case_id_pattern": "negative/<case_id>",
+      "case_classes_by_case": {
+        "duplicate-json-key": [
+          "duplicate_key_rejection"
+        ],
+        "raw-payload-leak": [
+          "privacy_rejection"
+        ],
+        "decimal-int64-max": [
+          "decimal_boundary"
+        ],
+        "decimal-above-int64": [
+          "decimal_boundary"
+        ],
+        "timestamp-exact-microsecond": [
+          "timestamp_normalization"
+        ],
+        "timestamp-submicrosecond": [
+          "timestamp_normalization"
+        ],
+        "protocol-non-nfc": [
+          "protocol_nfc_rejection"
+        ],
+        "opaque-source-non-nfc": [
+          "opaque_utf8_preservation"
+        ]
+      },
+      "result_kind": "classification"
+    }
+  ],
+  "comparison": {
+    "case_order": "case_contract section order, then source vector array order",
+    "case_id": "<section>/<case_id>",
+    "case_classes": "exact sorted unique class list",
+    "mapping_result": "exact RFC 8785 canonical Event Envelope hash-input bytes",
+    "idempotency_result": "exact foigent.event-idempotency.v1 domain separator and LP_UTF8 input bytes",
+    "other_results": "RFC 8785 canonical JSON bytes of the observed result object",
+    "result_base64": "RFC 4648 standard base64 with padding",
+    "result_sha256": "sha256:<lowercase SHA-256 of exact result bytes>",
+    "reports": "after removing implementation and implementation_version, Go and TypeScript reports are byte-identical RFC 8785 canonical JSON"
+  }
+}

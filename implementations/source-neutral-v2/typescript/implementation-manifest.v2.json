@@ -1,0 +1,15 @@
+{
+  "manifest_version": "foigent.conformance-implementation-manifest.v1",
+  "protocol_version": "2.0.0",
+  "protocol_status": "not_binding",
+  "implementation": "typescript",
+  "files": {
+    "README.md": "sha256:c1a5877e1891aa6122f0b0cbd063fa7ad803f8f971ef632561a5c8e4a124952b",
+    "deno.json": "sha256:30de62b2b9f9b36c33aaf01fbf665e08df2fe5cc3481466d3de2ab59a770402e",
+    "src/json.ts": "sha256:8cb99cbae47fb8764f650d8c00426f1268f78bf575808c2ecd0eb875cbd23cef",
+    "src/protocol.ts": "sha256:27fc666ff3314364f5b020944d91816a6592e69601459ee80b276fd6757bfe3e",
+    "src/runner.ts": "sha256:23cef007bad0973c86bc1fdc73317d169d5eed9d859b3579d04673218c156148",
+    "src/source_neutral.ts": "sha256:845ce44dbfadedca6cbf0322e5189a8accb2569e247de4bf0c837ddf10634a7e",
+    "tests/source_neutral_test.ts": "sha256:29b89b1168f0dcd7b5357a09be38b3e57c0abdd527810717475d943b4cd2fe0a"
+  }
+}
