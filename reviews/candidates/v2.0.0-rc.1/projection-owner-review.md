@@ -6,37 +6,44 @@ Status: `PROJECTION_OWNER_V2_RELEASE_CANDIDATE_CONFIRM_NON_BINDING`
 
 Semantic conflict: `NONE_IDENTIFIED_WITH_SUPERSEDING_SHARED_CANDIDATE`
 
-Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`
+Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V2-SOURCE-NEUTRAL-20260731`
 
 ## Reviewed authority state
 
 - repository: `https://github.com/foigent/event-connector-spec`
 - candidate branch: `codex/v2-source-neutral-candidate`
 - reviewed candidate commit:
-  `7ee05fc08e544f627d59545d6b6a52c80194adce`
+  `740f78e0728e3cc3017075a058881a3e5c40dc8c`
 - reviewed candidate tree:
-  `de779565388c6267fe6ec1305f9f884e262597b2`
+  `3a58060b09af7b4ce9c91ddc1bf6fdd855759b9b`
 - protocol version: `2.0.0`
 - protocol status: `NOT_BINDING`
 - candidate manifest:
   `docs/candidates/v2.0.0-rc.1/candidate-manifest.json`
 - candidate manifest SHA-256:
-  `sha256:d228aa326d79cdf8631fefe8efe01e0875badccd2dfd9ae009442c517c38141d`
+  `sha256:f0546c4830142f63e84b414396c269ffe3dfed480c8e2092b1249eacca6c827b`
 - reviewed content digest:
-  `sha256:d4403333a4e932a3383a72918d151a5c6a78f6df35eb29b6d0833e96f95247c1`
+  `sha256:5591a6c3b4b86e3af2d39016a376961a19cf71aea71c3fcb9c6de755a08be163`
 
 ## Superseded evidence
 
-The earlier Projection Owner review at commit
-`a61ab21b013c5b69e103b8ebc8713e52e1a13880`, over content digest
-`sha256:219401b98705b9787d4186b919dbf02d9d242a385cec956120b0870d401412ef`,
-is superseded and must not be used for a release gate. A release-readiness
-self-audit found that its mapping text described optional OpenInference facts,
-conditional Capture Gaps, strict status handling and bounded multi-span
-ordering while the shared Go/TypeScript implementations and vectors proved
-only one fully populated Span. The exact candidate reviewed here closes that
-proof/implementation mismatch without changing the preserved reference
-identity or M0 seed.
+Two earlier Projection Owner reviews are superseded and must not be used for a
+release gate:
+
+1. commit `a61ab21b013c5b69e103b8ebc8713e52e1a13880`, content digest
+   `sha256:219401b98705b9787d4186b919dbf02d9d242a385cec956120b0870d401412ef`;
+2. commit `eda7f9d05e39301a1fd6954270ed2b751530c637`, content digest
+   `sha256:d4403333a4e932a3383a72918d151a5c6a78f6df35eb29b6d0833e96f95247c1`.
+
+The first candidate claimed optional OpenInference facts, conditional Capture
+Gaps, strict status handling and bounded multi-span ordering while its shared
+implementations and vectors proved only one fully populated Span. The second
+candidate closed that proof mismatch but independent Source/Coordinator review
+found three additional release gates: Operational Receipt cross-field and
+safe-integer semantics were underconstrained, the one-shot Python 3.14 test
+entry depended on protocol-root spelling, and the X-Insight projection
+recorded a 39-character value as a Git tree. The exact candidate reviewed here
+closes all three without changing Event identity, hash or any M0 seed.
 
 Binding predecessor:
 
@@ -63,7 +70,7 @@ X-Insight compatibility baselines:
 - preserved dirty checkout HEAD:
   `c27b39f67b0e72de7f60975ff8b0e94dfc05520f`
 - preserved dirty checkout tree:
-  `16a4930f014c35531b01c4bd44c25bd29a53ae8`
+  `16a4930f014c35531b01cc4bd44c25bd29a53ae8`
 
 ## Projection conclusion
 
@@ -106,6 +113,16 @@ hash or X-Insight M0 semantics:
 12. Symbolic and numeric OTLP `UNSET`, `OK` and `ERROR` codes are handled
     deterministically. Unknown status, malformed Trace identity, reversed
     time and over-bound exports fail closed.
+13. Operational Receipt counts are JSON safe integers in
+    `0..9007199254740991`. Mode, operation, status, error retryability,
+    acknowledgement, Checkpoint applicability and exact count accounting are
+    fail-closed.
+14. Push acknowledgement is durable only for a completed operation; accepted
+    and error states withhold it. Completed receipts have no error, conflict or
+    rejected item. Every non-accepted receipt accounts for all received items.
+15. The preserved dirty X-Insight checkout tree is the full 40-character Git
+    tree `16a4930f014c35531b01cc4bd44c25bd29a53ae8`, and the validator now rejects
+    truncated evidence identities.
 
 The OpenInference reference connector is correctly limited to
 `bounded_offline`. Manifest support for `otlp_http_push` is a protocol
@@ -156,19 +173,19 @@ identity.
 ## Conformance evidence
 
 - source-neutral contract SHA-256:
-  `sha256:e3ab080cbfa633950b859d621e7cf58184881347277a9b30a0973aa4258177b3`
+  `sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a`
 - vector bundle SHA-256:
-  `sha256:c556051776f5a0ecd2e193f34dd8b240ff5ebef2e8c3877d8f1a8f6d69af95cb`
+  `sha256:691c66cad3981354211d46b20865acfbd7834b96cd4c3d12b119f14f3e21f9b4`
 - Go report SHA-256:
-  `sha256:e7ab8564e00908204a5eec9ca6313a93d02543a4fd46fd67029963d8c8590c4d`
+  `sha256:24d77d8b4e04f29fdbd2fbd3cdc7e2d529693d9495e605616703eee1fe01dca3`
 - TypeScript report SHA-256:
-  `sha256:d550073abb8cc4e9fa86f920d400051dc1d04f1386d62d61286b242ebb6b2f49`
+  `sha256:b47f20ddbdd99b3f57e4946cb2f1cf6222a94abd93b4ba30e05c08fe6181b31d`
 - Go implementation manifest SHA-256:
-  `sha256:3162003f84c021792531c988105cf4295aad1b932da8740d10b112510cf1d765`
+  `sha256:897682fde95d4580d2c853ea88b83dff8c3b891e3c6e6fc43a3a0cd4aae38c7b`
 - TypeScript implementation manifest SHA-256:
-  `sha256:22e355f469b70817ddd38b8fe83b864e523bdffc30347f1a298b26b40c1bb77a`
+  `sha256:5d276ae0086b370c6edfbfc69dc38d66156d096d4082c613c365a8e5f0677687`
 
-Both zero-network implementations passed 47 of 47 cases covering all 28
+Both zero-network implementations passed 69 of 69 cases covering all 29
 required classes. Each runner produced byte-identical output across two
 successive runs. After removing only `implementation` and
 `implementation_version`, the Go and TypeScript reports are byte-identical.
@@ -187,6 +204,11 @@ The full candidate kit also passed:
   malformed Trace identity and a 201-Span export;
 - strict duplicate-key, decimal-int64, timestamp, Unicode, privacy,
   duplicate-noop, conflict, partial-batch, completeness and Capture Gap cases;
+- 22 exact Operational Receipt cases covering all three delivery modes,
+  mode-scoped operations, safe-integer boundaries, status/error coupling,
+  arithmetic count conservation, acknowledgement and Checkpoint boundaries;
+- one-shot Python 3.14.5 execution from an immutable archive whose protocol
+  root contains both underscores and a dot;
 - deterministic artifact, implementation-manifest and candidate-manifest
   reconstruction;
 - X-Insight compatibility validator and mutation-failure tests;
