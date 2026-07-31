@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "tasks": {
+    "typecheck": "deno check src/runner.ts tests/source_neutral_test.ts",
+    "test": "deno test --allow-read --allow-write tests",
+    "build": "deno cache --quiet --check --no-remote --no-npm src/runner.ts"
+  },
+  "fmt": {
+    "lineWidth": 88,
+    "indentWidth": 2,
+    "semiColons": true
+  }
+}

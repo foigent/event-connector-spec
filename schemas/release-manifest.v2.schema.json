@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/release-manifest/v2",
+  "title": "Foigent Event and Connector Protocol Release Manifest V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "release_manifest_version",
+    "protocol_version",
+    "authority",
+    "predecessor",
+    "boundary",
+    "components",
+    "content_digest",
+    "approvals",
+    "release_digest"
+  ],
+  "properties": {
+    "release_manifest_version": {
+      "const": "foigent.protocol-release-manifest.v2"
+    },
+    "protocol_version": {
+      "const": "2.0.0"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "repository_id",
+        "tag"
+      ],
+      "properties": {
+        "repository": {
+          "const": "https://github.com/foigent/event-connector-spec"
+        },
+        "repository_id": {
+          "const": 1313391565
+        },
+        "tag": {
+          "const": "v2.0.0"
+        }
+      }
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "tag",
+        "tag_commit",
+        "tree",
+        "content_digest",
+        "release_digest"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": "1.1.2"
+        },
+        "tag": {
+          "const": "v1.1.2"
+        },
+        "tag_commit": {
+          "$ref": "#/$defs/gitObject"
+        },
+        "tree": {
+          "$ref": "#/$defs/gitObject"
+        },
+        "content_digest": {
+          "$ref": "#/$defs/sha256Ref"
+        },
+        "release_digest": {
+          "$ref": "#/$defs/sha256Ref"
+        }
+      }
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product_adoption",
+        "runtime_mutation"
+      ],
+      "properties": {
+        "product_adoption": {
+          "const": "not_authorized"
+        },
+        "runtime_mutation": {
+          "const": "none"
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/component"
+      },
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$"
+      }
+    },
+    "content_digest": {
+      "$ref": "#/$defs/sha256Ref"
+    },
+    "approvals": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "source_domain_owner"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "projection_owner"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/approval"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "coordinator"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "release_digest": {
+      "$ref": "#/$defs/sha256Ref"
+    }
+  },
+  "$defs": {
+    "sha256Ref": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "gitObject": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._/-]+$",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256Ref"
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "status",
+        "reviewed_content_digest",
+        "evidence"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "source_domain_owner",
+            "projection_owner",
+            "coordinator"
+          ]
+        },
+        "status": {
+          "const": "confirmed"
+        },
+        "reviewed_content_digest": {
+          "$ref": "#/$defs/sha256Ref"
+        },
+        "evidence": {
+          "$ref": "#/$defs/component"
+        }
+      }
+    }
+  }
+}

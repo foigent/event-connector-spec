@@ -1,0 +1,881 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/operational-receipt/v2",
+  "title": "Foigent Source-Neutral Operational Receipt V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_version",
+    "operation_id",
+    "connector_id",
+    "producer_instance",
+    "delivery_mode",
+    "operation",
+    "status",
+    "counts",
+    "delivery_state",
+    "observed_at"
+  ],
+  "properties": {
+    "receipt_version": {
+      "const": "foigent.operational-receipt.v2"
+    },
+    "operation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "connector_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_-]*)+$",
+      "maxLength": 160
+    },
+    "producer_instance": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "delivery_mode": {
+      "enum": [
+        "https_pull",
+        "otlp_http_push",
+        "bounded_offline"
+      ]
+    },
+    "operation": {
+      "enum": [
+        "activate",
+        "poll",
+        "receive",
+        "import_bundle",
+        "commit_batch",
+        "acknowledge",
+        "pause",
+        "resume",
+        "stop",
+        "start",
+        "rotate",
+        "retire"
+      ]
+    },
+    "status": {
+      "enum": [
+        "accepted",
+        "completed",
+        "retryable_error",
+        "permanent_error"
+      ]
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "received",
+        "inserted",
+        "duplicate_noop",
+        "conflict",
+        "rejected"
+      ],
+      "properties": {
+        "received": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "inserted": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "duplicate_noop": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "conflict": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "rejected": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "delivery_state": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/controlState"
+        },
+        {
+          "$ref": "#/$defs/pullState"
+        },
+        {
+          "$ref": "#/$defs/pushState"
+        },
+        {
+          "$ref": "#/$defs/offlineState"
+        }
+      ]
+    },
+    "observed_at": {
+      "$ref": "#/$defs/microsecondTime"
+    },
+    "error": {
+      "$ref": "foigent://schemas/connector-error/v2"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "https_pull"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "activate",
+              "poll",
+              "commit_batch",
+              "pause",
+              "resume",
+              "stop",
+              "start",
+              "rotate",
+              "retire"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "activate"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorActivate"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "pause"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorPause"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "resume"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorResume"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "start"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorStart"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "rotate"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorRotate"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "stop"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorStop"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "retire"
+          }
+        },
+        "required": [
+          "operation",
+          "error"
+        ]
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/controlErrorRetire"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "otlp_http_push"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "activate",
+              "receive",
+              "commit_batch",
+              "acknowledge",
+              "pause",
+              "resume",
+              "stop",
+              "start",
+              "rotate",
+              "retire"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "bounded_offline"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "activate",
+              "import_bundle",
+              "commit_batch",
+              "pause",
+              "resume",
+              "stop",
+              "start",
+              "rotate",
+              "retire"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "activate",
+              "pause",
+              "resume",
+              "stop",
+              "start",
+              "rotate",
+              "retire"
+            ]
+          }
+        },
+        "required": [
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "counts": {
+            "properties": {
+              "received": {
+                "const": 0
+              },
+              "inserted": {
+                "const": 0
+              },
+              "duplicate_noop": {
+                "const": 0
+              },
+              "conflict": {
+                "const": 0
+              },
+              "rejected": {
+                "const": 0
+              }
+            }
+          },
+          "delivery_state": {
+            "$ref": "#/$defs/controlState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "https_pull"
+          },
+          "operation": {
+            "enum": [
+              "poll",
+              "commit_batch"
+            ]
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "$ref": "#/$defs/pullState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "otlp_http_push"
+          },
+          "operation": {
+            "enum": [
+              "receive",
+              "commit_batch",
+              "acknowledge"
+            ]
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "$ref": "#/$defs/pushState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "bounded_offline"
+          },
+          "operation": {
+            "enum": [
+              "import_bundle",
+              "commit_batch"
+            ]
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "$ref": "#/$defs/offlineState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "accepted",
+              "completed"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "error"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "retryable_error"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "properties": {
+              "retryable": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "permanent_error"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "properties": {
+              "retryable": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "completed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "counts": {
+            "properties": {
+              "conflict": {
+                "const": 0
+              },
+              "rejected": {
+                "const": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "accepted"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "counts": {
+            "properties": {
+              "inserted": {
+                "const": 0
+              },
+              "duplicate_noop": {
+                "const": 0
+              },
+              "conflict": {
+                "const": 0
+              },
+              "rejected": {
+                "const": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "otlp_http_push"
+          },
+          "operation": {
+            "enum": [
+              "receive",
+              "commit_batch",
+              "acknowledge"
+            ]
+          },
+          "status": {
+            "const": "completed"
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "operation",
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "properties": {
+              "acknowledgement": {
+                "const": "durable"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "otlp_http_push"
+          },
+          "operation": {
+            "enum": [
+              "receive",
+              "commit_batch",
+              "acknowledge"
+            ]
+          },
+          "status": {
+            "enum": [
+              "accepted",
+              "retryable_error",
+              "permanent_error"
+            ]
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "operation",
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "properties": {
+              "acknowledgement": {
+                "const": "withheld"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "microsecondTime": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+      "format": "date-time"
+    },
+    "sha256Ref": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "controlState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "const": "control"
+        }
+      }
+    },
+    "controlRecovery": {
+      "enum": [
+        "automatic_retry",
+        "restart",
+        "reauthorize",
+        "operator_repair",
+        "none"
+      ]
+    },
+    "controlErrorActivate": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "activate"
+        },
+        "operation": {
+          "const": "activate"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorPause": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "status"
+        },
+        "operation": {
+          "const": "pause"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorResume": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "status"
+        },
+        "operation": {
+          "const": "resume"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorStart": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "status"
+        },
+        "operation": {
+          "const": "start"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorRotate": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "status"
+        },
+        "operation": {
+          "const": "rotate"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorStop": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "shutdown"
+        },
+        "operation": {
+          "const": "stop"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "controlErrorRetire": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "const": "shutdown"
+        },
+        "operation": {
+          "const": "retire"
+        },
+        "recovery": {
+          "$ref": "#/$defs/controlRecovery"
+        }
+      }
+    },
+    "pullState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "checkpoint_before",
+        "checkpoint_after"
+      ],
+      "properties": {
+        "mode": {
+          "const": "https_pull"
+        },
+        "checkpoint_before": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "checkpoint_after": {
+          "type": "string",
+          "maxLength": 512
+        }
+      }
+    },
+    "pushState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "request_id",
+        "acknowledgement"
+      ],
+      "properties": {
+        "mode": {
+          "const": "otlp_http_push"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "acknowledgement": {
+          "enum": [
+            "withheld",
+            "durable"
+          ]
+        }
+      }
+    },
+    "offlineState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "bundle_id",
+        "bundle_sha256"
+      ],
+      "properties": {
+        "mode": {
+          "const": "bounded_offline"
+        },
+        "bundle_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "bundle_sha256": {
+          "$ref": "#/$defs/sha256Ref"
+        }
+      }
+    }
+  }
+}

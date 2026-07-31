@@ -1,0 +1,109 @@
+{
+  "mapping_version": "xinsight.openinference-to-m0.v2",
+  "consumer_baseline": {
+    "repository": "https://github.com/foigent/x-insight",
+    "commit": "d1ae3fe76057c9ff37f2fb7e870f2190c47b3745",
+    "tree": "79cabc9f4c7b5b425e3fc09590af5bd07af87047",
+    "reviewed_origin_main_commit": "e6c1bd3e3d6e6433b5e5717dedd50488dcf521ee",
+    "reviewed_origin_main_tree": "1da84e19b81d52697acedc01f60446782e058023",
+    "candidate_relationship": "reviewed_origin_main is an ancestor; candidate is seven commits ahead",
+    "preserved_dirty_checkout_head": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
+    "preserved_dirty_checkout_tree": "16a4930f014c35531b01cc4bd44c25bd29a53ae8"
+  },
+  "input": {
+    "envelope": "foigent://schemas/event-envelope/v1",
+    "event_type": "observability.span.completed",
+    "payload": "foigent://events/observability/openinference-span-completed/v1",
+    "manifest": "foigent://schemas/connector-manifest/v2",
+    "delivery_mode": "bounded_offline"
+  },
+  "main_event": {
+    "$.id": "product-local deterministic UUID over source_system_id, adapter_manifest_id, source_ref, projected event_type and source_event_id",
+    "$.schema_version": "declared m0.1",
+    "$.source_type": "declared openinference",
+    "$.source_version": "source schema_version",
+    "$.source_event_id": "payload.trace.span_id",
+    "$.source_event_type": "declared openinference_llm_span",
+    "$.source_event_hash": "envelope.integrity.source_hash",
+    "$.source_ref": "injective LP-safe producer.instance, trace_id and span_id components",
+    "$.idempotency_key": "product-local adapter-openinference-v1 namespace over source_system_id and M0 id",
+    "$.import_cursor": "product-local deterministic alias of source_event_id only; it must never contain a delivery Cursor, request identity or bundle identity",
+    "$.event_type": {
+      "payload.terminal.status=succeeded": "model.request.succeeded",
+      "payload.terminal.status=failed": "model.request.failed"
+    },
+    "$.stage": "declared provider",
+    "$.capture_mode": "declared openinference",
+    "$.payload_capture_mode": "envelope.data_policy.payload_capture_mode",
+    "$.occurred_at": "envelope.time.terminal_at",
+    "$.observed_at": "envelope.time.terminal_at",
+    "$.ingested_at": "product-local operational ingestion time excluded from source/event identity",
+    "$.correlation": "payload.trace and envelope event_id",
+    "$.identity": "envelope.actor and scope projected to current M0 forms",
+    "$.capability": "payload span/model/provider/service facts",
+    "$.usage": "observed token counters only; absent counters stay absent",
+    "$.outcome": "payload terminal status",
+    "$.payload_policy": "metadata_only and not_applicable redaction state"
+  },
+  "gap_events": {
+    "cardinality": "one M0 gap.capture.detected event per payload.capture_gaps item",
+    "identity": "parent source_ref plus affected_claim",
+    "stage": "gap",
+    "payload_capture_mode": "none",
+    "parent_link": "raw_source_excerpt.parent_event equals projected main M0 id",
+    "queryable_fields": [
+      "gap_source",
+      "reason",
+      "trace_id",
+      "span_id",
+      "request_id"
+    ]
+  },
+  "provenance": {
+    "immutable_event_linked": [
+      "source_system_id",
+      "adapter_manifest_id",
+      "source_revision",
+      "source_payload_sha256",
+      "source_terminal_at",
+      "timeline_complete=false"
+    ],
+    "mutable_delivery_excluded": [
+      "cursor",
+      "high_watermark",
+      "page_time",
+      "request_id",
+      "bundle_id",
+      "bundle_sha256",
+      "delivery cursor carried through M0 import_cursor",
+      "retry_state",
+      "receipt_time",
+      "ingestion_time"
+    ],
+    "required_product_migration": {
+      "integration_mode": {
+        "current": "integration_connector_pull",
+        "required": "integration_connector_bounded_offline"
+      },
+      "assurance_mode": {
+        "current": "contracted_pull",
+        "required": "bounded_offline_import"
+      },
+      "checkpoint": {
+        "current": "pull checkpoint constructed by adapter test",
+        "required": "not_applicable; durable bundle receipt only"
+      }
+    }
+  },
+  "activation_gate": {
+    "status": "blocked_product_migration_required",
+    "must_pass_before_activation": [
+      "product protocol pin updated to one immutable Binding v2 release",
+      "product-local integration and assurance modes no longer claim pull",
+      "no Connector Checkpoint is created for bounded_offline",
+      "bundle receipt remains outside event identity, hash and event-linked provenance",
+      "parent presence is resolved by trace_id + parent_span_id rather than a batch-global span_id lookup",
+      "existing UniRouter and LiteLLM M0 compatibility vectors remain byte-identical"
+    ]
+  }
+}

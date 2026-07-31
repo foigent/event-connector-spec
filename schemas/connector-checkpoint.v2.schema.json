@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/connector-checkpoint/v2",
+  "title": "Foigent Pull Connector Checkpoint V2",
+  "description": "Only https_pull connectors create this object. Push and bounded-offline connectors use operational receipts and must not fabricate Checkpoints.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "checkpoint_version",
+    "delivery_mode",
+    "connector_id",
+    "connector_version",
+    "producer_instance",
+    "cursor",
+    "high_watermark",
+    "phase",
+    "updated_at"
+  ],
+  "properties": {
+    "checkpoint_version": {
+      "const": "foigent.connector-checkpoint.v2"
+    },
+    "delivery_mode": {
+      "const": "https_pull"
+    },
+    "connector_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_-]*)+$",
+      "maxLength": 160
+    },
+    "connector_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "producer_instance": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "cursor": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "high_watermark": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "phase": {
+      "enum": [
+        "bootstrap",
+        "steady",
+        "error"
+      ]
+    },
+    "updated_at": {
+      "$ref": "#/$defs/microsecondTime"
+    }
+  },
+  "$defs": {
+    "microsecondTime": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+      "format": "date-time"
+    }
+  }
+}

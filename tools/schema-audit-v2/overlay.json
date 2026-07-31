@@ -1,0 +1,5 @@
+{
+  "Replace": {
+    "main.go": "../schema-audit-v2/main.go"
+  }
+}

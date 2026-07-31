@@ -1,0 +1,13 @@
+{
+  "schema_version": "xinsight.otlp-openinference-span.v1",
+  "trace_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "span_id": "bbbbbbbbbbbbbbbb",
+  "parent_span_id": "cccccccccccccccc",
+  "span_name": "llm",
+  "span_kind": "LLM",
+  "start_time": "2026-07-31T02:00:00.000000Z",
+  "end_time": "2026-07-31T02:00:00.001000Z",
+  "status": "failed",
+  "model": "model-b",
+  "missing_parent": true
+}

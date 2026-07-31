@@ -1,0 +1,19 @@
+{
+  "schema_version": "xinsight.otlp-openinference-span.v1",
+  "trace_id": "11111111111111111111111111111111",
+  "span_id": "ffffffffffffffff",
+  "span_name": "separate",
+  "span_kind": "LLM",
+  "start_time": "2026-07-31T02:00:00.002000Z",
+  "end_time": "2026-07-31T02:00:00.003000Z",
+  "status": "succeeded",
+  "model": "model-separate",
+  "provider": "provider-a",
+  "session_id": "session-a",
+  "prompt_tokens": "1",
+  "completion_tokens": "1",
+  "total_tokens": "2",
+  "actor_ref": "user-a",
+  "service_name": "ordered-agent",
+  "missing_parent": false
+}

@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/event-batch/v2",
+  "title": "Foigent Source-Neutral Event Batch V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "batch_version",
+    "connector_id",
+    "connector_version",
+    "producer_instance",
+    "delivery_mode",
+    "events",
+    "delivery"
+  ],
+  "properties": {
+    "batch_version": {
+      "const": "foigent.event-batch.v2"
+    },
+    "connector_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_-]*)+$",
+      "maxLength": 160
+    },
+    "connector_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "producer_instance": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "delivery_mode": {
+      "enum": [
+        "https_pull",
+        "otlp_http_push",
+        "bounded_offline"
+      ]
+    },
+    "events": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "$ref": "foigent://schemas/event-envelope/v1"
+      }
+    },
+    "delivery": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/pullDelivery"
+        },
+        {
+          "$ref": "#/$defs/pushDelivery"
+        },
+        {
+          "$ref": "#/$defs/offlineDelivery"
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "https_pull"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "$ref": "#/$defs/pullDelivery"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "otlp_http_push"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "$ref": "#/$defs/pushDelivery"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "bounded_offline"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "$ref": "#/$defs/offlineDelivery"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "microsecondTime": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+      "format": "date-time"
+    },
+    "sha256Ref": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "pullDelivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "page_observed_at",
+        "next_cursor",
+        "high_watermark",
+        "has_more"
+      ],
+      "properties": {
+        "mode": {
+          "const": "https_pull"
+        },
+        "page_observed_at": {
+          "$ref": "#/$defs/microsecondTime"
+        },
+        "next_cursor": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "high_watermark": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "has_more": {
+          "type": "boolean"
+        }
+      }
+    },
+    "pushDelivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "request_id",
+        "received_at"
+      ],
+      "properties": {
+        "mode": {
+          "const": "otlp_http_push"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "received_at": {
+          "$ref": "#/$defs/microsecondTime"
+        }
+      }
+    },
+    "offlineDelivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "bundle_id",
+        "bundle_sha256",
+        "imported_at"
+      ],
+      "properties": {
+        "mode": {
+          "const": "bounded_offline"
+        },
+        "bundle_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "bundle_sha256": {
+          "$ref": "#/$defs/sha256Ref"
+        },
+        "imported_at": {
+          "$ref": "#/$defs/microsecondTime"
+        }
+      }
+    }
+  }
+}

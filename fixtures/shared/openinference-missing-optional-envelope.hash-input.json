@@ -1,0 +1,127 @@
+{
+  "spec_version": "foigent.event-envelope.v1",
+  "event_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:bbbbbbbbbbbbbbbb",
+  "event_type": "observability.span.completed",
+  "schema_ref": "foigent://events/observability/openinference-span-completed/v1",
+  "schema_version": "1",
+  "producer": {
+    "product": "openinference",
+    "instance": "otel-collector-prod-a",
+    "connector_id": "foigent.openinference.otlp-spans",
+    "connector_version": "1.0.0"
+  },
+  "scope": {
+    "org_ref": "1",
+    "project_ref": "7"
+  },
+  "subject": {
+    "type": "span",
+    "ref": "bbbbbbbbbbbbbbbb"
+  },
+  "actor": {
+    "type": "system"
+  },
+  "time": {
+    "occurred_at": "2026-07-31T02:00:00.001000Z",
+    "terminal_at": "2026-07-31T02:00:00.001000Z"
+  },
+  "correlation": {
+    "request_ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:bbbbbbbbbbbbbbbb",
+    "trace_ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "span_ref": "bbbbbbbbbbbbbbbb"
+  },
+  "identity": {
+    "idempotency_key": "sha256:b8bda23a4fea7b9973cef610cdaf377822633b8db87d243eff3095c18abd2d71",
+    "source_revision": "1"
+  },
+  "integrity": {
+    "source_hash": "sha256:741085df3442475cfc2d2f0cf889a91ea4d4b2adc0f5a55ec850ddade464f7b9"
+  },
+  "data_policy": {
+    "payload_capture_mode": "metadata_only",
+    "raw_payload_present": false,
+    "redaction_profile": "openinference.metadata-allowlist.v1"
+  },
+  "provenance": {
+    "adapter_fidelity": "F2",
+    "field_groups": {
+      "actor": "gap",
+      "correlation": "direct",
+      "data_policy": "declared",
+      "identity": "derived",
+      "payload.capture_gaps": "derived",
+      "payload.model": "direct",
+      "payload.span": "direct",
+      "payload.timeline_complete": "declared",
+      "payload.trace": "direct",
+      "payload.usage": "gap",
+      "scope": "declared",
+      "subject": "derived",
+      "time.occurred_at": "derived",
+      "time.terminal_at": "direct"
+    }
+  },
+  "payload": {
+    "terminal": {
+      "status": "failed"
+    },
+    "span": {
+      "kind": "LLM",
+      "name": "llm"
+    },
+    "trace": {
+      "trace_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "span_id": "bbbbbbbbbbbbbbbb",
+      "parent_span_id": "cccccccccccccccc"
+    },
+    "model": {
+      "name": "model-b"
+    },
+    "usage": {},
+    "timeline_complete": false,
+    "capture_gaps": [
+      {
+        "affected_claim": "authoritative_session",
+        "gap_type": "not_available_from_source",
+        "reason_code": "session_id_not_observed",
+        "severity": "warning"
+      },
+      {
+        "affected_claim": "billing_authority",
+        "gap_type": "not_available_from_source",
+        "reason_code": "not_exposed_by_openinference_span_v1",
+        "severity": "warning"
+      },
+      {
+        "affected_claim": "business_outcome",
+        "gap_type": "not_available_from_source",
+        "reason_code": "not_exposed_by_openinference_span_v1",
+        "severity": "warning"
+      },
+      {
+        "affected_claim": "causal_parent",
+        "gap_type": "not_available_from_source",
+        "reason_code": "declared_parent_not_in_bounded_batch",
+        "severity": "warning"
+      },
+      {
+        "affected_claim": "downstream_side_effects",
+        "gap_type": "not_available_from_source",
+        "reason_code": "not_exposed_by_openinference_span_v1",
+        "severity": "warning"
+      },
+      {
+        "affected_claim": "routing_decision",
+        "gap_type": "not_available_from_source",
+        "reason_code": "not_exposed_by_openinference_span_v1",
+        "severity": "warning"
+      },
+      {
+        "affected_claim": "token_usage",
+        "gap_type": "not_available_from_source",
+        "reason_code": "complete_token_counters_not_observed",
+        "severity": "warning"
+      }
+    ]
+  }
+}

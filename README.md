@@ -5,19 +5,22 @@ This private repository is the single editable authority for the Foigent shared 
 ## Current status
 
 - Governance authority: established under B7.
-- Protocol version: `1.1.2`.
-- B6 independent Go/TypeScript conformance: complete and byte-identical.
-- B8 shared contracts and reproducible release tooling: complete.
-- B9 UniRouter source and X-Insight projection mappings: complete.
-- Binding identity: only the immutable `v1.1.2` tag and its verified release
+- Protocol version: `2.0.0`.
+- Independent Go/TypeScript source-neutral conformance: 83/83 cases across
+  29/29 required classes with byte-identical results.
+- Binding identity: only the immutable `v2.0.0` tag and its verified release
   manifest; branches and working-tree copies are not authoritative.
-- Phase 2A and the completed-execution Reference runtime adoption are closed.
+- Protocol `1.1.2` remains the immutable predecessor and compatibility base.
 - The additive LiteLLM Connector contract and Conformance Kit were introduced
   in `1.1.0`; `1.1.1` is a coverage-wording erratum. Protocol `1.1.2`
   additionally recognizes the pinned LiteLLM writer's exact string `"None"`
   as the existing normalized cache state `unknown`, while preserving all
   Source/Event Schemas, identities, hashes, cursors, provenance and M0 output.
   Product-local runtime adoption remains independently isolated.
+- Protocol `2.0.0` adds source-neutral pull, push, and bounded-offline
+  transport contracts plus the OpenInference bounded-offline Reference
+  Connector. Product migration and runtime activation remain separately
+  gated and are not part of this release.
 - Runtime credentials, live traffic, checkpoints, cursors, and product
   databases are never protocol-repository content.
 
@@ -56,7 +59,7 @@ Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V1-20260726`
 - Coordinator disposition SHA-256: `add651b694d2a597deca7b164aa3eb658ecf39188637dd513b0f6b8e6d74dc6b`
 
 These identities record the decision lineage incorporated into protocol
-`1.0.0`. The immutable release manifest separately binds the exact released
+`1.0.0`. The immutable release manifests separately bind the exact released
 artifacts, compatibility evidence, conformance reports, and three role
 approvals.
 

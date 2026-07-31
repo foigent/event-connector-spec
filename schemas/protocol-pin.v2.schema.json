@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "foigent://schemas/protocol-pin/v2",
+  "title": "Foigent Product Protocol Pin V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pin_version",
+    "product",
+    "protocol_version",
+    "release_digest",
+    "authority",
+    "components"
+  ],
+  "properties": {
+    "pin_version": {
+      "const": "foigent.protocol-pin.v2"
+    },
+    "product": {
+      "enum": [
+        "unirouter",
+        "xinsight"
+      ]
+    },
+    "protocol_version": {
+      "const": "2.0.0"
+    },
+    "release_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "repository_id",
+        "tag"
+      ],
+      "properties": {
+        "repository": {
+          "const": "https://github.com/foigent/event-connector-spec"
+        },
+        "repository_id": {
+          "const": 1313391565
+        },
+        "tag": {
+          "const": "v2.0.0"
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^sha256:[0-9a-f]{64}$"
+      },
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$"
+      }
+    }
+  }
+}
