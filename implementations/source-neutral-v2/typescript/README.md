@@ -13,8 +13,8 @@ deno run --allow-read --allow-write src/runner.ts \
 The Binding v1 TypeScript implementation remains byte-identical in
 `implementations/typescript`.
 
-The candidate suite proves 69 cases across 29 required classes, including
+The candidate suite proves 78 cases across 29 required classes, including
 conditional OpenInference facts/Gaps, bounded multi-span ordering,
 trace-scoped parent resolution, fail-closed Source-shape errors and exact
-Operational Receipt mode/operation/status/error/count/acknowledgement
-semantics.
+operation-discriminated Operational Receipt control/data state,
+mode/operation/status/error/count/acknowledgement semantics.

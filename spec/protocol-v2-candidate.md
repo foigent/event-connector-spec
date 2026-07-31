@@ -168,12 +168,19 @@ or offline delivery is a contract violation.
 Event Batch v2 wraps Event Envelope v1 values and one mode-specific delivery
 state object. Mutable delivery fields are intentionally outside each Event.
 
-Operational Receipt v2 reports bounded counts and one mode-specific delivery
+Operational Receipt v2 reports bounded counts and an operation-discriminated
 state:
 
-- pull Checkpoint before/after;
-- push request identity and acknowledgement;
-- offline bundle identity and digest.
+- lifecycle/control operations use the mode-neutral `control` state;
+- pull data operations use Checkpoint before/after;
+- push data operations use request identity and acknowledgement;
+- offline data operations use bundle identity and digest.
+
+Lifecycle/control operations are `activate`, `pause`, `resume`, `stop`,
+`start`, `rotate` and `retire`. Their five counts are all zero. They never
+fabricate a request, bundle, acknowledgement or Checkpoint. The connector's
+`delivery_mode` remains present to identify the connector configuration, but
+it does not change the control-state shape.
 
 Receipt counts are JSON integers in `0..9007199254740991`. This is the
 cross-language RFC 8785 safe-integer profile; it is intentionally distinct
@@ -189,21 +196,22 @@ strings. The following Receipt rules are normative:
 - `permanent_error` requires `error.retryable=false`;
 - every status other than `accepted` accounts for every received item using
   the equality above;
-- a push Receipt has acknowledgement `durable` only when status is
-  `completed`; every other push status has acknowledgement `withheld`;
-- only a completed pull operation may commit its post-operation Checkpoint;
-  push and bounded-offline operations never create a Connector Checkpoint;
-- a bounded-offline bundle is complete only when status is `completed`.
+- a push data Receipt has acknowledgement `durable` only when status is
+  `completed`; every other push data status has acknowledgement `withheld`;
+- only a completed pull data operation may commit its post-operation
+  Checkpoint; control, push and bounded-offline operations never create a
+  Connector Checkpoint;
+- a bounded-offline data operation completes its bundle Receipt only when
+  status is `completed`.
 
 The standard JSON Schema enforces field ranges and representable cross-field
 combinations. The arithmetic equality is enforced by the independent
 Conformance runners because JSON Schema 2020-12 has no portable cross-property
 addition operator.
 
-Receipt operations are mode-scoped. All modes may report `activate`,
-`commit_batch`, `pause`, `resume`, `stop`, `start`, `rotate` and `retire`.
-Only pull may report `poll`; only push may report `receive` or `acknowledge`;
-only bounded-offline may report `import_bundle`.
+Data operations are mode-scoped. All modes may report `commit_batch`. Only
+pull may report `poll`; only push may report `receive` or `acknowledge`; only
+bounded-offline may report `import_bundle`.
 
 The receipt is operational evidence and is not part of a normalized Event
 hash.

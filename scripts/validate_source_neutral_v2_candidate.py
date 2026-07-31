@@ -122,7 +122,7 @@ EXPECTED_OPENINFERENCE_M0 = [
         "sha256:00eac75af3083ddcad31c1d0f4abd217dd8d4bcf614dafd4d6174e61f958cd67",
     ),
 ]
-EXPECTED_CONFORMANCE_CASES = 69
+EXPECTED_CONFORMANCE_CASES = 78
 EXPECTED_CONFORMANCE_CLASSES = 29
 
 
@@ -370,6 +370,16 @@ def verify_operational_receipt_contract() -> None:
     receipt_schema = load_json_strict(
         ROOT / "schemas/operational-receipt.v2.schema.json"
     )
+    require(
+        receipt_schema["$defs"]["controlState"]
+        == {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["mode"],
+            "properties": {"mode": {"const": "control"}},
+        },
+        "mode-neutral operational control state changed",
+    )
     for name in [
         "received",
         "inserted",
@@ -392,6 +402,15 @@ def verify_operational_receipt_contract() -> None:
         "push-accepted-safe-count-max",
         "push-retryable-error",
         "offline-permanent-conflict",
+        "pull-control-activate-completed",
+        "push-control-rotate-completed",
+        "offline-control-pause-completed",
+        "push-control-retryable-error",
+        "push-control-with-data-state",
+        "offline-control-nonzero-count",
+        "pull-data-with-control-state",
+        "push-control-durable-acknowledgement",
+        "pull-control-checkpoint-committed",
         "push-completed-withheld",
         "push-error-durable",
         "completed-with-error",
@@ -428,32 +447,76 @@ def verify_operational_receipt_contract() -> None:
         "operational receipt safe-integer boundary is absent",
     )
     require(
+        [
+            (
+                by_id[case_id]["input"]["mode"],
+                by_id[case_id]["input"]["operation"],
+                by_id[case_id]["input"]["state_kind"],
+                by_id[case_id]["input"]["counts"],
+            )
+            for case_id in [
+                "pull-control-activate-completed",
+                "push-control-rotate-completed",
+                "offline-control-pause-completed",
+            ]
+        ]
+        == [
+            ("https_pull", "activate", "control", {
+                "received": 0,
+                "inserted": 0,
+                "duplicate_noop": 0,
+                "conflict": 0,
+                "rejected": 0,
+            }),
+            ("otlp_http_push", "rotate", "control", {
+                "received": 0,
+                "inserted": 0,
+                "duplicate_noop": 0,
+                "conflict": 0,
+                "rejected": 0,
+            }),
+            ("bounded_offline", "pause", "control", {
+                "received": 0,
+                "inserted": 0,
+                "duplicate_noop": 0,
+                "conflict": 0,
+                "rejected": 0,
+            }),
+        ],
+        "mode-neutral lifecycle Receipt vectors changed",
+    )
+    negative_errors = {
+        "push-control-with-data-state": "receipt_state_mismatch",
+        "offline-control-nonzero-count": "receipt_control_counts_nonzero",
+        "pull-data-with-control-state": "receipt_state_mismatch",
+        "push-control-durable-acknowledgement":
+            "receipt_acknowledgement_not_applicable",
+        "pull-control-checkpoint-committed": "receipt_checkpoint_mismatch",
+        "push-completed-withheld": "receipt_acknowledgement_mismatch",
+        "push-error-durable": "receipt_acknowledgement_mismatch",
+        "completed-with-error": "receipt_error_state_mismatch",
+        "retryable-without-error": "receipt_error_state_mismatch",
+        "counts-not-accounted": "receipt_counts_not_accounted",
+        "completed-with-conflict":
+            "receipt_completed_with_nonconverged_items",
+        "accepted-with-outcome": "receipt_accepted_with_outcomes",
+        "pull-error-checkpoint-committed": "receipt_checkpoint_mismatch",
+        "offline-acknowledgement":
+            "receipt_acknowledgement_not_applicable",
+        "negative-count": "receipt_count_invalid",
+        "unknown-delivery-mode": "receipt_mode_invalid",
+        "cross-mode-operation": "receipt_operation_mismatch",
+        "unsafe-count-above-max": "receipt_count_invalid",
+        "permanent-with-retryable-error": "receipt_error_state_mismatch",
+        "retryable-with-permanent-error": "receipt_error_state_mismatch",
+        "unknown-status": "receipt_status_invalid",
+    }
+    require(
         {
             case_id: by_id[case_id]["expected"]["error_code"]
-            for case_id in expected_ids[6:]
+            for case_id in negative_errors
         }
-        == {
-            "push-completed-withheld": "receipt_acknowledgement_mismatch",
-            "push-error-durable": "receipt_acknowledgement_mismatch",
-            "completed-with-error": "receipt_error_state_mismatch",
-            "retryable-without-error": "receipt_error_state_mismatch",
-            "counts-not-accounted": "receipt_counts_not_accounted",
-            "completed-with-conflict":
-                "receipt_completed_with_nonconverged_items",
-            "accepted-with-outcome": "receipt_accepted_with_outcomes",
-            "pull-error-checkpoint-committed": "receipt_checkpoint_mismatch",
-            "offline-acknowledgement":
-                "receipt_acknowledgement_not_applicable",
-            "negative-count": "receipt_count_invalid",
-            "unknown-delivery-mode": "receipt_mode_invalid",
-            "cross-mode-operation": "receipt_operation_mismatch",
-            "unsafe-count-above-max": "receipt_count_invalid",
-            "permanent-with-retryable-error":
-                "receipt_error_state_mismatch",
-            "retryable-with-permanent-error":
-                "receipt_error_state_mismatch",
-            "unknown-status": "receipt_status_invalid",
-        },
+        == negative_errors,
         "operational receipt negative contract changed",
     )
 

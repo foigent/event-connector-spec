@@ -689,12 +689,32 @@ function receiptCase(caseID, input, expected) {
     : input.mode === "bounded_offline"
     ? "import_bundle"
     : "commit_batch";
+  const operation = input.operation ?? defaultOperation;
+  const controlOperations = [
+    "activate",
+    "pause",
+    "resume",
+    "stop",
+    "start",
+    "rotate",
+    "retire",
+  ];
+  const defaultStateKind = controlOperations.includes(operation)
+    ? "control"
+    : input.mode === "https_pull"
+    ? "pull"
+    : input.mode === "otlp_http_push"
+    ? "push"
+    : input.mode === "bounded_offline"
+    ? "offline"
+    : "unknown";
   return {
     case_id: caseID,
     case_classes: ["operational_receipt_semantics"],
     result_kind: "classification",
     input: {
-      operation: defaultOperation,
+      operation,
+      state_kind: defaultStateKind,
       ...input,
     },
     expected,
@@ -790,6 +810,128 @@ const receiptCases = [
       error_retryable: false,
     },
     validReceipt("permanent_error", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "pull-control-activate-completed",
+    {
+      mode: "https_pull",
+      operation: "activate",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: null,
+    },
+    validReceipt("completed", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "push-control-rotate-completed",
+    {
+      mode: "otlp_http_push",
+      operation: "rotate",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: null,
+    },
+    validReceipt("completed", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "offline-control-pause-completed",
+    {
+      mode: "bounded_offline",
+      operation: "pause",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: null,
+    },
+    validReceipt("completed", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "push-control-retryable-error",
+    {
+      mode: "otlp_http_push",
+      operation: "start",
+      status: "retryable_error",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: true,
+    },
+    validReceipt("retryable_error", "not_applicable", false, true, false),
+  ),
+  receiptCase(
+    "push-control-with-data-state",
+    {
+      mode: "otlp_http_push",
+      operation: "rotate",
+      state_kind: "push",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: null,
+    },
+    { error_code: "receipt_state_mismatch", valid: false },
+  ),
+  receiptCase(
+    "offline-control-nonzero-count",
+    {
+      mode: "bounded_offline",
+      operation: "pause",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: false,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_control_counts_nonzero", valid: false },
+  ),
+  receiptCase(
+    "pull-data-with-control-state",
+    {
+      mode: "https_pull",
+      operation: "poll",
+      state_kind: "control",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: true,
+      counts: receiptCounts(1, 1),
+      error_retryable: null,
+    },
+    { error_code: "receipt_state_mismatch", valid: false },
+  ),
+  receiptCase(
+    "push-control-durable-acknowledgement",
+    {
+      mode: "otlp_http_push",
+      operation: "rotate",
+      status: "completed",
+      acknowledgement: "durable",
+      checkpoint_committed: false,
+      counts: receiptCounts(0),
+      error_retryable: null,
+    },
+    {
+      error_code: "receipt_acknowledgement_not_applicable",
+      valid: false,
+    },
+  ),
+  receiptCase(
+    "pull-control-checkpoint-committed",
+    {
+      mode: "https_pull",
+      operation: "activate",
+      status: "completed",
+      acknowledgement: "not_applicable",
+      checkpoint_committed: true,
+      counts: receiptCounts(0),
+      error_retryable: null,
+    },
+    { error_code: "receipt_checkpoint_mismatch", valid: false },
   ),
   receiptCase(
     "push-completed-withheld",

@@ -55,7 +55,9 @@ counts and acknowledgement:
   for all received items;
 - retryable and permanent error statuses require an Error with the matching
   `retryable` value;
-- push acknowledgement is durable only for `completed`;
+- lifecycle/control operations use a mode-neutral `control` state, all counts
+  are zero and no request, bundle, acknowledgement or Checkpoint is fabricated;
+- push data acknowledgement is durable only for `completed`;
 - `poll`, `receive`/`acknowledge` and `import_bundle` are respectively
   pull-only, push-only and bounded-offline-only operations.
 

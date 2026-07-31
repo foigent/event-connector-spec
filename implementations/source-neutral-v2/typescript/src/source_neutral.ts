@@ -26,14 +26,14 @@ import {
 } from "./protocol.ts";
 
 const EXPECTED_BUNDLE_SHA =
-  "sha256:691c66cad3981354211d46b20865acfbd7834b96cd4c3d12b119f14f3e21f9b4";
+  "sha256:8d0413b182d5cf722ae5fc130fa07c6bb842c4b8094d0deb3c30e818a653044c";
 const EXPECTED_CONTRACT_SHA =
   "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a";
 const EXPECTED_BUNDLE_VERSION = "foigent.source-neutral-vector-bundle.v2";
 const EXPECTED_PROTOCOL = "2.0.0";
 const REPORT_VERSION = "foigent.conformance-report.v1";
 const IMPLEMENTATION = "typescript";
-const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.3";
+const IMPLEMENTATION_VERSION = "2.0.0-rc.1+independent.4";
 
 const REQUIRED_CLASSES = [
   "bounded_batch_ordering",
@@ -656,6 +656,7 @@ function classifyDelivery(input: JsonObject): JsonObject {
 function classifyReceipt(input: JsonObject): JsonObject {
   const mode = asString(input.mode, "mode");
   const operation = asString(input.operation, "operation");
+  const stateKind = asString(input.state_kind, "state_kind");
   const status = asString(input.status, "status");
   const acknowledgement = asString(
     input.acknowledgement,
@@ -734,6 +735,24 @@ function classifyReceipt(input: JsonObject): JsonObject {
   if (!allowedOperations[mode]!.includes(operation)) {
     return invalid("receipt_operation_mismatch");
   }
+  const controlOperations = [
+    "activate",
+    "pause",
+    "resume",
+    "stop",
+    "start",
+    "rotate",
+    "retire",
+  ];
+  const isControl = controlOperations.includes(operation);
+  const expectedStateKind = isControl ? "control" : {
+    https_pull: "pull",
+    otlp_http_push: "push",
+    bounded_offline: "offline",
+  }[mode];
+  if (stateKind !== expectedStateKind) {
+    return invalid("receipt_state_mismatch");
+  }
   if (
     (status === "accepted" || status === "completed") && hasError ||
     status === "retryable_error" && (!hasError || !errorRetryable) ||
@@ -751,7 +770,17 @@ function classifyReceipt(input: JsonObject): JsonObject {
   ) {
     return invalid("receipt_status_invalid");
   }
-  if (mode === "otlp_http_push") {
+  if (isControl) {
+    if (acknowledgement !== "not_applicable") {
+      return invalid("receipt_acknowledgement_not_applicable");
+    }
+    if (checkpointCommitted) {
+      return invalid("receipt_checkpoint_mismatch");
+    }
+    if (Object.values(counts).some((value) => value !== 0n)) {
+      return invalid("receipt_control_counts_nonzero");
+    }
+  } else if (mode === "otlp_http_push") {
     const expected = status === "completed" ? "durable" : "withheld";
     if (acknowledgement !== expected) {
       return invalid("receipt_acknowledgement_mismatch");
@@ -759,9 +788,11 @@ function classifyReceipt(input: JsonObject): JsonObject {
   } else if (acknowledgement !== "not_applicable") {
     return invalid("receipt_acknowledgement_not_applicable");
   }
-  const expectedCheckpoint = mode === "https_pull" && status === "completed";
-  if (checkpointCommitted !== expectedCheckpoint) {
-    return invalid("receipt_checkpoint_mismatch");
+  if (!isControl) {
+    const expectedCheckpoint = mode === "https_pull" && status === "completed";
+    if (checkpointCommitted !== expectedCheckpoint) {
+      return invalid("receipt_checkpoint_mismatch");
+    }
   }
   const outcomeCount = counts.inserted! +
     counts.duplicate_noop! +
@@ -793,7 +824,9 @@ function classifyReceipt(input: JsonObject): JsonObject {
     acknowledgement,
     checkpoint_committed: checkpointCommitted,
     counts_accounted: true,
-    receipt_completed: mode === "bounded_offline" && status === "completed",
+    receipt_completed: !isControl &&
+      mode === "bounded_offline" &&
+      status === "completed",
     status,
     valid: true,
   };

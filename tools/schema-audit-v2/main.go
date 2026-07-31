@@ -290,7 +290,8 @@ func run(args []string) error {
 
 	fmt.Printf(
 		"source-neutral v2 schema audit passed: %d schemas, %d manifests, "+
-			"3 modes, 5 Source fixtures, Envelope/payload/operational boundaries\n",
+			"3 modes, 5 Source fixtures, Envelope/payload/operation-discriminated "+
+			"operational boundaries\n",
 		len(compiled),
 		len(v1Names)+1,
 	)
@@ -539,6 +540,63 @@ func auditOperationalSchemas(
 			return err
 		}
 	}
+	controlReceipts := map[string]map[string]any{
+		"pull control receipt": controlReceiptBase("https_pull", "activate"),
+		"push control receipt": controlReceiptBase("otlp_http_push", "rotate"),
+		"offline control receipt": controlReceiptBase(
+			"bounded_offline",
+			"pause",
+		),
+	}
+	for name, document := range controlReceipts {
+		if err := expectValid(compiled[receiptV2], document, name); err != nil {
+			return err
+		}
+	}
+	retryableControl := cloneObject(controlReceipts["push control receipt"])
+	retryableControl["operation"] = "start"
+	retryableControl["status"] = "retryable_error"
+	retryableControl["error"] = receiptError(true)
+	if err := expectValid(
+		compiled[receiptV2],
+		retryableControl,
+		"retryable push control receipt",
+	); err != nil {
+		return err
+	}
+	controlWithDataState := cloneObject(controlReceipts["push control receipt"])
+	controlWithDataState["delivery_state"] = receipts["push receipt"]["delivery_state"]
+	if err := expectInvalid(
+		compiled[receiptV2],
+		controlWithDataState,
+		"push control receipt with request acknowledgement",
+	); err != nil {
+		return err
+	}
+	dataWithControlState := cloneObject(receipts["pull receipt"])
+	dataWithControlState["delivery_state"] = map[string]any{"mode": "control"}
+	if err := expectInvalid(
+		compiled[receiptV2],
+		dataWithControlState,
+		"pull data receipt with control state",
+	); err != nil {
+		return err
+	}
+	controlWithCounts := cloneObject(controlReceipts["offline control receipt"])
+	controlWithCounts["counts"] = map[string]any{
+		"received":       1,
+		"inserted":       1,
+		"duplicate_noop": 0,
+		"conflict":       0,
+		"rejected":       0,
+	}
+	if err := expectInvalid(
+		compiled[receiptV2],
+		controlWithCounts,
+		"offline control receipt with data counts",
+	); err != nil {
+		return err
+	}
 	hybridReceipt := cloneObject(receipts["offline receipt"])
 	hybridReceipt["delivery_state"] = receipts["push receipt"]["delivery_state"]
 	if err := expectInvalid(
@@ -725,6 +783,27 @@ func receiptBase(
 			"rejected":       0,
 		},
 		"delivery_state": deliveryState,
+		"observed_at":    "2026-07-31T02:01:00.000000Z",
+	}
+}
+
+func controlReceiptBase(mode string, operation string) map[string]any {
+	return map[string]any{
+		"receipt_version":   "foigent.operational-receipt.v2",
+		"operation_id":      "control-operation-1",
+		"connector_id":      "foigent.reference.connector",
+		"producer_instance": "reference-a",
+		"delivery_mode":     mode,
+		"operation":         operation,
+		"status":            "completed",
+		"counts": map[string]any{
+			"received":       0,
+			"inserted":       0,
+			"duplicate_noop": 0,
+			"conflict":       0,
+			"rejected":       0,
+		},
+		"delivery_state": map[string]any{"mode": "control"},
 		"observed_at":    "2026-07-31T02:01:00.000000Z",
 	}
 }

@@ -585,6 +585,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "poll",
+        "state_kind": "pull",
         "mode": "https_pull",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -615,6 +616,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "acknowledge",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "durable",
@@ -645,6 +647,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "import_bundle",
+        "state_kind": "offline",
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -675,6 +678,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "accepted",
         "acknowledgement": "withheld",
@@ -705,6 +709,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "withheld",
@@ -735,6 +740,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "import_bundle",
+        "state_kind": "offline",
         "mode": "bounded_offline",
         "status": "permanent_error",
         "acknowledgement": "not_applicable",
@@ -758,6 +764,265 @@
       }
     },
     {
+      "case_id": "pull-control-activate-completed",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "activate",
+        "state_kind": "control",
+        "mode": "https_pull",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "completed",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-control-rotate-completed",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "rotate",
+        "state_kind": "control",
+        "mode": "otlp_http_push",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "completed",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "offline-control-pause-completed",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "pause",
+        "state_kind": "control",
+        "mode": "bounded_offline",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "completed",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-control-retryable-error",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "start",
+        "state_kind": "control",
+        "mode": "otlp_http_push",
+        "status": "retryable_error",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": true
+      },
+      "expected": {
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts_accounted": true,
+        "receipt_completed": false,
+        "status": "retryable_error",
+        "valid": true
+      }
+    },
+    {
+      "case_id": "push-control-with-data-state",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "rotate",
+        "state_kind": "push",
+        "mode": "otlp_http_push",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_state_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "offline-control-nonzero-count",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "pause",
+        "state_kind": "control",
+        "mode": "bounded_offline",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_control_counts_nonzero",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "pull-data-with-control-state",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "poll",
+        "state_kind": "control",
+        "mode": "https_pull",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": true,
+        "counts": {
+          "received": 1,
+          "inserted": 1,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_state_mismatch",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "push-control-durable-acknowledgement",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "rotate",
+        "state_kind": "control",
+        "mode": "otlp_http_push",
+        "status": "completed",
+        "acknowledgement": "durable",
+        "checkpoint_committed": false,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_acknowledgement_not_applicable",
+        "valid": false
+      }
+    },
+    {
+      "case_id": "pull-control-checkpoint-committed",
+      "case_classes": [
+        "operational_receipt_semantics"
+      ],
+      "result_kind": "classification",
+      "input": {
+        "operation": "activate",
+        "state_kind": "control",
+        "mode": "https_pull",
+        "status": "completed",
+        "acknowledgement": "not_applicable",
+        "checkpoint_committed": true,
+        "counts": {
+          "received": 0,
+          "inserted": 0,
+          "duplicate_noop": 0,
+          "conflict": 0,
+          "rejected": 0
+        },
+        "error_retryable": null
+      },
+      "expected": {
+        "error_code": "receipt_checkpoint_mismatch",
+        "valid": false
+      }
+    },
+    {
       "case_id": "push-completed-withheld",
       "case_classes": [
         "operational_receipt_semantics"
@@ -765,6 +1030,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "acknowledge",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "withheld",
@@ -791,6 +1057,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "durable",
@@ -817,6 +1084,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "acknowledge",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "durable",
@@ -843,6 +1111,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "withheld",
@@ -869,6 +1138,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "acknowledge",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "completed",
         "acknowledgement": "durable",
@@ -895,6 +1165,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "import_bundle",
+        "state_kind": "offline",
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -921,6 +1192,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "accepted",
         "acknowledgement": "withheld",
@@ -947,6 +1219,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "poll",
+        "state_kind": "pull",
         "mode": "https_pull",
         "status": "retryable_error",
         "acknowledgement": "not_applicable",
@@ -973,6 +1246,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "import_bundle",
+        "state_kind": "offline",
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "durable",
@@ -999,6 +1273,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "accepted",
         "acknowledgement": "withheld",
@@ -1025,6 +1300,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "commit_batch",
+        "state_kind": "unknown",
         "mode": "unknown",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -1051,6 +1327,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "poll",
+        "state_kind": "offline",
         "mode": "bounded_offline",
         "status": "completed",
         "acknowledgement": "not_applicable",
@@ -1077,6 +1354,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "accepted",
         "acknowledgement": "withheld",
@@ -1103,6 +1381,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "import_bundle",
+        "state_kind": "offline",
         "mode": "bounded_offline",
         "status": "permanent_error",
         "acknowledgement": "not_applicable",
@@ -1129,6 +1408,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "retryable_error",
         "acknowledgement": "withheld",
@@ -1155,6 +1435,7 @@
       "result_kind": "classification",
       "input": {
         "operation": "receive",
+        "state_kind": "push",
         "mode": "otlp_http_push",
         "status": "unknown",
         "acknowledgement": "withheld",

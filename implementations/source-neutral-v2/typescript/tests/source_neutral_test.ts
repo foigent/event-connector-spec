@@ -7,7 +7,7 @@ const bundle = resolve(root, "vectors/source-neutral-vector-bundle.v2.json");
 Deno.test("source-neutral bundle passes all exact cases", async () => {
   const run = await createSourceNeutralReport(bundle);
   assertEquals(run.status, "pass");
-  assertEquals(run.caseCount, 69);
+  assertEquals(run.caseCount, 78);
   const cases = run.report.cases;
   if (!Array.isArray(cases)) {
     throw new Error("report cases are absent");
@@ -47,7 +47,7 @@ Deno.test("source-neutral bundle passes all exact cases", async () => {
     typeof value.case_id === "string" &&
     value.case_id.startsWith("receipts/")
   );
-  assertEquals(receipts.length, 22);
+  assertEquals(receipts.length, 31);
 });
 
 Deno.test("bundle identity fails closed", async () => {

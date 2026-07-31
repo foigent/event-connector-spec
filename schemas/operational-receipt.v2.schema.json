@@ -107,6 +107,9 @@
     "delivery_state": {
       "oneOf": [
         {
+          "$ref": "#/$defs/controlState"
+        },
+        {
           "$ref": "#/$defs/pullState"
         },
         {
@@ -147,9 +150,6 @@
               "rotate",
               "retire"
             ]
-          },
-          "delivery_state": {
-            "$ref": "#/$defs/pullState"
           }
         }
       }
@@ -177,9 +177,6 @@
               "rotate",
               "retire"
             ]
-          },
-          "delivery_state": {
-            "$ref": "#/$defs/pushState"
           }
         }
       }
@@ -206,7 +203,129 @@
               "rotate",
               "retire"
             ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "activate",
+              "pause",
+              "resume",
+              "stop",
+              "start",
+              "rotate",
+              "retire"
+            ]
+          }
+        },
+        "required": [
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "counts": {
+            "properties": {
+              "received": {
+                "const": 0
+              },
+              "inserted": {
+                "const": 0
+              },
+              "duplicate_noop": {
+                "const": 0
+              },
+              "conflict": {
+                "const": 0
+              },
+              "rejected": {
+                "const": 0
+              }
+            }
           },
+          "delivery_state": {
+            "$ref": "#/$defs/controlState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "https_pull"
+          },
+          "operation": {
+            "enum": [
+              "poll",
+              "commit_batch"
+            ]
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "$ref": "#/$defs/pullState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "otlp_http_push"
+          },
+          "operation": {
+            "enum": [
+              "receive",
+              "commit_batch",
+              "acknowledge"
+            ]
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery_state": {
+            "$ref": "#/$defs/pushState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "delivery_mode": {
+            "const": "bounded_offline"
+          },
+          "operation": {
+            "enum": [
+              "import_bundle",
+              "commit_batch"
+            ]
+          }
+        },
+        "required": [
+          "delivery_mode",
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
           "delivery_state": {
             "$ref": "#/$defs/offlineState"
           }
@@ -351,12 +470,20 @@
           "delivery_mode": {
             "const": "otlp_http_push"
           },
+          "operation": {
+            "enum": [
+              "receive",
+              "commit_batch",
+              "acknowledge"
+            ]
+          },
           "status": {
             "const": "completed"
           }
         },
         "required": [
           "delivery_mode",
+          "operation",
           "status"
         ]
       },
@@ -378,6 +505,13 @@
           "delivery_mode": {
             "const": "otlp_http_push"
           },
+          "operation": {
+            "enum": [
+              "receive",
+              "commit_batch",
+              "acknowledge"
+            ]
+          },
           "status": {
             "enum": [
               "accepted",
@@ -388,6 +522,7 @@
         },
         "required": [
           "delivery_mode",
+          "operation",
           "status"
         ]
       },
@@ -413,6 +548,18 @@
     "sha256Ref": {
       "type": "string",
       "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "controlState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "const": "control"
+        }
+      }
     },
     "pullState": {
       "type": "object",

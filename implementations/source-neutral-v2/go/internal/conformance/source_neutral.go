@@ -21,13 +21,13 @@ import (
 )
 
 const (
-	expectedBundleSHA256   = "sha256:691c66cad3981354211d46b20865acfbd7834b96cd4c3d12b119f14f3e21f9b4"
+	expectedBundleSHA256   = "sha256:8d0413b182d5cf722ae5fc130fa07c6bb842c4b8094d0deb3c30e818a653044c"
 	expectedContractSHA256 = "sha256:b5ca71ce9e184a02c8a43aceb7830ab4dcbc0fa3b4f5f939e3094e76a94dfb3a"
 	expectedBundleVersion  = "foigent.source-neutral-vector-bundle.v2"
 	expectedProtocol       = "2.0.0"
 	reportVersion          = "foigent.conformance-report.v1"
 	implementationName     = "go"
-	implementationVersion  = "2.0.0-rc.1+independent.3"
+	implementationVersion  = "2.0.0-rc.1+independent.4"
 )
 
 const (
@@ -935,6 +935,7 @@ func classifyDelivery(input map[string]any) map[string]any {
 func classifyReceipt(input map[string]any) map[string]any {
 	mode, _ := input["mode"].(string)
 	operation, _ := input["operation"].(string)
+	stateKind, _ := input["state_kind"].(string)
 	status, _ := input["status"].(string)
 	acknowledgement, _ := input["acknowledgement"].(string)
 	checkpointCommitted, _ := input["checkpoint_committed"].(bool)
@@ -978,6 +979,22 @@ func classifyReceipt(input map[string]any) map[string]any {
 	if !allowedOperations[mode][operation] {
 		return invalid("receipt_operation_mismatch")
 	}
+	controlOperations := map[string]bool{
+		"activate": true, "pause": true, "resume": true, "stop": true,
+		"start": true, "rotate": true, "retire": true,
+	}
+	isControl := controlOperations[operation]
+	expectedStateKind := map[string]string{
+		"https_pull":      "pull",
+		"otlp_http_push":  "push",
+		"bounded_offline": "offline",
+	}[mode]
+	if isControl {
+		expectedStateKind = "control"
+	}
+	if stateKind != expectedStateKind {
+		return invalid("receipt_state_mismatch")
+	}
 	switch status {
 	case "accepted", "completed":
 		if hasError {
@@ -994,7 +1011,19 @@ func classifyReceipt(input map[string]any) map[string]any {
 	default:
 		return invalid("receipt_status_invalid")
 	}
-	if mode == "otlp_http_push" {
+	if isControl {
+		if acknowledgement != "not_applicable" {
+			return invalid("receipt_acknowledgement_not_applicable")
+		}
+		if checkpointCommitted {
+			return invalid("receipt_checkpoint_mismatch")
+		}
+		for _, value := range counts {
+			if value != 0 {
+				return invalid("receipt_control_counts_nonzero")
+			}
+		}
+	} else if mode == "otlp_http_push" {
 		expected := "withheld"
 		if status == "completed" {
 			expected = "durable"
@@ -1005,9 +1034,11 @@ func classifyReceipt(input map[string]any) map[string]any {
 	} else if acknowledgement != "not_applicable" {
 		return invalid("receipt_acknowledgement_not_applicable")
 	}
-	expectedCheckpoint := mode == "https_pull" && status == "completed"
-	if checkpointCommitted != expectedCheckpoint {
-		return invalid("receipt_checkpoint_mismatch")
+	if !isControl {
+		expectedCheckpoint := mode == "https_pull" && status == "completed"
+		if checkpointCommitted != expectedCheckpoint {
+			return invalid("receipt_checkpoint_mismatch")
+		}
 	}
 	outcomeCount := counts["inserted"] +
 		counts["duplicate_noop"] +
@@ -1037,7 +1068,7 @@ func classifyReceipt(input map[string]any) map[string]any {
 		"acknowledgement":      acknowledgement,
 		"checkpoint_committed": checkpointCommitted,
 		"counts_accounted":     true,
-		"receipt_completed":    mode == "bounded_offline" && status == "completed",
+		"receipt_completed":    !isControl && mode == "bounded_offline" && status == "completed",
 		"status":               status,
 		"valid":                true,
 	}

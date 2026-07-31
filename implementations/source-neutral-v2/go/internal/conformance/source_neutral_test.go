@@ -17,7 +17,7 @@ func TestSourceNeutralBundlePasses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
-	if exitCode != ExitPass || summary.Status != "pass" || summary.CaseCount != 69 {
+	if exitCode != ExitPass || summary.Status != "pass" || summary.CaseCount != 78 {
 		t.Fatalf("unexpected summary: %+v exit=%d", summary, exitCode)
 	}
 	if info, err := os.Stat(reportPath); err != nil || info.Size() == 0 {
@@ -140,6 +140,7 @@ func TestOperationalReceiptSemanticsFailClosed(t *testing.T) {
 	valid := classifyReceipt(map[string]any{
 		"mode":                 "otlp_http_push",
 		"operation":            "acknowledge",
+		"state_kind":           "push",
 		"status":               "completed",
 		"acknowledgement":      "durable",
 		"checkpoint_committed": false,
@@ -152,6 +153,7 @@ func TestOperationalReceiptSemanticsFailClosed(t *testing.T) {
 	invalid := classifyReceipt(map[string]any{
 		"mode":                 "otlp_http_push",
 		"operation":            "acknowledge",
+		"state_kind":           "push",
 		"status":               "completed",
 		"acknowledgement":      "withheld",
 		"checkpoint_committed": false,
@@ -160,6 +162,25 @@ func TestOperationalReceiptSemanticsFailClosed(t *testing.T) {
 	})
 	if invalid["error_code"] != "receipt_acknowledgement_mismatch" {
 		t.Fatalf("completed withheld receipt accepted: %v", invalid)
+	}
+	control := classifyReceipt(map[string]any{
+		"mode":                 "otlp_http_push",
+		"operation":            "rotate",
+		"state_kind":           "control",
+		"status":               "completed",
+		"acknowledgement":      "not_applicable",
+		"checkpoint_committed": false,
+		"counts": map[string]any{
+			"received":       float64(0),
+			"inserted":       float64(0),
+			"duplicate_noop": float64(0),
+			"conflict":       float64(0),
+			"rejected":       float64(0),
+		},
+		"error_retryable": nil,
+	})
+	if control["valid"] != true || control["receipt_completed"] != false {
+		t.Fatalf("mode-neutral control receipt rejected: %v", control)
 	}
 }
 
