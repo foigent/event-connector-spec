@@ -44,8 +44,11 @@
   },
   "consumer_baseline": {
     "repository": "https://github.com/foigent/x-insight",
+    "reviewed_origin_main_commit": "e6c1bd3e3d6e6433b5e5717dedd50488dcf521ee",
+    "reviewed_origin_main_tree": "1da84e19b81d52697acedc01f60446782e058023",
     "candidate_commit": "d1ae3fe76057c9ff37f2fb7e870f2190c47b3745",
     "candidate_tree": "79cabc9f4c7b5b425e3fc09590af5bd07af87047",
+    "candidate_relationship": "reviewed_origin_main is an ancestor; candidate is seven commits ahead",
     "source_system_id": "d7fd8d6e-7b59-5cb9-9261-578655cc5ae9",
     "adapter_manifest_id": "30b5d2c6-7df7-5c0b-87fc-e5b58a33a837",
     "projection_profile": "xinsight.foigent-envelope-to-m0.openinference-span.v1",

@@ -17,6 +17,10 @@ PREDECESSOR_CONTENT_DIGEST = (
 PREDECESSOR_RELEASE_DIGEST = (
     "sha256:0b414d5d59e5a7ca5c05505cb58d7992c544537da1c84a57256ec205618d9cd1"
 )
+XINSIGHT_ORIGIN_MAIN_COMMIT = "e6c1bd3e3d6e6433b5e5717dedd50488dcf521ee"
+XINSIGHT_ORIGIN_MAIN_TREE = "1da84e19b81d52697acedc01f60446782e058023"
+XINSIGHT_CANDIDATE_COMMIT = "d1ae3fe76057c9ff37f2fb7e870f2190c47b3745"
+XINSIGHT_CANDIDATE_TREE = "79cabc9f4c7b5b425e3fc09590af5bd07af87047"
 V1_XINSIGHT_SEED_SHA = (
     "sha256:5cd40aa6c0256a70ad7317c05e078759685e0469be77a3e960a976adc3158e8e"
 )
@@ -333,6 +337,17 @@ def validate() -> dict[str, Any]:
     )
     matrix = load_json_strict(matrix_path)
     verify_openinference_compatibility(matrix)
+    consumer = matrix["consumer_baseline"]
+    require(
+        consumer["reviewed_origin_main_commit"] == XINSIGHT_ORIGIN_MAIN_COMMIT
+        and consumer["reviewed_origin_main_tree"] == XINSIGHT_ORIGIN_MAIN_TREE,
+        "reviewed X-Insight origin/main identity changed",
+    )
+    require(
+        consumer["candidate_commit"] == XINSIGHT_CANDIDATE_COMMIT
+        and consumer["candidate_tree"] == XINSIGHT_CANDIDATE_TREE,
+        "reviewed X-Insight candidate identity changed",
+    )
     require(
         matrix["source_baseline"]["source_schema"]["sha256"] == SOURCE_SCHEMA_SHA,
         "compatibility matrix Source Schema pin changed",
@@ -409,6 +424,19 @@ def validate() -> dict[str, Any]:
     )
     projection = load_json_strict(
         ROOT / "mappings/xinsight/openinference-span-to-m0-m0.1-v2.json"
+    )
+    projection_baseline = projection["consumer_baseline"]
+    require(
+        projection_baseline["reviewed_origin_main_commit"]
+        == XINSIGHT_ORIGIN_MAIN_COMMIT
+        and projection_baseline["reviewed_origin_main_tree"]
+        == XINSIGHT_ORIGIN_MAIN_TREE,
+        "projection origin/main baseline changed",
+    )
+    require(
+        projection_baseline["commit"] == XINSIGHT_CANDIDATE_COMMIT
+        and projection_baseline["tree"] == XINSIGHT_CANDIDATE_TREE,
+        "projection candidate baseline changed",
     )
     require(
         projection["activation_gate"]["status"]

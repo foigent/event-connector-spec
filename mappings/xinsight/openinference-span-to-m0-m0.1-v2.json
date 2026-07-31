@@ -4,8 +4,11 @@
     "repository": "https://github.com/foigent/x-insight",
     "commit": "d1ae3fe76057c9ff37f2fb7e870f2190c47b3745",
     "tree": "79cabc9f4c7b5b425e3fc09590af5bd07af87047",
-    "origin_main_commit": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
-    "origin_main_tree": "16a4930f014c35531b01c4bd44c25bd29a53ae8"
+    "reviewed_origin_main_commit": "e6c1bd3e3d6e6433b5e5717dedd50488dcf521ee",
+    "reviewed_origin_main_tree": "1da84e19b81d52697acedc01f60446782e058023",
+    "candidate_relationship": "reviewed_origin_main is an ancestor; candidate is seven commits ahead",
+    "preserved_dirty_checkout_head": "c27b39f67b0e72de7f60975ff8b0e94dfc05520f",
+    "preserved_dirty_checkout_tree": "16a4930f014c35531b01c4bd44c25bd29a53ae8"
   },
   "input": {
     "envelope": "foigent://schemas/event-envelope/v1",

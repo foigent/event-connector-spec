@@ -101,7 +101,7 @@
     },
     "openinference_manifest": {
       "path": "manifests/foigent.openinference.otlp-spans-1.0.0.json",
-      "sha256": "sha256:f3d2bd45fb5777ce665401ac7f9038da66a68975c140d43b447f5cccbd006814"
+      "sha256": "sha256:5c047cc2870f02f66044de9877d61cf2e1eed3c24aa2cc884d98945135d51f6e"
     },
     "openinference_otlp_source_mapping": {
       "path": "mappings/openinference/otlp-json-to-sanitized-span.v1.json",
@@ -113,7 +113,7 @@
     },
     "xinsight_openinference_projection": {
       "path": "mappings/xinsight/openinference-span-to-m0-m0.1-v2.json",
-      "sha256": "sha256:4e5629d4c3969a91d30d0068d7f934bc209996687218dd613f857b74918276ab"
+      "sha256": "sha256:ce95a7299290469c992da1b8f0056c6c45bd550f237a408d08dcb9cf4afbc610"
     },
     "v1_to_v2_compatibility_matrix": {
       "path": "compatibility/v1-to-v2-source-neutral-matrix.json",
@@ -121,7 +121,7 @@
     },
     "xinsight_openinference_compatibility_matrix": {
       "path": "compatibility/foigent-openinference-bounded-export-1.0.0-to-xinsight-m0.1.json",
-      "sha256": "sha256:5a3f0bfa2bd5a89a86aa5da0457eff207f20167929fa5f4769717921e2470a9f"
+      "sha256": "sha256:f49ba2f9494e74824527db9165766f2ccd958194f9bc167cf9c1b7b13d6f3d92"
     },
     "openinference_raw_fixture": {
       "path": "fixtures/source/openinference/reference-otlp-export.v1.json",
@@ -177,7 +177,7 @@
     },
     "compatibility_validator": {
       "path": "scripts/validate_source_neutral_v2_candidate.py",
-      "sha256": "sha256:066c9924a6ac5f29894973e819d9a58dad42f1276bb3a221b11313ea6d1d7f7a"
+      "sha256": "sha256:152b76c8404ecffb683c60f17758cba113312529b1190e4c7f78c5c918de7518"
     },
     "conformance_kit": {
       "path": "scripts/run-source-neutral-v2-conformance-kit.sh",
@@ -200,7 +200,7 @@
       "sha256": "sha256:8196a785579b2352eabe7cdf08b8e02e46c84b639f4cf2819c07b8d7fedc06a4"
     }
   },
-  "content_digest": "sha256:4b38f32735ff3612f70f394c63a27fc33b7a0673e727ed35a470b55751d41123",
+  "content_digest": "sha256:219401b98705b9787d4186b919dbf02d9d242a385cec956120b0870d401412ef",
   "approvals": {
     "source_domain_owner": "required",
     "projection_owner": "candidate_evidence_pending_exact_digest",
