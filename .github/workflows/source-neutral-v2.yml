@@ -1,4 +1,4 @@
-name: Source-Neutral v2.0.1 Release
+name: Source-Neutral v2.0.2 Release
 
 on:
   pull_request:
@@ -27,16 +27,27 @@ jobs:
         uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
         with:
           deno-version: v2.7.13
-      - name: Run source-neutral v2.0.1 Release Kit and immutable predecessors
+      - name: Run source-neutral v2.0.2 Authority Release Kit and immutable predecessors
         shell: bash
         run: |
           assembly_mode="--content-candidate"
-          if [[ -f "$GITHUB_WORKSPACE/releases/v2.0.1/release-manifest.json" ]]; then
+          if [[ -f "$GITHUB_WORKSPACE/releases/v2.0.2/release-manifest.json" ]]; then
             assembly_mode="--release"
           fi
           ./scripts/run-source-neutral-v2-release-kit.sh \
             "$GITHUB_WORKSPACE" \
             "$RUNNER_TEMP/foigent-source-neutral-v2-release-kit" \
+            "$assembly_mode"
+      - name: Prove composite-action snapshot portability without Git metadata
+        shell: bash
+        run: |
+          assembly_mode="--content-candidate"
+          if [[ -f "$GITHUB_WORKSPACE/releases/v2.0.2/release-manifest.json" ]]; then
+            assembly_mode="--release"
+          fi
+          ./scripts/run-source-neutral-v2-action-snapshot-kit.sh \
+            "$GITHUB_WORKSPACE" \
+            "$RUNNER_TEMP/foigent-source-neutral-v2-action-snapshot" \
             "$assembly_mode"
       - name: Require a reproducible checkout
         run: git diff --exit-code

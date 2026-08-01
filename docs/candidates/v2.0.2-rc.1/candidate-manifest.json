@@ -1,0 +1,446 @@
+{
+  "candidate_manifest_version": "foigent.protocol-candidate-manifest.v1",
+  "protocol_version": "2.0.2",
+  "protocol_status": "not_binding",
+  "authority": {
+    "repository": "https://github.com/foigent/event-connector-spec",
+    "repository_id": 1313391565
+  },
+  "predecessor": {
+    "protocol_version": "2.0.1",
+    "tag": "v2.0.1",
+    "tag_object": "c24531c24955bc700133387dd7352a88e5ba82be",
+    "tag_commit": "0cbb6417858d12d6a99ff3b517bd59a122bc7e2c",
+    "tree": "f967929dd98c5f34cd42fce4aa21489b72b000e0",
+    "manifest_sha256": "sha256:fa097dfa08ba318334f78f4690f65247f080e86fde5695742b3ad49aaeba6a60",
+    "content_digest": "sha256:b3fd6a0651ca2c501bb8040f89945f57abb16fc5e01476c0efe4356e46b08e3e",
+    "release_digest": "sha256:b21e719b6dd0653aa93479aef64832d2e598c780c0e1804b84e34fbe658ac777"
+  },
+  "compatibility": "PATCH_COMPATIBLE_CI_PORTABILITY_FIX",
+  "components": {
+    "authority_readme": {
+      "path": "README.md",
+      "sha256": "sha256:81966765ae10f9cec8eb090b65befb3031c5e2417d77ea3cd4227336a9d5a03f"
+    },
+    "governance": {
+      "path": "GOVERNANCE.md",
+      "sha256": "sha256:26e924a532102ae94046ed3f70f1c046623d349dd48f1275aa969e2caeba9838"
+    },
+    "release_decision": {
+      "path": "docs/decisions/0005-composite-action-snapshot-portability-candidate.md",
+      "sha256": "sha256:baffbaeb607820e31d86a3d9c5f0bec89fec79a85d55277b413533c61b078285"
+    },
+    "predecessor_release_manifest": {
+      "path": "releases/v2.0.1/release-manifest.json",
+      "sha256": "sha256:fa097dfa08ba318334f78f4690f65247f080e86fde5695742b3ad49aaeba6a60"
+    },
+    "protocol_spec": {
+      "path": "spec/protocol-v2.md",
+      "sha256": "sha256:4a8efd02b07c29f4ce19fb30bd5fa9f256254ba6cfe92420bf8e6a268b22702d"
+    },
+    "protocol_v1_compatibility_base": {
+      "path": "spec/protocol-v1.md",
+      "sha256": "sha256:56e0bf210f110839403ab653936ffc9fb41236b39846f697d8536c816ed2c45f"
+    },
+    "shared_ci_action": {
+      "path": "actions/source-neutral-v2/action.yml",
+      "sha256": "sha256:a3e05a99664bbd173d77582a7d5542cdae86323618a6cd1c70d3d3254eeda8f3"
+    },
+    "authority_ci_workflow": {
+      "path": ".github/workflows/source-neutral-v2.yml",
+      "sha256": "sha256:c860e4314f077650a70d673e6835265a1cd84e159560ad27e017f97d6945f8a7"
+    },
+    "legacy_conformance_kit": {
+      "path": "scripts/run-conformance-kit.sh",
+      "sha256": "sha256:98afa5b6c964df78a80a7aaf7488899f76d21123f0f867ab3a83fc6af9a43214"
+    },
+    "predecessor_conformance_kit": {
+      "path": "scripts/run-v1.1.2-predecessor-kit.sh",
+      "sha256": "sha256:bd1f8dbb794e7ac65a316c98e90d8fe4d7d57110dff605ee1bfcf353ba0d2cd9"
+    },
+    "immediate_predecessor_conformance_kit": {
+      "path": "scripts/run-v2.0.1-predecessor-kit.sh",
+      "sha256": "sha256:d2b7fd5adb5d39938fb1f255d0b41d408c538a379945ec3ff5cdd721238b6d37"
+    },
+    "v1_compatibility_kit": {
+      "path": "scripts/run-v1-compatibility-kit.sh",
+      "sha256": "sha256:7b17a869aa0c6c420c84d68b85abe6c2f8555960f3b24020902eab771b9f7cab"
+    },
+    "conformance_kit_runner": {
+      "path": "scripts/run-source-neutral-v2-consumer-kit.sh",
+      "sha256": "sha256:a7fb4d8fb4013f8aae1bbf86c517cd52f33438366ad843e5438c48ac8e4914f2"
+    },
+    "legacy_release_builder": {
+      "path": "scripts/build-release-manifest.mjs",
+      "sha256": "sha256:2a37f17e2ec4abbfc753fba650023b8e8ca8f09307c3a663210efd9a09c34e83"
+    },
+    "release_builder": {
+      "path": "scripts/build-source-neutral-v2-release-manifest.mjs",
+      "sha256": "sha256:fe709f0744565f5210afff82d55dd8737108b1657577115ce09231568d440d78"
+    },
+    "legacy_implementation_manifest_builder": {
+      "path": "scripts/build-implementation-manifests.mjs",
+      "sha256": "sha256:b171e4e8e7110d0046cebb73347599929e7ff1fa6e2f8b3f9b2be74d158e28f8"
+    },
+    "legacy_candidate_verifier": {
+      "path": "scripts/verify-candidate.mjs",
+      "sha256": "sha256:b6b85cf20be7f6cd22c234b17b40b30f899f159ee4b82ad7ecbf0b922d06a78b"
+    },
+    "legacy_conformance_comparator": {
+      "path": "scripts/compare-conformance.mjs",
+      "sha256": "sha256:ed20b80680b94e993bec8824514ba3ba752138ec142bf6b84b853c0801df5426"
+    },
+    "litellm_artifact_builder": {
+      "path": "scripts/build-litellm-artifacts.mjs",
+      "sha256": "sha256:3975ddf1aacd7c2ad6fac5dad569004b6066b61de6d260ef78b75ec0ad01423e"
+    },
+    "litellm_upstream_evidence_verifier": {
+      "path": "scripts/verify-litellm-upstream-evidence.mjs",
+      "sha256": "sha256:c2c58c55640d7eefd36476fad77341489ce2576a9f4ffd2ee766382309eaa32f"
+    },
+    "litellm_conformance_comparator": {
+      "path": "scripts/compare-litellm-conformance.mjs",
+      "sha256": "sha256:da30b59e4cd1d46872a66c9cc43f963ac59741a16acc4f16ad7df3079526ed46"
+    },
+    "source_neutral_artifact_builder": {
+      "path": "scripts/build-source-neutral-v2-artifacts.mjs",
+      "sha256": "sha256:812fba29c5bc4d11ae3d4154e4844eae26ae403eecdf8f92691ccddf198f6ced"
+    },
+    "source_neutral_implementation_manifest_builder": {
+      "path": "scripts/build-source-neutral-v2-implementation-manifests.mjs",
+      "sha256": "sha256:a29fada8d7a6147af94cf9e0ebabe084216754e10a04686cd7acd57716c07ba0"
+    },
+    "source_neutral_conformance_comparator": {
+      "path": "scripts/compare-source-neutral-conformance.mjs",
+      "sha256": "sha256:3d21f54fd95aff7859a1d92e74408e5c974f6b9f6e10599242ff066f1c83796f"
+    },
+    "source_neutral_release_validator": {
+      "path": "scripts/validate_source_neutral_v2_0_2_candidate.py",
+      "sha256": "sha256:b8ff3e0ab799882a13ed20104d07c32b7b6313cf455c75da74f4389f0940983f"
+    },
+    "source_neutral_release_tests": {
+      "path": "tests/test_source_neutral_v2_0_2_candidate.py",
+      "sha256": "sha256:86b6465d50f1df1b5ebe1faa75b3ceb686f6edf7950ee26964fc8ce145977755"
+    },
+    "candidate_archive_tests": {
+      "path": "tests/test_source_neutral_v2_candidate.py",
+      "sha256": "sha256:1de6887f608158696dfb3a0e07578f7e2836bf3cff8c3dbd5c7403c9268f46cf"
+    },
+    "product_pin_verifier": {
+      "path": "scripts/verify-product-pin-v2.mjs",
+      "sha256": "sha256:688e95f5e3b6276f646af1e4e255c5aa8c2b9933a298bb4b59c40b60e4fa7067"
+    },
+    "release_manifest_v1_schema": {
+      "path": "schemas/release-manifest.v1.schema.json",
+      "sha256": "sha256:d32190dba69982d02ad0d817a8f0bac9f3e73fe066a25769c36079edd072735c"
+    },
+    "release_manifest_schema": {
+      "path": "schemas/release-manifest.v2.schema.json",
+      "sha256": "sha256:b5382c326d69b34f459fa06539682ee098d7cca2928d37e91b0cdb5b5b7e8125"
+    },
+    "protocol_pin_v1_schema": {
+      "path": "schemas/protocol-pin.v1.schema.json",
+      "sha256": "sha256:d186f37c5ea7e090f21bb1a6962ec65f07342d60198f35952b0d224e0bc57e60"
+    },
+    "protocol_pin_schema": {
+      "path": "schemas/protocol-pin.v2.schema.json",
+      "sha256": "sha256:c4b53efd247dab145d3d9357b5602e90179235e6de83deef7d960fd94b6f9294"
+    },
+    "event_envelope_schema": {
+      "path": "schemas/event-envelope.v1.schema.json",
+      "sha256": "sha256:6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26"
+    },
+    "capture_gap_schema": {
+      "path": "schemas/capture-gap.v1.schema.json",
+      "sha256": "sha256:1a5be69da99f62033ceadf05f66d45296d1d5f8b662830f77c0fc6af49edaec8"
+    },
+    "conformance_report_schema": {
+      "path": "schemas/conformance-report.v1.schema.json",
+      "sha256": "sha256:42048fbf5a5edc2ca4476727563ab41e96a8fb6d3788d446e0e0d7c4154a31a7"
+    },
+    "domain_catalog": {
+      "path": "catalog/domain-catalog.v2.json",
+      "sha256": "sha256:7adfd8210a0dc52e205c714aea0d5e7a26b7617b45cf6e27cbb2ca9d382633fa"
+    },
+    "connector_manifest_schema": {
+      "path": "schemas/connector-manifest.v2.schema.json",
+      "sha256": "sha256:ce1e8e84b49e50d0740366e42c64a6899b27834c3cf83116a63a35d3c1a901e5"
+    },
+    "connector_lifecycle_schema": {
+      "path": "schemas/connector-lifecycle.v2.schema.json",
+      "sha256": "sha256:b2b8475605fe58e75b97ebe2c6fdab567647757a64112dfeed1b1d4b48afefd0"
+    },
+    "connector_checkpoint_schema": {
+      "path": "schemas/connector-checkpoint.v2.schema.json",
+      "sha256": "sha256:80bf1e98b24424a25a14985f36aa179c838363c4deb540c7521b20582eccdd6b"
+    },
+    "event_batch_schema": {
+      "path": "schemas/event-batch.v2.schema.json",
+      "sha256": "sha256:36e7da64aa6c33e74e60379274d8426459f1e2ee520e44d0d935fc794b4925da"
+    },
+    "connector_error_schema": {
+      "path": "schemas/connector-error.v2.schema.json",
+      "sha256": "sha256:bae3e9a0ee4096feb01655e1f9fc0e4032b3656c0cd0e2a7cad78ec7379a3dee"
+    },
+    "operational_receipt_schema": {
+      "path": "schemas/operational-receipt.v2.schema.json",
+      "sha256": "sha256:d2d091c2571d54df7a65329da049f13a4d7465af38b7916e4ae79e57255a04b6"
+    },
+    "openinference_source_schema": {
+      "path": "schemas/openinference-span.v1.schema.json",
+      "sha256": "sha256:b5f4da5b586ca4d34af716d52215955c843e5b824f7af7fdbc9a1dfda728b29a"
+    },
+    "openinference_payload_schema": {
+      "path": "schemas/observability-openinference-span-completed.v1.schema.json",
+      "sha256": "sha256:b40e06b7ddc0f5c2800aa81c7562f3d79e35074fd9ba692cb663741491e2c0ce"
+    },
+    "reference_connector_manifest": {
+      "path": "manifests/foigent.unirouter.completed-execution-1.0.0.json",
+      "sha256": "sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79"
+    },
+    "litellm_connector_manifest": {
+      "path": "manifests/foigent.litellm.spend-logs-1.0.0.json",
+      "sha256": "sha256:86a10565a8c66abe5b31d6c39e853cebf5e9b90721d6784ea0bf7c28d2c20693"
+    },
+    "openinference_connector_manifest": {
+      "path": "manifests/foigent.openinference.otlp-spans-1.0.0.json",
+      "sha256": "sha256:363123d5837741ed78c134e305593d3fd0fdf68040cebff068d3f76d5bc62a1b"
+    },
+    "source_projection_contract": {
+      "path": "mappings/unirouter/source-snapshot-to-model-request-completed.v1.json",
+      "sha256": "sha256:5425ab384bebcd9d4a7e81882bfa1bb1700df7cc397863b91f69e2855df12928"
+    },
+    "source_lifecycle_mapping": {
+      "path": "mappings/unirouter/source-lifecycle-to-shared-axes.v1.json",
+      "sha256": "sha256:1618c86e3d8fae206322e1d928b8b5f0401865623b4267f5b685d7ac02b2968f"
+    },
+    "source_identity_mapping": {
+      "path": "mappings/unirouter/connector-identity-to-source-local.v1.json",
+      "sha256": "sha256:0cdbcdcf42658ee12d14ae13ef5d43b54488dca7cec8182055047585eb62e890"
+    },
+    "reference_projection_contract": {
+      "path": "mappings/xinsight/model-request-completed-to-m0-m0.1-v1.json",
+      "sha256": "sha256:c812a9c70d55ad0413650218eab6f968fd44974e1e7d77a147d58f62e18e8b03"
+    },
+    "consumer_lifecycle_mapping": {
+      "path": "mappings/xinsight/connector-lifecycle-to-current-xinsight-v1.json",
+      "sha256": "sha256:f1980ad31b1b3be978b39dee854f9e9e1accf99fa266615fe5a43f10dc115503"
+    },
+    "consumer_identity_mapping": {
+      "path": "mappings/xinsight/portable-connector-identity-to-current-xinsight-v1.json",
+      "sha256": "sha256:a14c7ed4fe5475cf4ad50da32731824eb8b85fb249dcd5b4bc5b7556d6b33305"
+    },
+    "litellm_source_projection_contract": {
+      "path": "mappings/litellm/spend-log-to-model-request-completed.v2.json",
+      "sha256": "sha256:d687643d6d1aa87801a2587d6fe936372b67975d5de423f614d97d3833bc0830"
+    },
+    "litellm_upstream_source_mapping": {
+      "path": "mappings/litellm/spend-logs-v2-to-sanitized-source.v1.json",
+      "sha256": "sha256:f2ea79fcd2ae198e964168ce31e8f71aeba44bc5d3930afbcef57f3c4ea1eb7b"
+    },
+    "litellm_reference_projection_contract": {
+      "path": "mappings/xinsight/model-request-completed-v2-to-m0-m0.1-litellm-v1.json",
+      "sha256": "sha256:72bb90b6a5ddf0f44f7773a7378c0f7f458438f9fc1363d31a65602c0547f088"
+    },
+    "openinference_otlp_source_mapping": {
+      "path": "mappings/openinference/otlp-json-to-sanitized-span.v1.json",
+      "sha256": "sha256:0120993d85b821b8e17757f54b5878a1b3d71f573cacb53a2246d9419c320c70"
+    },
+    "openinference_event_mapping": {
+      "path": "mappings/openinference/sanitized-span-to-event-envelope.v1.json",
+      "sha256": "sha256:7811a3f1d4cdb80385a72b17e6940dc16b29b995d216c681dba0e4377e6eb44f"
+    },
+    "xinsight_openinference_projection": {
+      "path": "mappings/xinsight/openinference-span-to-m0-m0.1-v2.json",
+      "sha256": "sha256:d5abcabffeb8bb368e5c188b7ed5179b5674092e9421af2c38e548bfdbec7077"
+    },
+    "v1_to_v2_compatibility_matrix": {
+      "path": "compatibility/v1-to-v2-source-neutral-matrix.json",
+      "sha256": "sha256:bdc2527ca947bf7b6a9c1feb2d5a97a9426b5b3ec602690a2d7b23d3f85ace52"
+    },
+    "reference_compatibility_matrix": {
+      "path": "compatibility/foigent-unirouter-completed-execution-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:03fb035134b173165e6a03f348d40a58fe1d28d82c24bacb1dec553c8b769c89"
+    },
+    "litellm_compatibility_matrix": {
+      "path": "compatibility/foigent-litellm-spend-logs-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:3b0a2c5e3bfa89dc060299fa0b4351edcd33d92b2702cf95c99b1f26b51dd4ec"
+    },
+    "openinference_compatibility_matrix": {
+      "path": "compatibility/foigent-openinference-bounded-export-1.0.0-to-xinsight-m0.1.json",
+      "sha256": "sha256:0dd606acf3ee1111987d2d74a2f8ad3b9881ca5daf4ad5920351ba5c643e4f60"
+    },
+    "reference_compatibility_vector_bundle": {
+      "path": "mappings/xinsight/completed-execution-compatibility-seed-v1.json",
+      "sha256": "sha256:5cd40aa6c0256a70ad7317c05e078759685e0469be77a3e960a976adc3158e8e"
+    },
+    "openinference_raw_fixture": {
+      "path": "fixtures/source/openinference/reference-otlp-export.v1.json",
+      "sha256": "sha256:8b26b6e47a019eb2540ceb4be0177fc3e69dd0248449ff50fa19b55c10fe057c"
+    },
+    "openinference_source_fixture": {
+      "path": "fixtures/source/openinference/reference-sanitized-span.v1.json",
+      "sha256": "sha256:bb59520c7b9bbf9f53bdd52499985e32c31858dbdfc9a49d33fecd087c26ce0d"
+    },
+    "openinference_envelope_hash_input": {
+      "path": "fixtures/shared/openinference-span-envelope.hash-input.json",
+      "sha256": "sha256:ec6956ba4e8674faaa341923168b4d1f45e8a4b4b8c362568d7d0c6b815471c9"
+    },
+    "openinference_missing_optional_raw_fixture": {
+      "path": "fixtures/source/openinference/missing-optional-otlp-export.v1.json",
+      "sha256": "sha256:2e5a88c53fe4e6e86ecbf758542fedc67c5ac215563af016d1f75c78405efb88"
+    },
+    "openinference_missing_optional_source_fixture": {
+      "path": "fixtures/source/openinference/missing-optional-sanitized-span.v1.json",
+      "sha256": "sha256:adce8de508a924de984294ebb32b3bfc04f009ff6f2d8ad8b26569ac40701366"
+    },
+    "openinference_missing_optional_envelope_hash_input": {
+      "path": "fixtures/shared/openinference-missing-optional-envelope.hash-input.json",
+      "sha256": "sha256:9b28bc0c4ef3c744e08b70851850c6acf589732c5d58b404c039ae05d3a94211"
+    },
+    "openinference_ordered_batch_raw_fixture": {
+      "path": "fixtures/source/openinference/ordered-batch-otlp-export.v1.json",
+      "sha256": "sha256:49512682d6f26f70facdb2a5ed17a9f15f749ff67e9441921c5f28ceb0e8fbc8"
+    },
+    "openinference_ordered_separate_source_fixture": {
+      "path": "fixtures/source/openinference/ordered-separate-sanitized-span.v1.json",
+      "sha256": "sha256:e6e51351bc42533060e65241bf329e97e26e40acb19b842b233975d160356d9b"
+    },
+    "openinference_ordered_separate_envelope_hash_input": {
+      "path": "fixtures/shared/openinference-ordered-separate-envelope.hash-input.json",
+      "sha256": "sha256:71ef256f060fdebcc523328b32951d8069648354805f3861194372b7c4da4b28"
+    },
+    "openinference_ordered_parent_source_fixture": {
+      "path": "fixtures/source/openinference/ordered-parent-sanitized-span.v1.json",
+      "sha256": "sha256:de0be87c863902f8728e7e85aa953efbd3b64f03d0c942b6da33b68f233e2167"
+    },
+    "openinference_ordered_parent_envelope_hash_input": {
+      "path": "fixtures/shared/openinference-ordered-parent-envelope.hash-input.json",
+      "sha256": "sha256:c0a587932c70aaa6c76bc4a167baa03f2c4e95f4dda8b3f93237935c9fbc31af"
+    },
+    "openinference_ordered_child_source_fixture": {
+      "path": "fixtures/source/openinference/ordered-child-sanitized-span.v1.json",
+      "sha256": "sha256:769e9a62d7e340c64137760507f19d3bf478e311f980b373cec020cb3c5001bb"
+    },
+    "openinference_ordered_child_envelope_hash_input": {
+      "path": "fixtures/shared/openinference-ordered-child-envelope.hash-input.json",
+      "sha256": "sha256:b77420ce85c7e8af7d3db5154a5e02f7491ef1dfc60ab2d4e520d52ace6dd977"
+    },
+    "openinference_unknown_status_negative_fixture": {
+      "path": "fixtures/source/openinference/unknown-status-otlp-export.invalid.json",
+      "sha256": "sha256:417e3026072f0e58577ecc22307dd7852d89e6508dfa63c2c64505834aae6f5b"
+    },
+    "openinference_end_before_start_negative_fixture": {
+      "path": "fixtures/source/openinference/end-before-start-otlp-export.invalid.json",
+      "sha256": "sha256:fab36f2b22d55d03b12a3943e67059512ae8e94263e18b14c921d1b08e058898"
+    },
+    "openinference_malformed_trace_negative_fixture": {
+      "path": "fixtures/source/openinference/malformed-trace-id-otlp-export.invalid.json",
+      "sha256": "sha256:e9900e40cbe21d6ba0d033f8ae9e80c25e5a0d8e9e2e61e8a144b5a9870391fb"
+    },
+    "openinference_span_limit_negative_fixture": {
+      "path": "fixtures/source/openinference/too-many-spans-otlp-export.invalid.json",
+      "sha256": "sha256:966c84c9f7ea9086282a52134a021fbf50d2170689d1f2ed95f17e9147257829"
+    },
+    "conformance_contract": {
+      "path": "conformance/source-neutral-conformance-contract.v2.json",
+      "sha256": "sha256:f820936448590144156c2e499134eb4b3142ca0265275b6e9bdf1e5cd7855e14"
+    },
+    "vector_bundle": {
+      "path": "vectors/source-neutral-vector-bundle.v2.json",
+      "sha256": "sha256:9e50bb4570dcc1ff07157ad6198641e937357b641ae052cddcb3420b52ad11ed"
+    },
+    "go_conformance_report": {
+      "path": "conformance/reports/go-source-neutral-v2.json",
+      "sha256": "sha256:3265dd58f91fa3c010f4d022507c6e68cae4609978490842fd21c0da658152f8"
+    },
+    "typescript_conformance_report": {
+      "path": "conformance/reports/typescript-source-neutral-v2.json",
+      "sha256": "sha256:eb0139c27eb774e8acf4a077107260b6a7a0fd5d5d18abe1e4227f3d670e5d5b"
+    },
+    "go_implementation_manifest": {
+      "path": "implementations/source-neutral-v2/go/implementation-manifest.v2.json",
+      "sha256": "sha256:e8bf8b401f60c25dddf9d9c272706eb08368d15c2b85baeff22540f39ff1be25"
+    },
+    "typescript_implementation_manifest": {
+      "path": "implementations/source-neutral-v2/typescript/implementation-manifest.v2.json",
+      "sha256": "sha256:bdce6862459236933de2378c2680fec9e5593b8a0e73e13f576d8350233296dd"
+    },
+    "schema_audit_main": {
+      "path": "tools/schema-audit-v2/main.go",
+      "sha256": "sha256:e6b8a88736c1019ccb6b1e8f8bc8bd03a19458e4c7120c85414838bce31b8154"
+    },
+    "schema_audit_overlay": {
+      "path": "tools/schema-audit-v2/overlay.json",
+      "sha256": "sha256:fcbe83a5cc2969a6ff5bd74189ed533bd21bf71dccab8366553c8db2a9b876cc"
+    },
+    "schema_audit_runner": {
+      "path": "tools/schema-audit-v2/run.sh",
+      "sha256": "sha256:36b7cd24d2669bd473f8c5d98d5636dfaee9b2d20ffce94dcd1cf3053289e5fc"
+    },
+    "predecessor_candidate_manifest_archive": {
+      "path": "docs/candidates/v2.0.1-rc.1/candidate-manifest.json",
+      "sha256": "sha256:155441d07d25d7b63831072a9ce04dace65ee2be32abb826c89f000c3e18e0e9"
+    },
+    "predecessor_candidate_source_owner_review": {
+      "path": "reviews/candidates/v2.0.1-rc.1/source-owner-review.md",
+      "sha256": "sha256:89e1e58dbfedeacc94e5073bf9ad295f23079bb132074e18a51b3cff4da9f5ff"
+    },
+    "predecessor_candidate_projection_owner_review": {
+      "path": "reviews/candidates/v2.0.1-rc.1/projection-owner-review.md",
+      "sha256": "sha256:7392bc406bdf5d1252f2e6f45a221713068542b7cbe76e6795de06afab33e18a"
+    },
+    "predecessor_candidate_coordinator_review": {
+      "path": "reviews/candidates/v2.0.1-rc.1/coordinator-review.md",
+      "sha256": "sha256:922e42ec8c4ed0d6db7f07f80355ff3208ec6fc49b5482cc707f9e1240864e01"
+    },
+    "authority_release_kit_runner": {
+      "path": "scripts/run-source-neutral-v2-release-kit.sh",
+      "sha256": "sha256:9b4e03821732644f9bde569620b77edb025e963c9c81f0518204ef2fc44ca2ef"
+    },
+    "current_release_kit_runner": {
+      "path": "scripts/run-source-neutral-v2-current-release-kit.sh",
+      "sha256": "sha256:23951a0cf8081437322fbeffe0819f84a6dc4fa2d6e3a52f5fd60d5a0ac68b97"
+    },
+    "current_v1_compatibility_kit": {
+      "path": "scripts/run-v1-compatibility-current-kit.sh",
+      "sha256": "sha256:a42f613666ddd985fac2c7bfab90ef683bb940ef14da8627a802a8b84e3da4b7"
+    },
+    "action_snapshot_kit": {
+      "path": "scripts/run-source-neutral-v2-action-snapshot-kit.sh",
+      "sha256": "sha256:07d5eca6bc9854ed357a18f58162f3ada569b828405ee3131374d2eff92be7f2"
+    },
+    "v2_0_0_predecessor_conformance_kit": {
+      "path": "scripts/run-v2.0.0-predecessor-kit.sh",
+      "sha256": "sha256:1dc7ee4f6496382f840d5613d4829d96a326c80a05e77e073c479d0f2441a332"
+    },
+    "candidate_manifest_builder": {
+      "path": "scripts/build-source-neutral-v2.0.2-candidate-manifest.mjs",
+      "sha256": "sha256:bf0107081d1583893bf30d4c5c208e4a91ffdb417e597d90be6655e9d245876b"
+    },
+    "v2_0_1_release_validator": {
+      "path": "scripts/validate_source_neutral_v2_release.py",
+      "sha256": "sha256:9dfeaf5e5fb17852dd404e99bb9a4fb411e1d473bc89bd2d99acc823bf780562"
+    },
+    "v2_0_1_release_tests": {
+      "path": "tests/test_source_neutral_v2_release.py",
+      "sha256": "sha256:1b43ea441f7b2554466d7fa4605799a31d1661250d36e3854c27c669e38a9419"
+    },
+    "action_portability_tests": {
+      "path": "tests/test_source_neutral_v2_action_portability.py",
+      "sha256": "sha256:62d8f989ba94524c9336b1852608807df3041af3c20d2ac8b04e6aa3f2318947"
+    }
+  },
+  "content_digest": "sha256:d58e09d80a07184d1c5053ee8de082546ac2f2b88c6c2cde3de97273a860bed7",
+  "approvals": {
+    "source_domain_owner": "required",
+    "projection_owner": "separate_exact_digest_review_required",
+    "coordinator": "required"
+  },
+  "boundary": {
+    "binding_release": false,
+    "immutable_tag": "absent",
+    "product_adoption": "not_authorized",
+    "runtime_mutation": "none"
+  }
+}
