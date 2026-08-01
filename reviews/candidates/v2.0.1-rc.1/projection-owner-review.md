@@ -1,4 +1,4 @@
-# Protocol 2.0.1 RC1 Projection Owner Review
+# Protocol 2.0.1 RC1 Projection Owner Superseding Review
 
 Role: `projection_owner`
 
@@ -11,18 +11,25 @@ Compatibility:
 
 Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V2-SOURCE-NEUTRAL-20260731`
 
+Supersedes Projection review evidence at commit
+`d245f59a8f8618382f2abba7d369b0a836dbd054` and file SHA-256
+`0269bc9b61306199ce60095ed6286cd1857a6070f257694d84e5ed2928d47a93`.
+That review's semantic conclusion remains unchanged, but its evidence is not
+reusable because the decision carried the predecessor work-item identifier and
+the negative-test description did not match the then-current all-zero mutation.
+
 ## Reviewed authority state
 
 - repository: `https://github.com/foigent/event-connector-spec`
 - candidate branch: `codex/v2.0.1-projection-digest-erratum`
 - reviewed candidate commit:
-  `5223ce7536119854645e00d134059f38259e9f36`
+  `61e21ee6988814f2d4a785bcf1723f5ce9dc49b1`
 - reviewed candidate tree:
-  `28b82703224a63b6d5eb68566354182ae7952a52`
+  `9c152180d9132fa279c75b8b6cc4cfaac895d411`
 - proposed protocol version: `2.0.1`
 - protocol status: `NOT_BINDING`
 - reviewed candidate content digest:
-  `sha256:7c4ec2bca634e3904756a6326c471261ada1ec607670acb60792af3b1fcef8e5`
+  `sha256:25a19cd9aad2b86cf9108a634fdfacd98bba7e3d6ee4d7e013bb95ec3aaf02ba`
 - immutable predecessor version/tag: `v2.0.0`
 - predecessor commit:
   `a8ab25ef8c8dd1c12d073ec0cf23c376f5741744`
@@ -55,15 +62,17 @@ Reviewed component identities:
 - fail-closed release validator:
   `sha256:9a31d23d26ea621f41797a9118289b7f8730109ceb1d894b8e9f48d8aeb61dd8`;
 - validator tests:
-  `sha256:ab3cccdc0d9978eb8b5dba17f52cc326cccfdcdef60bb9e656b9de3bd4d5cb25`;
+  `sha256:5c334bdee3267901a49b01fd70b1a377b444891e5aaed9aae9707e67f5f67231`;
 - non-binding decision candidate:
-  `sha256:5d311cc8528ef30ee90a892aa53d81d9656d02c194d1bfb3981ea538fc3907f4`.
+  `sha256:f56df3004eea11c83860b361295b22f370929113b0c104711dc6d08777c65a5c`.
 
 The validator now resolves the Manifest's X-Insight projection path inside the
 authority repository and compares the exact referenced digest. Its negative
 test restores the stale `b374...` value in memory and proves that the release
 validator rejects it. This closes the class of defect in which the top-level
 release component list is correct while a nested Manifest reference is stale.
+The decision now binds the exact current V2 source-neutral work item, so the
+governance record and executable proof describe the same candidate.
 
 ## Projection and compatibility conclusion
 
@@ -109,7 +118,7 @@ The following zero-network checks passed against the reviewed candidate:
 The existing `v2.0.0` release-manifest builder did not pass and must not pass
 for these changed bytes. It rejected the former Source Owner approval because
 that approval does not bind the new content digest
-`sha256:7c4ec2bca634e3904756a6326c471261ada1ec607670acb60792af3b1fcef8e5`.
+`sha256:25a19cd9aad2b86cf9108a634fdfacd98bba7e3d6ee4d7e013bb95ec3aaf02ba`.
 This is the expected fail-closed result; it prevents old approvals from being
 reused for the erratum candidate.
 
