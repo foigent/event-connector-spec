@@ -25,9 +25,9 @@ jobs:
         uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
         with:
           deno-version: v2.7.13
-      - name: Run shared Conformance Kit
+      - name: Run current v1 and LiteLLM compatibility kit
         run: >-
-          ./scripts/run-conformance-kit.sh
+          ./scripts/run-v1-compatibility-current-kit.sh
           "$GITHUB_WORKSPACE"
           "$RUNNER_TEMP/foigent-event-connector-kit"
       - name: Require a reproducible checkout

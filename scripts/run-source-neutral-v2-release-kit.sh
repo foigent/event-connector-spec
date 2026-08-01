@@ -15,104 +15,25 @@ if [[ "$assembly_mode" != "--release" && "$assembly_mode" != "--content-candidat
 fi
 mkdir -p \
   "$kit_tmp/v1.1.2-predecessor" \
-  "$kit_tmp/v1-compatibility" \
   "$kit_tmp/v2.0.0-predecessor" \
-  "$kit_tmp/go-cache" \
-  "$kit_tmp/go-path" \
-  "$kit_tmp/deno"
+  "$kit_tmp/v2.0.1-predecessor" \
+  "$kit_tmp/current"
+
+if [[ "$(git -C "$protocol_root" rev-parse --is-inside-work-tree)" != "true" ]]; then
+  echo "Authority Release Kit requires a real protocol authority Git checkout" >&2
+  exit 1
+fi
 
 "$protocol_root/scripts/run-v1.1.2-predecessor-kit.sh" \
   "$protocol_root" "$kit_tmp/v1.1.2-predecessor"
-"$protocol_root/scripts/run-v1-compatibility-kit.sh" \
-  "$protocol_root" "$kit_tmp/v1-compatibility"
 "$protocol_root/scripts/run-v2.0.0-predecessor-kit.sh" \
   "$protocol_root" "$kit_tmp/v2.0.0-predecessor"
+"$protocol_root/scripts/run-v2.0.1-predecessor-kit.sh" \
+  "$protocol_root" "$kit_tmp/v2.0.1-predecessor"
 
-node "$protocol_root/scripts/build-source-neutral-v2-artifacts.mjs" --check
-node \
-  "$protocol_root/scripts/build-source-neutral-v2-implementation-manifests.mjs" \
-  --check
-node \
-  "$protocol_root/scripts/build-source-neutral-v2-candidate-manifest.mjs" \
-  --check
-python3 "$protocol_root/scripts/validate_source_neutral_v2_release.py"
-(
-  cd "$protocol_root"
-  python3 -m unittest \
-    tests.test_source_neutral_v2_candidate \
-    tests.test_source_neutral_v2_release
-)
+"$protocol_root/scripts/run-source-neutral-v2-current-release-kit.sh" \
+  "$protocol_root" \
+  "$kit_tmp/current" \
+  "$assembly_mode"
 
-"$protocol_root/tools/schema-audit-v2/run.sh" \
-  "$protocol_root" "$kit_tmp/go-cache"
-
-(
-  cd "$protocol_root/implementations/source-neutral-v2/go"
-  GOCACHE="$kit_tmp/go-cache" GOPATH="$kit_tmp/go-path" GOPROXY=off \
-    go test -mod=vendor -count=1 ./...
-  GOCACHE="$kit_tmp/go-cache" GOPATH="$kit_tmp/go-path" GOPROXY=off \
-    go vet -mod=vendor ./...
-  GOCACHE="$kit_tmp/go-cache" GOPATH="$kit_tmp/go-path" GOPROXY=off \
-    go build -mod=vendor -trimpath -ldflags=-buildid= \
-    -o "$kit_tmp/foigent-source-neutral-conformance-go" \
-    ./cmd/foigent-source-neutral-conformance-go
-)
-
-"$kit_tmp/foigent-source-neutral-conformance-go" \
-  --bundle "$protocol_root/vectors/source-neutral-vector-bundle.v2.json" \
-  --report "$kit_tmp/go-source-neutral-v2-a.json"
-"$kit_tmp/foigent-source-neutral-conformance-go" \
-  --bundle "$protocol_root/vectors/source-neutral-vector-bundle.v2.json" \
-  --report "$kit_tmp/go-source-neutral-v2-b.json"
-cmp \
-  "$kit_tmp/go-source-neutral-v2-a.json" \
-  "$kit_tmp/go-source-neutral-v2-b.json"
-cmp \
-  "$kit_tmp/go-source-neutral-v2-a.json" \
-  "$protocol_root/conformance/reports/go-source-neutral-v2.json"
-
-(
-  cd "$protocol_root/implementations/source-neutral-v2/typescript"
-  DENO_NO_UPDATE_CHECK=1 DENO_DIR="$kit_tmp/deno" deno task typecheck
-  DENO_NO_UPDATE_CHECK=1 DENO_DIR="$kit_tmp/deno" deno task test
-  DENO_NO_UPDATE_CHECK=1 DENO_DIR="$kit_tmp/deno" deno task build
-)
-
-DENO_NO_UPDATE_CHECK=1 DENO_DIR="$kit_tmp/deno" \
-  deno run --quiet --allow-read --allow-write --no-remote --no-npm \
-  "$protocol_root/implementations/source-neutral-v2/typescript/src/runner.ts" \
-  --bundle "$protocol_root/vectors/source-neutral-vector-bundle.v2.json" \
-  --report "$kit_tmp/typescript-source-neutral-v2-a.json"
-DENO_NO_UPDATE_CHECK=1 DENO_DIR="$kit_tmp/deno" \
-  deno run --quiet --allow-read --allow-write --no-remote --no-npm \
-  "$protocol_root/implementations/source-neutral-v2/typescript/src/runner.ts" \
-  --bundle "$protocol_root/vectors/source-neutral-vector-bundle.v2.json" \
-  --report "$kit_tmp/typescript-source-neutral-v2-b.json"
-cmp \
-  "$kit_tmp/typescript-source-neutral-v2-a.json" \
-  "$kit_tmp/typescript-source-neutral-v2-b.json"
-cmp \
-  "$kit_tmp/typescript-source-neutral-v2-a.json" \
-  "$protocol_root/conformance/reports/typescript-source-neutral-v2.json"
-
-node "$protocol_root/scripts/compare-source-neutral-conformance.mjs" \
-  "$kit_tmp/go-source-neutral-v2-a.json" \
-  "$kit_tmp/typescript-source-neutral-v2-a.json"
-if [[ "$assembly_mode" == "--content-candidate" ]]; then
-  node \
-    "$protocol_root/scripts/build-source-neutral-v2-release-manifest.mjs" \
-    --content-digest > "$kit_tmp/content-digest-a.txt"
-  node \
-    "$protocol_root/scripts/build-source-neutral-v2-release-manifest.mjs" \
-    --content-digest > "$kit_tmp/content-digest-b.txt"
-  cmp "$kit_tmp/content-digest-a.txt" "$kit_tmp/content-digest-b.txt"
-  echo "Foigent Source-Neutral Connector Protocol v2.0.1 release content candidate: pass"
-  cat "$kit_tmp/content-digest-a.txt"
-  exit 0
-fi
-
-node \
-  "$protocol_root/scripts/build-source-neutral-v2-release-manifest.mjs" \
-  --check
-
-echo "Foigent Source-Neutral Connector Protocol v2.0.1 Release Kit: pass"
+echo "Foigent Source-Neutral Connector Protocol Authority Release Kit: pass"

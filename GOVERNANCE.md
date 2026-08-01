@@ -92,13 +92,22 @@ After bootstrap, protocol semantics must flow through reviewed pull requests.
 
 ## 8. Current boundary
 
-Protocol `2.0.0` remains the immediate immutable Binding predecessor. A
-`2.0.1` patch-compatible metadata-integrity erratum may assemble release
-content only after exact Source Owner, Projection Owner and Coordinator
-candidate review. It becomes Binding only with three fresh final approvals, a
-canonical `releases/v2.0.1/release-manifest.json`, and an immutable `v2.0.1`
-tag over the same bytes. No `2.0.0` approval may be reused.
+Protocol `2.0.1` remains the immediate immutable Binding predecessor. A
+`2.0.2` patch-compatible CI portability fix may assemble release content only
+after exact Source Owner, Projection Owner and Coordinator candidate review.
+The earlier candidate/final gate was invalidated by a material generic-CI
+orchestration correction. The corrected candidate gate is now satisfied over
+one exact three-role-reviewed identity; the assembled release content remains
+non-Binding. It becomes Binding only with three fresh final approvals over the
+same release-content digest, a canonical
+`releases/v2.0.2/release-manifest.json`, and an immutable `v2.0.2` tag over
+the same bytes. No `2.0.1` approval may be reused.
 
-Neither the `2.0.1` assembly nor a later shared protocol release authorizes
+Authority history validation remains in the Authority Release Kit. Product
+composite actions consume only the snapshot-safe Consumer Conformance Kit and
+the strict product-pin verifier; they require neither Git history nor a
+credential for the private authority repository.
+
+Neither the `2.0.2` assembly nor a later shared protocol release authorizes
 product repository migration, runtime extraction, deployment, credentials,
 traffic, Cursor/Checkpoint, or database changes.

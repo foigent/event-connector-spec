@@ -5,15 +5,15 @@ This private repository is the single editable authority for the Foigent shared 
 ## Current status
 
 - Governance authority: established under B7.
-- Release-content candidate: `2.0.1`, a patch-compatible metadata-integrity
-  erratum over `2.0.0`; it is not Binding until its exact final approvals,
+- Release-content candidate: `2.0.2`, a patch-compatible CI portability fix
+  over `2.0.1`. Its corrected candidate has exact three-role confirmation, but
+  the release content remains non-Binding until three fresh final approvals, a
   canonical release manifest and immutable tag all exist.
 - Independent Go/TypeScript source-neutral conformance: 83/83 cases across
   29/29 required classes with byte-identical results.
-- Binding identity: only the immutable `v2.0.0` tag and its verified release
-  manifest; the `2.0.1` branch and release-content candidate are not
-  authoritative.
-- Protocol `2.0.0` is the immediate immutable predecessor for `2.0.1`;
+- Binding identity: the immutable `v2.0.1` tag and its verified release
+  manifest. The `2.0.2` branch and candidate are not authoritative.
+- Protocol `2.0.1` is the immediate immutable predecessor for `2.0.2`;
   `1.1.2` remains the preserved v1 compatibility base.
 - The additive LiteLLM Connector contract and Conformance Kit were introduced
   in `1.1.0`; `1.1.1` is a coverage-wording erratum. Protocol `1.1.2`
@@ -25,10 +25,14 @@ This private repository is the single editable authority for the Foigent shared 
   transport contracts plus the OpenInference bounded-offline Reference
   Connector. Product migration and runtime activation remain separately
   gated and are not part of this release.
-- Protocol candidate `2.0.1` corrects only the OpenInference Manifest's nested
+- Protocol `2.0.1` corrects only the OpenInference Manifest's nested
   X-Insight projection digest to the projection bytes already bound by the
   `2.0.0` release manifest. It changes no Event, Schema, vector, report,
   mapping, identity, hash, Gap, provenance or M0 semantic.
+- Protocol candidate `2.0.2` separates the Git-history-dependent Authority
+  Release Kit from a snapshot-safe Consumer Conformance Kit. The composite
+  action needs no authority checkout, history or consumer credential; all
+  protocol and product semantics remain byte-identical to `2.0.1`.
 - Runtime credentials, live traffic, checkpoints, cursors, and product
   databases are never protocol-repository content.
 

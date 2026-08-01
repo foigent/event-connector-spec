@@ -11,23 +11,23 @@ import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const outputPath = resolve(root, "releases/v2.0.1/release-manifest.json");
+const outputPath = resolve(root, "releases/v2.0.2/release-manifest.json");
 const mode = process.argv[2] ?? "--check";
 const approvalPaths = [
   {
     role: "source_domain_owner",
     status: "SOURCE_OWNER_FINAL_RELEASE_CONFIRM",
-    path: "reviews/releases/v2.0.1/source-owner-approval.md",
+    path: "reviews/releases/v2.0.2/source-owner-approval.md",
   },
   {
     role: "projection_owner",
     status: "PROJECTION_OWNER_FINAL_RELEASE_APPROVAL",
-    path: "reviews/releases/v2.0.1/projection-owner-approval.md",
+    path: "reviews/releases/v2.0.2/projection-owner-approval.md",
   },
   {
     role: "coordinator",
     status: "COORDINATOR_FINAL_RELEASE_CONFIRM",
-    path: "reviews/releases/v2.0.1/coordinator-approval.md",
+    path: "reviews/releases/v2.0.2/coordinator-approval.md",
   },
 ];
 
@@ -35,30 +35,43 @@ const componentPaths = {
   authority_readme: "README.md",
   governance: "GOVERNANCE.md",
   release_decision:
-    "docs/decisions/0004-openinference-manifest-projection-digest-erratum-candidate.md",
-  predecessor_release_manifest: "releases/v2.0.0/release-manifest.json",
+    "docs/decisions/0005-composite-action-snapshot-portability-candidate.md",
+  predecessor_release_manifest: "releases/v2.0.1/release-manifest.json",
   candidate_manifest_archive:
-    "docs/candidates/v2.0.1-rc.1/candidate-manifest.json",
+    "docs/candidates/v2.0.2-rc.1/candidate-manifest.json",
   candidate_source_owner_review:
-    "reviews/candidates/v2.0.1-rc.1/source-owner-review.md",
+    "reviews/candidates/v2.0.2-rc.1/source-owner-review.md",
   candidate_projection_owner_review:
-    "reviews/candidates/v2.0.1-rc.1/projection-owner-review.md",
+    "reviews/candidates/v2.0.2-rc.1/projection-owner-review.md",
   candidate_coordinator_review:
-    "reviews/candidates/v2.0.1-rc.1/coordinator-review.md",
+    "reviews/candidates/v2.0.2-rc.1/coordinator-review.md",
   protocol_spec: "spec/protocol-v2.md",
   protocol_v1_compatibility_base: "spec/protocol-v1.md",
   shared_ci_action: "actions/source-neutral-v2/action.yml",
   authority_ci_workflow: ".github/workflows/source-neutral-v2.yml",
+  generic_current_tree_ci_workflow: ".github/workflows/ci.yml",
   legacy_conformance_kit: "scripts/run-conformance-kit.sh",
   predecessor_conformance_kit:
     "scripts/run-v1.1.2-predecessor-kit.sh",
   immediate_predecessor_conformance_kit:
+    "scripts/run-v2.0.1-predecessor-kit.sh",
+  v2_0_0_predecessor_conformance_kit:
     "scripts/run-v2.0.0-predecessor-kit.sh",
   v1_compatibility_kit: "scripts/run-v1-compatibility-kit.sh",
   conformance_kit_runner:
+    "scripts/run-source-neutral-v2-consumer-kit.sh",
+  authority_release_kit_runner:
     "scripts/run-source-neutral-v2-release-kit.sh",
+  current_release_kit_runner:
+    "scripts/run-source-neutral-v2-current-release-kit.sh",
+  current_v1_compatibility_kit:
+    "scripts/run-v1-compatibility-current-kit.sh",
+  action_snapshot_kit:
+    "scripts/run-source-neutral-v2-action-snapshot-kit.sh",
   legacy_release_builder: "scripts/build-release-manifest.mjs",
   release_builder: "scripts/build-source-neutral-v2-release-manifest.mjs",
+  candidate_manifest_builder:
+    "scripts/build-source-neutral-v2.0.2-candidate-manifest.mjs",
   legacy_implementation_manifest_builder:
     "scripts/build-implementation-manifests.mjs",
   legacy_candidate_verifier: "scripts/verify-candidate.mjs",
@@ -75,9 +88,15 @@ const componentPaths = {
   source_neutral_conformance_comparator:
     "scripts/compare-source-neutral-conformance.mjs",
   source_neutral_release_validator:
+    "scripts/validate_source_neutral_v2_0_2_candidate.py",
+  v2_0_1_release_validator:
     "scripts/validate_source_neutral_v2_release.py",
   source_neutral_release_tests:
+    "tests/test_source_neutral_v2_0_2_candidate.py",
+  v2_0_1_release_tests:
     "tests/test_source_neutral_v2_release.py",
+  action_portability_tests:
+    "tests/test_source_neutral_v2_action_portability.py",
   candidate_archive_tests:
     "tests/test_source_neutral_v2_candidate.py",
   product_pin_verifier: "scripts/verify-product-pin-v2.mjs",
@@ -257,21 +276,21 @@ const components = Object.fromEntries(
 );
 const contentHashInput = {
   release_manifest_version: "foigent.protocol-release-manifest.v2",
-  protocol_version: "2.0.1",
+  protocol_version: "2.0.2",
   authority: {
     repository: "https://github.com/foigent/event-connector-spec",
     repository_id: 1313391565,
-    tag: "v2.0.1",
+    tag: "v2.0.2",
   },
   predecessor: {
-    protocol_version: "2.0.0",
-    tag: "v2.0.0",
-    tag_commit: "a8ab25ef8c8dd1c12d073ec0cf23c376f5741744",
-    tree: "981e2516154610c172c6a1607795512ad9c69f30",
+    protocol_version: "2.0.1",
+    tag: "v2.0.1",
+    tag_commit: "0cbb6417858d12d6a99ff3b517bd59a122bc7e2c",
+    tree: "f967929dd98c5f34cd42fce4aa21489b72b000e0",
     content_digest:
-      "sha256:4231062a50b0334eda7f67e07200faf5e71261b2a8cf27ecd375529ec84f8b69",
+      "sha256:b3fd6a0651ca2c501bb8040f89945f57abb16fc5e01476c0efe4356e46b08e3e",
     release_digest:
-      "sha256:aa9537a8779758af1227ba42371e75ab5aeafc84d5b73c4cdff35320481aa3f9",
+      "sha256:b21e719b6dd0653aa93479aef64832d2e598c780c0e1804b84e34fbe658ac777",
   },
   boundary: {
     product_adoption: "not_authorized",
