@@ -1,10 +1,10 @@
-# Protocol v2.0.2 Source Domain Owner Final Release Approval
+# Protocol v2.0.2 Corrected Source Domain Owner Final Release Approval
 
 Role: `source_domain_owner`
 
 Status: `SOURCE_OWNER_FINAL_RELEASE_CONFIRM`
 
-Reviewed content digest: `sha256:ce70c78af62858fefa29116092299c10dd82f0674922fdc2920e01c32d31152b`
+Reviewed content digest: `sha256:9dce6081e15be0028441513291808f8d58becb25f00887ae66299031bc79c1c0`
 
 Semantic conflict: `NONE`
 
@@ -19,12 +19,12 @@ Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V2-SOURCE-NEUTRAL-20260731`
 - repository: `https://github.com/foigent/event-connector-spec`
 - branch: `codex/v2.0.2-composite-action-portability`
 - release-content commit:
-  `2e077a03db81c77b7293b885e370045493b35882`
+  `4ea213cbc109d81a756ed43604a4436986394e60`
 - release-content tree:
-  `43812f4deb1534e5cff1511027791f3b85e5b7fa`
+  `a2f4878b7c717b09bd4cd33ca0856eb9666ff2a9`
 - protocol version: `2.0.2`
 - compatibility: `PATCH_COMPATIBLE_CI_PORTABILITY_FIX`
-- release components: `103` unique regular files
+- release components: `104` unique regular files
 - canonical release manifest: `ABSENT_NOT_AUTHORIZED_IN_THIS_STEP`
 
 The release-content builder independently produced the reviewed content digest
@@ -32,37 +32,53 @@ twice with byte-identical output. This approval binds only the exact commit,
 tree, component set and content digest above. Any later release-content change
 invalidates this approval and requires a superseding Source review.
 
-## Bound candidate gate
+## Bound corrected candidate gate
 
-The release content archives and validates the exact three-role candidate:
+The release content archives and validates the exact corrected candidate:
 
-- candidate commit:
-  `6f729d9a3cf819e5c538ba8bd3a16a85cdc42967`;
-- candidate tree:
-  `5fb49fb450257dd1c40e33f6f8358e6dd434a367`;
-- original candidate-manifest SHA-256:
-  `sha256:5900f60eea16a2d3e66751d57a4e34e814db8b974dbbfdee32529894669f8d02`;
-- original candidate content digest:
-  `sha256:d58e09d80a07184d1c5053ee8de082546ac2f2b88c6c2cde3de97273a860bed7`;
-- three-role candidate archive manifest SHA-256:
-  `sha256:303011d8cf8d7fb114451be92fa5573b4640085a05d041f20a9a9f0cb083dfc2`;
-- three-role candidate archive content digest:
-  `sha256:b2075e4ab9e4a01029322f515b8759ee5901a2902e41c55a9ed6005b0e676387`.
+- corrected candidate commit:
+  `c567b15904e1aa67dc33ff8a06c0cce2dface12b`;
+- corrected candidate tree:
+  `1f8b368dc1ac2187a4958c7a02f4eb51eca8aa6d`;
+- original corrected candidate-manifest SHA-256:
+  `sha256:33b167e2c72906610e8fafc4e4e10d3633a07ccee8f85aa4c9577980d44be58d`;
+- original corrected candidate content digest:
+  `sha256:370605f089793b56f93cf2146c01c8be6b77f937bc21b435ec63aedbd5477f21`;
+- three-role corrected-candidate archive manifest SHA-256:
+  `sha256:cb83e96e852733694dba25e7b8ac9a70f9a9ee22f03ddce3f6b3217a70d36c77`;
+- three-role corrected-candidate archive content digest:
+  `sha256:76fe407299b1385dce689a8767364e7419abc6b3bb5604d7ad270028b3bc8282`.
 
-The candidate archive binds three distinct candidate-review evidence files:
+The archive binds three distinct corrected-candidate reviews:
 
 - Source Owner:
-  `sha256:a2ae89adfa40a3a92ec2a453b2dfffefce1b7381c5340f4c673555941ca3a65f`;
+  `sha256:6a68c4da560190bed869495ad8808c66ef156b77e985e80862cfdbb6c8dd0906`;
 - Projection Owner:
-  `sha256:7f42849f6c7be89b54228c21f533ab41216c8b46de77226186230229ca95d4ed`;
+  `sha256:37909eada669b9df080c5ed3f903c2f2f28739d034b586f62a64214fd58a96a9`;
 - Coordinator:
-  `sha256:5d7e16053a641797c03ffecef783e37eb43e5f01c8dcdef42052b20e3ed74429`.
+  `sha256:8921ba43fceaae49cc402dff4dae3263bf1ded32b9e574f6dc621cbf4b057337`.
 
-Those candidate confirmations are preserved as candidate evidence only. This
-file is a fresh Source final approval over the exact release-content digest;
-no candidate approval and no final approval from `v2.0.1` is inherited.
+Those confirmations remain candidate evidence only. This file is a fresh
+Source final approval over the exact corrected release-content digest; no
+former candidate or final approval is inherited.
 
-## Immediate predecessor
+## Separately bound Projection final evidence
+
+- path: `reviews/releases/v2.0.2/projection-owner-approval.md`
+- SHA-256:
+  `sha256:bc1fdc37e8cc213dd4812cacf2ef46ce3ff5bf6d56a079c081ff708f770e0cc6`
+- evidence commit:
+  `813c0aafc9593fbb30866fcd9e8af26bf39f2719`
+- evidence tree:
+  `296cbe1accb0b3a9402a2fe00164ee4aa30acbef`
+- status: `PROJECTION_OWNER_FINAL_RELEASE_APPROVAL`
+- reviewed digest:
+  `sha256:9dce6081e15be0028441513291808f8d58becb25f00887ae66299031bc79c1c0`
+
+The Projection evidence identity is recorded as a separate governance input.
+Its semantic conclusion was not inherited or reused.
+
+## Immediate predecessor integrity
 
 The exact immutable immediate predecessor remains:
 
@@ -79,6 +95,8 @@ The exact immutable immediate predecessor remains:
 - release digest:
   `sha256:b21e719b6dd0653aa93479aef64832d2e598c780c0e1804b84e34fbe658ac777`.
 
+The Authority Kit also retained immutable replay of `v1.1.2` and `v2.0.0`.
+
 ## Source-domain and compatibility conclusion
 
 No Event, Connector, Source, Envelope, payload, lifecycle, Checkpoint, Error,
@@ -86,10 +104,15 @@ Operational Receipt, Schema, fixture, vector, report, mapping, Capture Gap,
 provenance, identity, idempotency, hash, canonicalization, Cursor, Feed or
 Source finality semantic changed from immutable `v2.0.1`.
 
+A direct Git-object diff from `v2.0.1` to exact release content `4ea213c...`
+is empty for all Schema, vector, conformance, mapping, Manifest, fixture,
+catalog, compatibility, protocol specification, source-neutral implementation
+and Schema-audit directories.
+
 The UniRouter Source baseline remains byte-exact, including completed-execution
 coverage, Source Snapshot bytes and source hash, request/Event/Outbox identities,
 terminal/finality and revision rules, data policy, endpoint/page/cursor behavior,
-and all Cursor/Checkpoint exclusions. Preserved component identities include:
+and all Cursor/Checkpoint exclusions. Preserved identities include:
 
 - Reference Connector Manifest:
   `sha256:a3bc97bd5d5c7aab6452de9518be0b00f62776877deb431a91c175da5287de79`;
@@ -99,46 +122,78 @@ and all Cursor/Checkpoint exclusions. Preserved component identities include:
   `sha256:1618c86e3d8fae206322e1d928b8b5f0401865623b4267f5b685d7ac02b2968f`;
 - Source identity mapping:
   `sha256:0cdbcdcf42658ee12d14ae13ef5d43b54488dca7cec8182055047585eb62e890`;
-- UniRouter-to-X-Insight compatibility matrix:
-  `sha256:03fb035134b173165e6a03f348d40a58fe1d28d82c24bacb1dec553c8b769c89`.
+- UniRouter compatibility matrix:
+  `sha256:03fb035134b173165e6a03f348d40a58fe1d28d82c24bacb1dec553c8b769c89`;
+- source-neutral vector bundle:
+  `sha256:9e50bb4570dcc1ff07157ad6198641e937357b641ae052cddcb3420b52ad11ed`;
+- stored Go report:
+  `sha256:3265dd58f91fa3c010f4d022507c6e68cae4609978490842fd21c0da658152f8`;
+- stored TypeScript report:
+  `sha256:eb0139c27eb774e8acf4a077107260b6a7a0fd5d5d18abe1e4227f3d670e5d5b`.
 
-The change remains a PATCH-compatible CI portability fix. Product composite
-actions now use the snapshot-safe Consumer Kit and the strict product-pin
-verifier without Git history or authority-repository credentials. Immutable
-history validation remains separately fail-closed in the Authority Release Kit.
+## Corrected generic CI boundary
+
+The governed generic workflow remains exact at
+`sha256:fd26f25cb8db8c27d033fa37184b0253ebbba42b4bc422c2e3e7b92ae2382ef3`
+and invokes only the current v1/LiteLLM compatibility kit. The immutable
+historical `run-conformance-kit.sh` remains byte-exact at
+`sha256:98afa5b6c964df78a80a7aaf7488899f76d21123f0f867ab3a83fc6af9a43214`
+for predecessor replay.
+
+The `v1.1.2` current-tree PATCH allowlist remains exactly
+`{authority_ci_workflow}`; a non-allowlisted Event Envelope mutation fails
+closed. The no-Git Consumer path and the Git-history-dependent Authority path
+remain separate without weakening component, approval, product-pin or
+predecessor verification.
 
 ## Independent verification evidence
 
 Fresh offline verification established:
 
-- the final content digest reproduced twice as
-  `sha256:ce70c78af62858fefa29116092299c10dd82f0674922fdc2920e01c32d31152b`;
-- the candidate archive manifest and content digest reproduced exactly;
-- the release validator passed 103 unique regular components, all 94 immediate
-  predecessor components and 87 preserved non-release-tooling components;
-- Source compatibility evidence remained 10 M0 ID/hash pairs, eight Gap rows,
-  two provenance IDs, five OpenInference M0 ID/hash pairs and four first-class
+- exact release-content digest reproduced twice as
+  `sha256:9dce6081e15be0028441513291808f8d58becb25f00887ae66299031bc79c1c0`;
+- corrected candidate archive Manifest SHA and content digest reproduced
+  exactly, including all three corrected-candidate evidence SHAs;
+- validator passed `104` release components, `94` immediate-predecessor
+  components and `87` preserved non-PATCH components;
+- focused candidate/action tests passed `9/9`;
+- Source compatibility evidence remained ten v1 M0 ID/hash pairs, eight Gap
+  rows, two provenance IDs, five OpenInference M0 ID/hash pairs and four
   OpenInference Gap Events;
-- the Schema audit passed 24 Schemas, three Manifests, three modes and five
-  Source fixtures;
-- fresh deterministic Go and TypeScript runs each passed 83/83 cases and their
-  stored reports matched cross-language across 29/29 required classes;
-- an exact `2e077a0...` Git archive contained no `.git` and passed the complete
-  Consumer Conformance Kit in content-candidate mode;
-- the full Authority Release Kit replayed immutable `v1.1.2`, `v2.0.0`, exact
-  `v2.0.1`, current v1/LiteLLM and exact v2.0.2 release content successfully;
-- before this file existed, the release builder failed closed on the absent
-  fresh v2.0.2 Source approval and did not read a v2.0.1 approval.
+- an exact `4ea213c...` Git archive contained no `.git` and passed the full
+  Consumer Kit in release-content-candidate mode;
+- current v1/LiteLLM Go and TypeScript stored-report checks passed `30/30` and
+  matched cross-language;
+- the Source-neutral Schema audit passed 24 Schemas, three Manifests, three
+  modes and five Source fixtures;
+- deterministic Go and TypeScript Source-neutral runs each passed `83/83` and
+  matched stored reports and all `29/29` required cross-language classes;
+- the full Authority Kit passed immutable `v1.1.2`, `v2.0.0`, exact `v2.0.1`,
+  current v1/LiteLLM and the exact corrected 104-component release content;
+- before this file was replaced, the release builder rejected the former
+  Source final approval because it did not bind the corrected digest.
+
+The Authority execution used current HEAD only after verifying its sole delta
+from `4ea213c...` was the separately bound Projection final evidence file,
+outside the 104 governed release-content components.
 
 ## Remaining release and product boundary
 
+The former v2.0.2 final approvals binding
+`sha256:ce70c78af62858fefa29116092299c10dd82f0674922fdc2920e01c32d31152b`
+and the former canonical release manifest are superseded and were not reused.
+
 This is Source Domain Owner final approval evidence only. Protocol `2.0.2`
-remains non-Binding until the fresh Coordinator final approval binds the same
-content digest, one canonical release manifest is generated and independently
-verified, exact-head authority CI passes, and a separately authorized release
-process completes.
+remains non-Binding until a fresh Coordinator final approval binds the same
+corrected content digest, one canonical release manifest is generated and
+independently verified, exact-head authority CI passes, and a separately
+authorized release process completes.
 
 This approval authorizes no canonical manifest generation, push, pull request,
 merge, tag, publication, product adoption, UniRouter repository change,
 deployment, traffic, credential, database, Cursor, Checkpoint, worker or
 service-state mutation.
+
+Only this Source final approval file was updated in the designated authority
+worktree. No release-content component, product repository or runtime state was
+modified.
