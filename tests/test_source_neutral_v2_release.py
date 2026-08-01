@@ -74,7 +74,7 @@ class SourceNeutralV2ReleaseTests(unittest.TestCase):
             )
         )
         manifest["compatibility"]["reference_projection_contract"]["sha256"] = (
-            "sha256:" + ("0" * 64)
+            "sha256:b374f7a03c73b6fa94d9fab96ce20d819d4e1471f77d2e4c908df1297c1e49b2"
         )
         with self.assertRaisesRegex(
             candidate.ValidationError,
