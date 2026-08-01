@@ -1,8 +1,8 @@
-# Protocol 2.0.2 RC1 Projection Owner Review
+# Protocol 2.0.2 RC1 Corrected Candidate Projection Owner Review
 
 Role: `projection_owner`
 
-Status: `PROJECTION_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING`
+Status: `PROJECTION_OWNER_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING`
 
 Semantic conflict: `NONE_IDENTIFIED`
 
@@ -10,22 +10,24 @@ Compatibility: `PATCH_COMPATIBLE_CI_PORTABILITY_FIX`
 
 Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V2-SOURCE-NEUTRAL-20260731`
 
-## Reviewed authority state
+## Exact reviewed candidate
 
 - repository: `https://github.com/foigent/event-connector-spec`
-- candidate branch: `codex/v2.0.2-composite-action-portability`
-- reviewed candidate commit:
-  `6f729d9a3cf819e5c538ba8bd3a16a85cdc42967`
-- reviewed candidate tree:
-  `5fb49fb450257dd1c40e33f6f8358e6dd434a367`
+- branch: `codex/v2.0.2-composite-action-portability`
+- corrected candidate commit:
+  `c567b15904e1aa67dc33ff8a06c0cce2dface12b`
+- corrected candidate tree:
+  `1f8b368dc1ac2187a4958c7a02f4eb51eca8aa6d`
 - candidate manifest:
   `docs/candidates/v2.0.2-rc.1/candidate-manifest.json`
 - candidate manifest SHA-256:
-  `sha256:5900f60eea16a2d3e66751d57a4e34e814db8b974dbbfdee32529894669f8d02`
-- reviewed candidate content digest:
-  `sha256:d58e09d80a07184d1c5053ee8de082546ac2f2b88c6c2cde3de97273a860bed7`
-- proposed protocol version: `2.0.2`
+  `sha256:33b167e2c72906610e8fafc4e4e10d3633a07ccee8f85aa4c9577980d44be58d`
+- candidate content digest:
+  `sha256:370605f089793b56f93cf2146c01c8be6b77f937bc21b435ec63aedbd5477f21`
+- candidate components: `104` unique regular files
 - protocol status: `NOT_BINDING`
+- release-content identity: `NOT_ASSEMBLED`
+- canonical release manifest: `ABSENT`
 
 Immediate immutable predecessor:
 
@@ -42,84 +44,91 @@ Immediate immutable predecessor:
 - release digest:
   `sha256:b21e719b6dd0653aa93479aef64832d2e598c780c0e1804b84e34fbe658ac777`
 
-## Defect and architecture conclusion
+## Verified PR CI defect
 
-The immutable `v2.0.1` composite action called the Authority Release Kit from
-`GITHUB_ACTION_PATH`. A downloaded composite action is a source snapshot with
-no `.git`, so its first historical tag check failed before current-release or
-product-pin validation. A product workflow also cannot use its ordinary
-`GITHUB_TOKEN` to check out the private authority repository. Requiring a new
-cross-repository credential would be a weaker consumer boundary, not a valid
-portability fix.
+PR #9 exact head `befb83f11ddcb0a2b94bfad581d5f50db65d887e`
+failed generic Protocol Conformance job `91365358737`. Its log proves that
+`.github/workflows/ci.yml` invoked `scripts/run-conformance-kit.sh`, whose
+legacy unittest discovery executed frozen v2.0.1 candidate/release snapshot
+tests against the v2.0.2 current tree. The three exact errors were
+`authority_readme` archive drift. The direct v2.0.2 validator, focused tests
+and separate Source-Neutral release workflow did not identify a protocol
+semantic regression.
 
-The reviewed candidate separates three responsibilities:
+## Corrected architecture and CI boundary
 
-1. the Authority Release Kit retains all Git/tag/archive predecessor checks
-   and runs only from a real authority checkout;
-2. one shared Current Release Kit owns current v1/LiteLLM, Schema, Go,
-   TypeScript, deterministic-report, cross-language and manifest validation;
-3. the Consumer Conformance Kit calls only that shared current-release core
-   and the composite action then runs the existing strict product-pin
-   verifier. Neither snapshot-safe script invokes Git or predecessor kits.
+The corrected generic workflow invokes only
+`scripts/run-v1-compatibility-current-kit.sh`, the explicit current v1 and
+LiteLLM compatibility scope already reused by the Consumer and Authority
+kits. A focused test requires this entry and rejects a return to
+`run-conformance-kit.sh` from generic current-tree CI.
 
-Authority CI separately builds an exact `git archive HEAD`, proves `.git` is
-absent and executes the Consumer Kit from the extracted action snapshot. The
-release builder links `2.0.2` to the exact `v2.0.1` predecessor identities and
-continues to require fresh Source, Projection and Coordinator candidate/final
-evidence before a canonical release can exist.
+The historical `scripts/run-conformance-kit.sh` remains byte-exact at
+`sha256:98afa5b6c964df78a80a7aaf7488899f76d21123f0f867ab3a83fc6af9a43214`
+for immutable predecessor replay. The generic workflow is now independently
+bound into candidate and release component sets at
+`sha256:fd26f25cb8db8c27d033fa37184b0253ebbba42b4bc422c2e3e7b92ae2382ef3`.
+
+The v1.1.2 current-tree compatibility check allows only its historical
+`authority_ci_workflow` component to differ. It still validates the remaining
+56 components byte-exact, while the immutable v1.1.2 archive kit continues to
+verify all 57 predecessor components from the tag. A negative test proves a
+non-allowlisted Event Envelope mutation still fails closed.
 
 ## Projection and compatibility conclusion
 
-The candidate validator resolved all 94 predecessor release components. Seven
-product-neutral documentation or release-tooling components intentionally
-changed: `authority_readme`, `governance`, `shared_ci_action`,
-`authority_ci_workflow`, `conformance_kit_runner`, `release_builder`, and
-`product_pin_verifier`. The other 87 predecessor components remain
-byte-identical.
+No Event, Connector, Source, Envelope, payload, lifecycle, Checkpoint, Error,
+Operational Receipt, Schema, fixture, vector, report, mapping, M0 Event,
+Capture Gap, provenance, identity, idempotency, hash, canonicalization, Cursor
+or read-model semantic changed.
 
-Therefore no Event, Connector, Source, Envelope, payload, lifecycle,
-Checkpoint, Error, Operational Receipt, Schema, canonical/vector fixture,
-Go/TypeScript report, mapping, M0 Event, Capture Gap, provenance, identity,
-idempotency, hash, canonicalization, Cursor or read-model semantic changed.
-The reviewed candidate preserves exactly:
+The corrected candidate preserves exactly:
 
 - ten Reference Connector M0 IDs/hashes, eight Gap rows, two provenance IDs
   and settled/cancelled read-model expectations;
 - five OpenInference M0 IDs/hashes and four first-class Gap Events;
-- all mutable delivery exclusions and the separation of ingestion capture
-  from payload capture;
-- 83/83 source-neutral cases across 29/29 required classes in both languages;
-- the corrected v2.0.1 OpenInference Manifest projection reference and every
-  semantic byte sealed by the immutable predecessor.
+- ingestion/payload capture separation and all mutable-delivery exclusions;
+- all 87 non-PATCH v2.0.1 predecessor components byte-exact;
+- deterministic Go and TypeScript 83/83 reports across 29/29 required classes.
+
+The change remains a PATCH-compatible CI portability correction. It adds no
+product capability and changes no wire or projection semantics.
 
 ## Verification evidence
 
-All checks were zero-network and used Go `1.24.3` plus Deno `2.7.13`:
+Fresh zero-network verification used Go `1.24.3`, Deno `2.7.13`, vendored Go
+modules and disabled remote Deno/npm resolution:
 
-- candidate generator check: 103 unique regular components and deterministic
+- candidate builder check: `104/104` unique regular components and stable
   content digest;
-- v2.0.2 validator/tests: seven tests, 94 predecessor components, 87 preserved
-  components, exact 10/8/2 and 5/4 compatibility identities;
-- current v1/LiteLLM kit: Go and TypeScript deterministic 30-case reports,
-  matching stored reports and cross-language comparison;
-- current source-neutral v2 kit: Go tests/vet/reproducible build, TypeScript
-  typecheck/tests/build, two deterministic runs per language and exact stored
-  report comparison;
-- cross-language source-neutral comparison: 83/83 cases and 29/29 classes;
-- exact action snapshot regression: `git archive HEAD`, `.git` absent,
-  Consumer Kit passed from the extracted archive;
-- full Authority Kit: immutable `v1.1.2`, `v2.0.0`, exact `v2.0.1`, current
-  v1/LiteLLM and current `v2.0.2` candidate all passed.
+- v2.0.2 validator: PASS with `94` immediate predecessor components and `87`
+  preserved non-PATCH components;
+- focused candidate/action tests: `9/9` PASS;
+- generic current v1/LiteLLM kit: Go and TypeScript `30/30`, stored-report and
+  cross-language comparison PASS; six established optional tests remained
+  skipped and no test failed;
+- source-neutral Schema audit: 24 Schemas, three Manifests, three modes and
+  five Source fixtures PASS;
+- source-neutral Go and TypeScript: two deterministic `83/83` runs per
+  language, stored-report identity and `29/29` cross-language classes PASS;
+- exact `git archive` snapshot: `.git` absent and Consumer candidate kit PASS;
+- full Authority Kit: immutable `v1.1.2`, `v2.0.0`, `v2.0.1`, current
+  v1/LiteLLM and exact corrected v2.0.2 candidate PASS.
 
-## Remaining governance and product boundaries
+## Superseded evidence and remaining gates
 
-This is Projection / Consumer Owner candidate evidence only. It does not make
-`2.0.2` Binding and does not authorize release or product adoption. The exact
-candidate still requires Source Owner and Coordinator review, three fresh
-final release approvals, a canonical `releases/v2.0.2/release-manifest.json`,
-exact-head Authority CI and a separately authorized immutable tag/publication.
-No `v2.0.1` candidate or final approval may be reused.
+The prior candidate identity `6f729d9...`, release-content digest
+`sha256:ce70c78a...`, release digest `sha256:f14810e1...`, all prior v2.0.2
+candidate/final approvals and the prior canonical manifest are superseded and
+must not be reused.
 
-No X-Insight repository, runtime, deployment, traffic, credential, database,
-Cursor, Checkpoint or service state was changed by this implementation or
-review.
+This document is Projection / Consumer Owner candidate evidence only. Fresh
+Source Owner and Coordinator candidate review must bind the exact corrected
+candidate above before release content may be assembled. That later exact
+release content then requires three fresh final approvals before one canonical
+manifest may be generated. Exact-head CI, merge, tag and publication remain
+separate gates.
+
+Product migration remains `NOT_AUTHORIZED`; runtime mutation remains `NONE`.
+No X-Insight repository, deployment, traffic, credential, database, Cursor,
+Checkpoint, worker or service state was changed.
