@@ -23,6 +23,9 @@ BINDING_CONTRACT_SHA = (
 BINDING_VECTOR_SHA = (
     "sha256:9e50bb4570dcc1ff07157ad6198641e937357b641ae052cddcb3420b52ad11ed"
 )
+OPENINFERENCE_PROJECTION_PATH = (
+    "mappings/xinsight/openinference-span-to-m0-m0.1-v2.json"
+)
 FINAL_IMPLEMENTATION_VERSION = "2.0.0+independent.1"
 PREDECESSOR_MANIFEST_SHA = (
     "sha256:e7637eb3162e4076f991588c54cbeb083bcf39d8795587c2594ea45940a9b750"
@@ -260,6 +263,7 @@ def verify_product_compatibility() -> None:
     manifest = candidate.load_json_strict(
         ROOT / "manifests/foigent.openinference.otlp-spans-1.0.0.json"
     )
+    verify_openinference_manifest_projection_reference(manifest)
     require(manifest["manifest_version"] == "foigent.connector-manifest.v2", "wrong Manifest version")
     require(
         manifest["transport"]["mode"]
@@ -347,6 +351,27 @@ def verify_product_compatibility() -> None:
     require(
         "must never contain a delivery Cursor" in projection["main_event"]["$.import_cursor"],
         "product-local import_cursor boundary changed",
+    )
+
+
+def verify_openinference_manifest_projection_reference(
+    manifest: dict[str, Any],
+) -> None:
+    reference = manifest.get("compatibility", {}).get(
+        "reference_projection_contract"
+    )
+    require(
+        isinstance(reference, dict),
+        "OpenInference Manifest projection contract reference is absent",
+    )
+    require(
+        reference.get("path") == OPENINFERENCE_PROJECTION_PATH,
+        "OpenInference Manifest projection contract path changed",
+    )
+    require(
+        reference.get("sha256")
+        == candidate.sha256(ROOT / OPENINFERENCE_PROJECTION_PATH),
+        "OpenInference Manifest projection contract pin is stale",
     )
 
 

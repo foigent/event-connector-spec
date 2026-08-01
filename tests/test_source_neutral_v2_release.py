@@ -59,6 +59,29 @@ class SourceNeutralV2ReleaseTests(unittest.TestCase):
         ):
             candidate.verify_openinference_compatibility(matrix)
 
+    def test_openinference_manifest_projection_reference_is_exact(self) -> None:
+        manifest = candidate.load_json_strict(
+            ROOT / "manifests/foigent.openinference.otlp-spans-1.0.0.json"
+        )
+        release.verify_openinference_manifest_projection_reference(manifest)
+
+    def test_stale_openinference_manifest_projection_reference_fails_closed(
+        self,
+    ) -> None:
+        manifest = copy.deepcopy(
+            candidate.load_json_strict(
+                ROOT / "manifests/foigent.openinference.otlp-spans-1.0.0.json"
+            )
+        )
+        manifest["compatibility"]["reference_projection_contract"]["sha256"] = (
+            "sha256:" + ("0" * 64)
+        )
+        with self.assertRaisesRegex(
+            candidate.ValidationError,
+            "Manifest projection contract pin is stale",
+        ):
+            release.verify_openinference_manifest_projection_reference(manifest)
+
     def test_product_migration_gate_mutation_fails_closed(self) -> None:
         path = (
             ROOT
