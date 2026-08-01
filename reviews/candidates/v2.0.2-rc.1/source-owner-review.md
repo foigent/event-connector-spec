@@ -1,8 +1,8 @@
-# Protocol 2.0.2 RC1 Source Domain Owner Review
+# Protocol 2.0.2 RC1 Corrected CI Candidate Source Domain Owner Review
 
 Role: `source_domain_owner`
 
-Status: `SOURCE_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING`
+Status: `SOURCE_OWNER_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING`
 
 Semantic conflict: `NONE_IDENTIFIED`
 
@@ -10,24 +10,52 @@ Compatibility: `PATCH_COMPATIBLE_CI_PORTABILITY_FIX`
 
 Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V2-SOURCE-NEUTRAL-20260731`
 
-## Reviewed authority and separate Projection evidence
+Product migration: `NOT_AUTHORIZED`
+
+Runtime mutation: `NONE`
+
+## Exact corrected candidate reviewed
 
 - repository: `https://github.com/foigent/event-connector-spec`
-- candidate branch: `codex/v2.0.2-composite-action-portability`
-- reviewed candidate commit:
-  `6f729d9a3cf819e5c538ba8bd3a16a85cdc42967`
-- reviewed candidate tree:
-  `5fb49fb450257dd1c40e33f6f8358e6dd434a367`
+- branch: `codex/v2.0.2-composite-action-portability`
+- corrected candidate commit:
+  `c567b15904e1aa67dc33ff8a06c0cce2dface12b`
+- corrected candidate tree:
+  `1f8b368dc1ac2187a4958c7a02f4eb51eca8aa6d`
 - candidate manifest:
   `docs/candidates/v2.0.2-rc.1/candidate-manifest.json`
 - candidate manifest SHA-256:
-  `sha256:5900f60eea16a2d3e66751d57a4e34e814db8b974dbbfdee32529894669f8d02`
-- reviewed content digest:
-  `sha256:d58e09d80a07184d1c5053ee8de082546ac2f2b88c6c2cde3de97273a860bed7`
-- proposed protocol version: `2.0.2`
+  `sha256:33b167e2c72906610e8fafc4e4e10d3633a07ccee8f85aa4c9577980d44be58d`
+- candidate content digest:
+  `sha256:370605f089793b56f93cf2146c01c8be6b77f937bc21b435ec63aedbd5477f21`
+- candidate components: `104` unique regular files
 - protocol status: `NOT_BINDING`
+- canonical release manifest: `ABSENT`
 
-Immediate immutable predecessor:
+The candidate builder reproduced the exact content digest twice. This Source
+review binds only the commit, tree, Manifest bytes, 104-component set and
+content digest above. A change to any of them requires a superseding Source
+review.
+
+## Separately bound Projection evidence
+
+- path: `reviews/candidates/v2.0.2-rc.1/projection-owner-review.md`
+- SHA-256:
+  `sha256:37909eada669b9df080c5ed3f903c2f2f28739d034b586f62a64214fd58a96a9`
+- evidence commit:
+  `e5d6a4039d1a68835bc3a929899c97a255f35fd4`
+- evidence tree:
+  `289d14c6b81af2b833f0e2a8ed1ea09b7d311973`
+- status:
+  `PROJECTION_OWNER_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING`
+
+The Projection evidence identity is recorded only as a separate governance
+input. Its conclusions were not inherited; Source semantics, component bytes,
+CI boundaries and executable evidence were reviewed independently.
+
+## Immediate predecessor integrity
+
+The exact immutable immediate predecessor remains:
 
 - version/tag: `v2.0.1`
 - annotated tag object:
@@ -35,50 +63,31 @@ Immediate immutable predecessor:
 - dereferenced commit:
   `0cbb6417858d12d6a99ff3b517bd59a122bc7e2c`
 - tree: `f967929dd98c5f34cd42fce4aa21489b72b000e0`
-- release manifest SHA-256:
+- release-manifest SHA-256:
   `sha256:fa097dfa08ba318334f78f4690f65247f080e86fde5695742b3ad49aaeba6a60`
 - content digest:
   `sha256:b3fd6a0651ca2c501bb8040f89945f57abb16fc5e01476c0efe4356e46b08e3e`
 - release digest:
   `sha256:b21e719b6dd0653aa93479aef64832d2e598c780c0e1804b84e34fbe658ac777`
 
-Separately bound Projection evidence:
+The Authority Kit also retained exact immutable replay of `v1.1.2` and
+`v2.0.0`. The `v1.1.2` tag resolves to commit
+`fd82aeca9877bea8064b25c365a3cdcdd0bb3d16` and tree
+`d316d6ada678066ed7679a772856aea6157d869d`; its archive path verifies all 57
+released predecessor components.
 
-- evidence commit:
-  `140dc19f8455ba38949b2b81a356767ccb070792`
-- evidence tree:
-  `1891bee63c60394ae39d24829f575ed67c4a18d7`
-- path:
-  `reviews/candidates/v2.0.2-rc.1/projection-owner-review.md`
-- SHA-256:
-  `sha256:7f42849f6c7be89b54228c21f533ab41216c8b46de77226186230229ca95d4ed`
-- status:
-  `PROJECTION_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING`
+## Source-domain compatibility conclusion
 
-The Projection evidence identity is recorded as a separate governance input.
-Its semantic conclusion was not inherited or reused. This Source review was
-performed independently against the exact candidate commit, tree, manifest,
-component bytes and executable kits above.
+No Source-domain semantic conflict was identified. A direct Git-object diff
+from immutable `v2.0.1` to corrected candidate `c567b159...` is empty for
+Schemas, vectors, conformance artifacts, mappings, Manifests, fixtures,
+catalog, compatibility files, protocol specifications, both source-neutral
+implementations and the Schema audit.
 
-## Source-domain and byte-compatibility conclusion
+The following Source and shared identities remain byte-exact:
 
-No Source-domain semantic conflict was identified. A direct Git object diff
-between immutable `v2.0.1` and the exact candidate is empty for `schemas/`,
-`vectors/`, `conformance/`, `mappings/`, `manifests/`, `fixtures/`, `catalog/`,
-`compatibility/`, `spec/`, both source-neutral implementations and the Schema
-audit. The candidate changes CI packaging, orchestration, release metadata and
-their tests only.
-
-The following Source and shared semantic component identities remain exact:
-
-- protocol specification:
-  `sha256:4a8efd02b07c29f4ce19fb30bd5fa9f256254ba6cfe92420bf8e6a268b22702d`;
 - Event Envelope Schema:
   `sha256:6942e85d9b5d8b08ff9828b970c317596394184ef29908cbf2b8fc792187cf26`;
-- Capture Gap Schema:
-  `sha256:1a5be69da99f62033ceadf05f66d45296d1d5f8b662830f77c0fc6af49edaec8`;
-- Checkpoint Schema:
-  `sha256:80bf1e98b24424a25a14985f36aa179c838363c4deb540c7521b20582eccdd6b`;
 - Operational Receipt Schema:
   `sha256:d2d091c2571d54df7a65329da049f13a4d7465af38b7916e4ae79e57255a04b6`;
 - UniRouter Reference Connector Manifest:
@@ -104,85 +113,75 @@ revision rules, Capture Gap and provenance semantics, Receipt behavior,
 Cursor/Checkpoint exclusions, Feed endpoint/page/cursor behavior and current
 UniRouter compatibility identities remain unchanged.
 
-## Consumer, product-pin and Authority Kit conclusion
+## Corrected CI orchestration conclusion
 
-The immutable `v2.0.1` composite action invoked a Git-history-dependent
-Authority Release Kit from a downloaded action snapshot. The reviewed fix
-separates that responsibility without weakening consumer verification:
+The corrected generic workflow invokes only
+`scripts/run-v1-compatibility-current-kit.sh`. It no longer invokes the legacy
+all-release discovery entrypoint `scripts/run-conformance-kit.sh`, so current
+PR CI does not execute frozen v2.0.1 snapshot tests against a v2.0.2 tree.
 
-1. The composite action invokes the Consumer Conformance Kit with `--release`
-   from `GITHUB_ACTION_PATH`. The Consumer and Current Release kits contain no
-   Git command and invoke no predecessor kit.
-2. After the Consumer Kit, the action still invokes the strict product-pin
-   verifier. Relative to `v2.0.1`, that verifier changes only the two expected
-   version/tag literals from `2.0.1`/`v2.0.1` to `2.0.2`/`v2.0.2`.
-3. The verifier still requires the exact release-manifest format, authority,
-   release content digest, three confirmed approval roles and evidence SHA,
-   release digest, product/version/release pin, exact product component set,
-   every component SHA, regular non-symlink files and paths contained beneath
-   the action root.
-4. The Source product pin continues to require all 19 exact Source/shared
-   components, including the Reference Manifest, Source mappings, Event,
-   lifecycle, Checkpoint, Error and Receipt Schemas, vector bundle and
-   Consumer Kit digest.
-5. The Authority Release Kit remains Git-history-dependent and independently
-   replays the immutable `v1.1.2`, `v2.0.0` and immediate `v2.0.1` tag,
-   commit, tree, archive and release-manifest evidence before current content.
+This correction remains narrow and fail-closed:
 
-An archive made directly from exact candidate commit `6f729d9...` contained no
-`.git` directory and passed the complete Consumer Kit. The candidate's own
-action-snapshot kit also proved that the extracted action snapshot contains no
-Git metadata and successfully executed the same Consumer Kit.
+1. `.github/workflows/ci.yml` is a newly governed component with SHA-256
+   `fd26f25cb8db8c27d033fa37184b0253ebbba42b4bc422c2e3e7b92ae2382ef3`.
+2. The immutable legacy runner remains byte-exact at
+   `sha256:98afa5b6c964df78a80a7aaf7488899f76d21123f0f867ab3a83fc6af9a43214`
+   and is still used by immutable predecessor replay.
+3. A focused test requires the current compatibility entrypoint and rejects a
+   regression to `run-conformance-kit.sh` in generic CI.
+4. The `v1.1.2` current-tree PATCH allowlist is exactly
+   `{authority_ci_workflow}`. It preserves 56 current-tree components, while a
+   non-allowlisted Event Envelope digest mutation fails closed.
+5. The snapshot-safe Consumer and Current kits contain no Git dependency or
+   predecessor invocation. The Git-history-dependent Authority Kit retains
+   explicit replay of `v1.1.2`, `v2.0.0` and `v2.0.1`.
 
-## SemVer conclusion
-
-The proposed `2.0.2` patch version is correct. The candidate repairs a broken
-CI consumption path while keeping all protocol, Source, Event, mapping,
-identity, hash, Receipt, Cursor and Checkpoint semantics byte-identical to
-`2.0.1`. It introduces no new required field, changes no field meaning, wire
-identity, canonical form, SDK behavior or product runtime contract. The
-classification `PATCH_COMPATIBLE_CI_PORTABILITY_FIX` is confirmed.
+The classification `PATCH_COMPATIBLE_CI_PORTABILITY_FIX` is therefore
+appropriate: orchestration and governed CI evidence change, but no wire,
+Source, identity, hash, SDK or product-runtime contract changes.
 
 ## Independent verification evidence
 
-Fresh local verification used Go `1.24.3`, Deno `2.7.13`, vendored Go modules,
-no remote Deno/npm resolution and no authority credential:
+Fresh offline verification established:
 
-- candidate commit/tree and immutable predecessor tag/commit/tree: exact;
-- candidate manifest SHA-256: exact;
-- candidate content digest: independently reproduced by the candidate builder,
-  validator and a separate canonical JSON SHA-256 calculation;
-- validator: `103` candidate components, `94` immediate-predecessor
-  components and `87` preserved predecessor components;
-- candidate/portability tests: `7/7` passed;
-- exact semantic Git object diff: empty;
-- exact no-`.git` candidate archive Consumer Kit: passed;
-- candidate action-snapshot portability kit: passed;
-- full Authority Kit: immutable `v1.1.2`, `v2.0.0`, `v2.0.1` and current
-  `v2.0.2` candidate passed;
-- current v1/LiteLLM Go and TypeScript reports: deterministic `30/30` and
-  cross-language equal;
-- source-neutral Schema audit: `24` Schemas, `3` Manifests, `3` delivery modes
-  and `5` Source fixtures;
-- source-neutral Go and TypeScript reports: two deterministic `83/83` runs per
-  language, exact stored-report equality and `29/29` required-class
-  cross-language equality;
-- preserved compatibility identities: `10` v1 M0 ID/hash pairs, `8` v1 Gap
-  rows, `2` v1 provenance IDs, `5` OpenInference M0 ID/hash pairs and `4`
-  OpenInference Gap Events.
+- candidate Manifest SHA and `104/104` unique regular component digests passed;
+- candidate digest reproduced twice as
+  `sha256:370605f089793b56f93cf2146c01c8be6b77f937bc21b435ec63aedbd5477f21`;
+- validator passed `104` candidate components, `94` immediate-predecessor
+  components and `87` preserved non-PATCH components;
+- focused candidate/action tests passed `9/9`, including the generic-CI and
+  narrow-allowlist negative cases;
+- Source compatibility evidence remained ten v1 M0 ID/hash pairs, eight Gap
+  rows, two provenance IDs, five OpenInference M0 ID/hash pairs and four
+  OpenInference Gap Events;
+- an exact `c567b159...` Git archive contained no `.git` and passed the full
+  Consumer Kit in content-candidate mode;
+- current v1/LiteLLM Go and TypeScript stored-report checks passed `30/30` and
+  matched cross-language;
+- the Source-neutral Schema audit passed 24 Schemas, three Manifests, three
+  modes and five Source fixtures;
+- deterministic Go and TypeScript Source-neutral runs each passed `83/83` and
+  matched stored reports and all `29/29` required cross-language classes;
+- the full Authority Kit passed immutable `v1.1.2`, `v2.0.0`, exact `v2.0.1`,
+  current v1/LiteLLM and the exact corrected 104-component candidate bytes.
 
-## Non-binding and zero-mutation boundary
+The Authority execution used current HEAD only after verifying its sole delta
+from `c567b159...` was the separately bound Projection evidence file, outside
+the candidate's 104 governed components.
 
-This file records Source Domain Owner candidate evidence only. It does not:
+## Superseded evidence and zero-mutation boundary
 
-- make protocol `2.0.2` Binding;
-- authorize a release manifest, immutable tag, push, pull request or merge;
-- authorize product adoption, Schema/SDK/Connector implementation or runtime
-  activation;
-- authorize deployment, traffic, credentials, database, Cursor, Checkpoint or
-  service-state mutation;
-- modify immutable `v2.0.1` bytes, tag or release manifest.
+The former candidate identity `6f729d9...`, release-content digest
+`sha256:ce70c78a...`, prior v2.0.2 candidate/final approvals and prior canonical
+release manifest are superseded and were not reused. The current release
+builder rejects the old final approvals because they do not bind the corrected
+release-content digest; no release manifest is present.
 
-The review modified only this Source Owner evidence file in the designated
-shared-authority worktree. It did not modify the candidate components, a
-product repository or runtime state.
+This file is Source Domain Owner corrected-candidate evidence only. It does
+not make protocol `2.0.2` Binding and does not authorize release-content
+assembly, a canonical manifest, tag, push, pull request, merge, publication,
+product adoption, UniRouter repository changes, deployment, traffic,
+credentials, database, Cursor, Checkpoint, worker or service-state mutation.
+
+Only this Source review file was updated in the designated authority worktree.
+No candidate component, product repository or runtime state was modified.
