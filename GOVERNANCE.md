@@ -96,9 +96,10 @@ Protocol `2.0.1` remains the immediate immutable Binding predecessor. A
 `2.0.2` patch-compatible CI portability fix may assemble release content only
 after exact Source Owner, Projection Owner and Coordinator candidate review.
 The earlier candidate/final gate was invalidated by a material generic-CI
-orchestration correction. The corrected candidate requires fresh exact
-three-role review before release content is assembled. It becomes Binding only
-with three fresh final approvals over the same release-content digest, a canonical
+orchestration correction. The corrected candidate gate is now satisfied over
+one exact three-role-reviewed identity; the assembled release content remains
+non-Binding. It becomes Binding only with three fresh final approvals over the
+same release-content digest, a canonical
 `releases/v2.0.2/release-manifest.json`, and an immutable `v2.0.2` tag over
 the same bytes. No `2.0.1` approval may be reused.
 

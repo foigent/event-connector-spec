@@ -149,6 +149,8 @@ def verify_candidate_manifest() -> int:
             "protocol_status",
             "authority",
             "predecessor",
+            "reviewed_candidate",
+            "candidate_reviews",
             "compatibility",
             "components",
         ]
@@ -177,15 +179,58 @@ def verify_candidate_manifest() -> int:
         "candidate predecessor changed",
     )
     require(
+        manifest["reviewed_candidate"]
+        == {
+            "commit": "c567b15904e1aa67dc33ff8a06c0cce2dface12b",
+            "tree": "1f8b368dc1ac2187a4958c7a02f4eb51eca8aa6d",
+            "manifest_sha256": "sha256:33b167e2c72906610e8fafc4e4e10d3633a07ccee8f85aa4c9577980d44be58d",
+            "content_digest": "sha256:370605f089793b56f93cf2146c01c8be6b77f937bc21b435ec63aedbd5477f21",
+        },
+        "reviewed corrected candidate identity changed",
+    )
+    expected_reviews = {
+        "source_domain_owner": {
+            "path": "reviews/candidates/v2.0.2-rc.1/source-owner-review.md",
+            "commit": "652663ba58f74d1b2b87450e84a116f6ee79e49c",
+            "tree": "0d82066c4d553057e414aafcf9ada683f2f71c55",
+            "sha256": "sha256:6a68c4da560190bed869495ad8808c66ef156b77e985e80862cfdbb6c8dd0906",
+            "status": "SOURCE_OWNER_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING",
+        },
+        "projection_owner": {
+            "path": "reviews/candidates/v2.0.2-rc.1/projection-owner-review.md",
+            "commit": "e5d6a4039d1a68835bc3a929899c97a255f35fd4",
+            "tree": "289d14c6b81af2b833f0e2a8ed1ea09b7d311973",
+            "sha256": "sha256:37909eada669b9df080c5ed3f903c2f2f28739d034b586f62a64214fd58a96a9",
+            "status": "PROJECTION_OWNER_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING",
+        },
+        "coordinator": {
+            "path": "reviews/candidates/v2.0.2-rc.1/coordinator-review.md",
+            "commit": "7032bac43759b7f33eac19a738b533bc3cbe83d7",
+            "tree": "4aa0bb4539e5def2ee42355506a9786b71c83dae",
+            "sha256": "sha256:8921ba43fceaae49cc402dff4dae3263bf1ded32b9e574f6dc621cbf4b057337",
+            "status": "COORDINATOR_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING",
+        },
+    }
+    require(
+        manifest["candidate_reviews"] == expected_reviews,
+        "corrected candidate review identities changed",
+    )
+    for role, review in expected_reviews.items():
+        evidence = ROOT / review["path"]
+        require(
+            semantic_candidate.sha256(evidence) == review["sha256"],
+            f"corrected candidate review bytes changed: {role}",
+        )
+    require(
         manifest["compatibility"] == "PATCH_COMPATIBLE_CI_PORTABILITY_FIX",
         "candidate compatibility changed",
     )
     require(
         manifest["approvals"]
         == {
-            "source_domain_owner": "required",
-            "projection_owner": "separate_exact_digest_review_required",
-            "coordinator": "required",
+            "source_domain_owner": "candidate_confirmed_non_binding",
+            "projection_owner": "candidate_confirmed_non_binding",
+            "coordinator": "candidate_confirmed_non_binding",
         },
         "candidate review boundary changed",
     )
@@ -296,14 +341,17 @@ def verify_candidate_decision() -> None:
     ).read_text()
     normalized = " ".join(decision.split())
     for required in [
-        "CANDIDATE_NOT_BINDING",
+        "THREE_ROLE_CORRECTED_CANDIDATE_CONFIRMED_RELEASE_CONTENT_NOT_BINDING",
         "PATCH_COMPATIBLE_CI_PORTABILITY_FIX",
         "Product migration: `NOT_AUTHORIZED`",
         "Runtime mutation: `NONE`",
         "snapshot without `.git`",
         "run-v1-compatibility-current-kit.sh",
         "run-conformance-kit.sh` remains byte-exact",
-        "Fresh Projection, Source and Coordinator review is required",
+        "6a68c4da560190bed869495ad8808c66ef156b77e985e80862cfdbb6c8dd0906",
+        "37909eada669b9df080c5ed3f903c2f2f28739d034b586f62a64214fd58a96a9",
+        "8921ba43fceaae49cc402dff4dae3263bf1ded32b9e574f6dc621cbf4b057337",
+        "Fresh three-role final approval is required",
     ]:
         require(required in normalized, f"candidate decision lost {required}")
 
@@ -331,7 +379,7 @@ def validate() -> dict[str, Any]:
     return {
         "status": "pass",
         "protocol_version": "2.0.2",
-        "protocol_status": "candidate_not_binding",
+        "protocol_status": "release_content_candidate_not_binding",
         "semantic_base_version": "2.0.1",
         "compatibility": "patch_compatible_ci_portability_fix",
         "candidate_components_verified": candidate_components,

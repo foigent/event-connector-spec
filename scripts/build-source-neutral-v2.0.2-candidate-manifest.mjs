@@ -123,9 +123,63 @@ const hashInput = {
     release_digest:
       "sha256:b21e719b6dd0653aa93479aef64832d2e598c780c0e1804b84e34fbe658ac777",
   },
+  reviewed_candidate: {
+    commit: "c567b15904e1aa67dc33ff8a06c0cce2dface12b",
+    tree: "1f8b368dc1ac2187a4958c7a02f4eb51eca8aa6d",
+    manifest_sha256:
+      "sha256:33b167e2c72906610e8fafc4e4e10d3633a07ccee8f85aa4c9577980d44be58d",
+    content_digest:
+      "sha256:370605f089793b56f93cf2146c01c8be6b77f937bc21b435ec63aedbd5477f21",
+  },
+  candidate_reviews: {
+    source_domain_owner: {
+      path: "reviews/candidates/v2.0.2-rc.1/source-owner-review.md",
+      commit: "652663ba58f74d1b2b87450e84a116f6ee79e49c",
+      tree: "0d82066c4d553057e414aafcf9ada683f2f71c55",
+      sha256:
+        "sha256:6a68c4da560190bed869495ad8808c66ef156b77e985e80862cfdbb6c8dd0906",
+      status: "SOURCE_OWNER_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING",
+    },
+    projection_owner: {
+      path: "reviews/candidates/v2.0.2-rc.1/projection-owner-review.md",
+      commit: "e5d6a4039d1a68835bc3a929899c97a255f35fd4",
+      tree: "289d14c6b81af2b833f0e2a8ed1ea09b7d311973",
+      sha256:
+        "sha256:37909eada669b9df080c5ed3f903c2f2f28739d034b586f62a64214fd58a96a9",
+      status: "PROJECTION_OWNER_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING",
+    },
+    coordinator: {
+      path: "reviews/candidates/v2.0.2-rc.1/coordinator-review.md",
+      commit: "7032bac43759b7f33eac19a738b533bc3cbe83d7",
+      tree: "4aa0bb4539e5def2ee42355506a9786b71c83dae",
+      sha256:
+        "sha256:8921ba43fceaae49cc402dff4dae3263bf1ded32b9e574f6dc621cbf4b057337",
+      status: "COORDINATOR_V2_0_2_CI_ORCHESTRATION_CORRECTION_CANDIDATE_CONFIRM_NON_BINDING",
+    },
+  },
   compatibility: "PATCH_COMPATIBLE_CI_PORTABILITY_FIX",
   components,
 };
+for (const [role, review] of Object.entries(hashInput.candidate_reviews)) {
+  const bytes = readRegular(review.path, `${role} candidate review`);
+  if (sha256(bytes) !== review.sha256) {
+    throw new Error(`${role} candidate review bytes changed`);
+  }
+  const text = bytes.toString("utf8");
+  for (const required of [
+    `Role: \`${role}\``,
+    `Status: \`${review.status}\``,
+    hashInput.reviewed_candidate.commit,
+    hashInput.reviewed_candidate.tree,
+    hashInput.reviewed_candidate.manifest_sha256,
+    hashInput.reviewed_candidate.content_digest,
+    hashInput.compatibility,
+  ]) {
+    if (!text.includes(required)) {
+      throw new Error(`${role} candidate review is missing ${required}`);
+    }
+  }
+}
 const contentDigest = sha256(
   Buffer.from(canonicalize(hashInput), "utf8"),
 );
@@ -139,9 +193,9 @@ const manifest = {
   ...hashInput,
   content_digest: contentDigest,
   approvals: {
-    source_domain_owner: "required",
-    projection_owner: "separate_exact_digest_review_required",
-    coordinator: "required",
+    source_domain_owner: "candidate_confirmed_non_binding",
+    projection_owner: "candidate_confirmed_non_binding",
+    coordinator: "candidate_confirmed_non_binding",
   },
   boundary: {
     binding_release: false,

@@ -5,10 +5,10 @@ This private repository is the single editable authority for the Foigent shared 
 ## Current status
 
 - Governance authority: established under B7.
-- Corrected candidate: `2.0.2`, a patch-compatible CI portability fix over
-  `2.0.1`. The prior candidate and final evidence were invalidated by a
-  current-tree CI orchestration correction. Fresh exact three-role review,
-  final approval, a canonical release manifest and immutable tag are required.
+- Release-content candidate: `2.0.2`, a patch-compatible CI portability fix
+  over `2.0.1`. Its corrected candidate has exact three-role confirmation, but
+  the release content remains non-Binding until three fresh final approvals, a
+  canonical release manifest and immutable tag all exist.
 - Independent Go/TypeScript source-neutral conformance: 83/83 cases across
   29/29 required classes with byte-identical results.
 - Binding identity: the immutable `v2.0.1` tag and its verified release
