@@ -17,10 +17,16 @@ class SourceNeutralV2ReleaseTests(unittest.TestCase):
     def test_repository_release_content_validates(self) -> None:
         result = release.validate()
         self.assertEqual("pass", result["status"])
-        self.assertEqual("2.0.0", result["protocol_version"])
-        self.assertEqual("binding", result["protocol_status"])
-        self.assertEqual(60, result["candidate_components_verified"])
-        self.assertEqual(57, result["predecessor_components_verified"])
+        self.assertEqual("2.0.1", result["protocol_version"])
+        self.assertEqual("release_content_candidate", result["protocol_status"])
+        self.assertEqual("2.0.0", result["semantic_base_version"])
+        self.assertEqual(
+            "patch_compatible_metadata_integrity_erratum",
+            result["compatibility"],
+        )
+        self.assertEqual(66, result["candidate_components_verified"])
+        self.assertEqual(93, result["immediate_predecessor_components_verified"])
+        self.assertEqual(57, result["v1_predecessor_components_verified"])
         self.assertEqual(10, result["v1_m0_id_hash_pairs"])
         self.assertEqual(8, result["v1_gap_rows"])
         self.assertEqual(2, result["v1_provenance_ids"])
@@ -59,6 +65,29 @@ class SourceNeutralV2ReleaseTests(unittest.TestCase):
         ):
             candidate.verify_openinference_compatibility(matrix)
 
+    def test_openinference_manifest_projection_reference_is_exact(self) -> None:
+        manifest = candidate.load_json_strict(
+            ROOT / "manifests/foigent.openinference.otlp-spans-1.0.0.json"
+        )
+        release.verify_openinference_manifest_projection_reference(manifest)
+
+    def test_stale_openinference_manifest_projection_reference_fails_closed(
+        self,
+    ) -> None:
+        manifest = copy.deepcopy(
+            candidate.load_json_strict(
+                ROOT / "manifests/foigent.openinference.otlp-spans-1.0.0.json"
+            )
+        )
+        manifest["compatibility"]["reference_projection_contract"]["sha256"] = (
+            "sha256:b374f7a03c73b6fa94d9fab96ce20d819d4e1471f77d2e4c908df1297c1e49b2"
+        )
+        with self.assertRaisesRegex(
+            candidate.ValidationError,
+            "Manifest projection contract pin is stale",
+        ):
+            release.verify_openinference_manifest_projection_reference(manifest)
+
     def test_product_migration_gate_mutation_fails_closed(self) -> None:
         path = (
             ROOT
@@ -70,7 +99,10 @@ class SourceNeutralV2ReleaseTests(unittest.TestCase):
             candidate.verify_openinference_compatibility(matrix)
 
     def test_candidate_archive_remains_exact_and_non_binding(self) -> None:
-        self.assertEqual(60, release.verify_candidate_archive())
+        self.assertEqual(66, release.verify_candidate_archive())
+
+    def test_v2_0_0_immediate_predecessor_remains_exact(self) -> None:
+        self.assertEqual(93, release.verify_predecessor_manifest())
 
     def test_control_error_spec_drift_fails_closed(self) -> None:
         spec = (ROOT / "spec/protocol-v2.md").read_text(encoding="utf-8")

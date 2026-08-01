@@ -16,7 +16,7 @@ import validate_source_neutral_v2_release as release_validator  # noqa: E402
 
 class SourceNeutralV2CandidateTests(unittest.TestCase):
     def test_exact_candidate_archive_remains_non_binding(self) -> None:
-        self.assertEqual(60, release_validator.verify_candidate_archive())
+        self.assertEqual(66, release_validator.verify_candidate_archive())
 
     def test_strict_loader_rejects_nested_duplicate_keys(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

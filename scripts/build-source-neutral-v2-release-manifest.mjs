@@ -11,39 +11,40 @@ import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const outputPath = resolve(root, "releases/v2.0.0/release-manifest.json");
+const outputPath = resolve(root, "releases/v2.0.1/release-manifest.json");
 const mode = process.argv[2] ?? "--check";
 const approvalPaths = [
   {
     role: "source_domain_owner",
     status: "SOURCE_OWNER_FINAL_RELEASE_CONFIRM",
-    path: "reviews/releases/v2.0.0/source-owner-approval.md",
+    path: "reviews/releases/v2.0.1/source-owner-approval.md",
   },
   {
     role: "projection_owner",
     status: "PROJECTION_OWNER_FINAL_RELEASE_APPROVAL",
-    path: "reviews/releases/v2.0.0/projection-owner-approval.md",
+    path: "reviews/releases/v2.0.1/projection-owner-approval.md",
   },
   {
     role: "coordinator",
     status: "COORDINATOR_FINAL_RELEASE_CONFIRM",
-    path: "reviews/releases/v2.0.0/coordinator-approval.md",
+    path: "reviews/releases/v2.0.1/coordinator-approval.md",
   },
 ];
 
 const componentPaths = {
   authority_readme: "README.md",
   governance: "GOVERNANCE.md",
-  release_decision: "docs/decisions/0003-protocol-v2-release.md",
-  predecessor_release_manifest: "releases/v1.1.2/release-manifest.json",
+  release_decision:
+    "docs/decisions/0004-openinference-manifest-projection-digest-erratum-candidate.md",
+  predecessor_release_manifest: "releases/v2.0.0/release-manifest.json",
   candidate_manifest_archive:
-    "docs/candidates/v2.0.0-rc.1/candidate-manifest.json",
+    "docs/candidates/v2.0.1-rc.1/candidate-manifest.json",
   candidate_source_owner_review:
-    "reviews/candidates/v2.0.0-rc.1/source-owner-review.md",
+    "reviews/candidates/v2.0.1-rc.1/source-owner-review.md",
   candidate_projection_owner_review:
-    "reviews/candidates/v2.0.0-rc.1/projection-owner-review.md",
+    "reviews/candidates/v2.0.1-rc.1/projection-owner-review.md",
   candidate_coordinator_review:
-    "reviews/candidates/v2.0.0-rc.1/coordinator-review.md",
+    "reviews/candidates/v2.0.1-rc.1/coordinator-review.md",
   protocol_spec: "spec/protocol-v2.md",
   protocol_v1_compatibility_base: "spec/protocol-v1.md",
   shared_ci_action: "actions/source-neutral-v2/action.yml",
@@ -51,6 +52,8 @@ const componentPaths = {
   legacy_conformance_kit: "scripts/run-conformance-kit.sh",
   predecessor_conformance_kit:
     "scripts/run-v1.1.2-predecessor-kit.sh",
+  immediate_predecessor_conformance_kit:
+    "scripts/run-v2.0.0-predecessor-kit.sh",
   v1_compatibility_kit: "scripts/run-v1-compatibility-kit.sh",
   conformance_kit_runner:
     "scripts/run-source-neutral-v2-release-kit.sh",
@@ -254,21 +257,21 @@ const components = Object.fromEntries(
 );
 const contentHashInput = {
   release_manifest_version: "foigent.protocol-release-manifest.v2",
-  protocol_version: "2.0.0",
+  protocol_version: "2.0.1",
   authority: {
     repository: "https://github.com/foigent/event-connector-spec",
     repository_id: 1313391565,
-    tag: "v2.0.0",
+    tag: "v2.0.1",
   },
   predecessor: {
-    protocol_version: "1.1.2",
-    tag: "v1.1.2",
-    tag_commit: "fd82aeca9877bea8064b25c365a3cdcdd0bb3d16",
-    tree: "d316d6ada678066ed7679a772856aea6157d869d",
+    protocol_version: "2.0.0",
+    tag: "v2.0.0",
+    tag_commit: "a8ab25ef8c8dd1c12d073ec0cf23c376f5741744",
+    tree: "981e2516154610c172c6a1607795512ad9c69f30",
     content_digest:
-      "sha256:da5b1bf863aa467a64771b5236bb916b96c73c4043ed347c44eafb03d8682813",
+      "sha256:4231062a50b0334eda7f67e07200faf5e71261b2a8cf27ecd375529ec84f8b69",
     release_digest:
-      "sha256:0b414d5d59e5a7ca5c05505cb58d7992c544537da1c84a57256ec205618d9cd1",
+      "sha256:aa9537a8779758af1227ba42371e75ab5aeafc84d5b73c4cdff35320481aa3f9",
   },
   boundary: {
     product_adoption: "not_authorized",

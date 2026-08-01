@@ -11,11 +11,10 @@ import validate_source_neutral_v2_candidate as candidate
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CANDIDATE_CONTENT_DIGEST = (
-    "sha256:420847a10d0febddd1fd8fcd03b74761f00c4162dd1ebfed1ad3e164925993aa"
-)
-CANDIDATE_MANIFEST_SHA = (
-    "sha256:ee046d1e06cbb3ab98a8565737ecd76ce71423be68e22d6f4f7b916ffcbb4b91"
+REVIEWED_CANDIDATE_COMMIT = "61e21ee6988814f2d4a785bcf1723f5ce9dc49b1"
+REVIEWED_CANDIDATE_TREE = "9c152180d9132fa279c75b8b6cc4cfaac895d411"
+REVIEWED_CANDIDATE_CONTENT_DIGEST = (
+    "sha256:25a19cd9aad2b86cf9108a634fdfacd98bba7e3d6ee4d7e013bb95ec3aaf02ba"
 )
 BINDING_CONTRACT_SHA = (
     "sha256:f820936448590144156c2e499134eb4b3142ca0265275b6e9bdf1e5cd7855e14"
@@ -23,17 +22,34 @@ BINDING_CONTRACT_SHA = (
 BINDING_VECTOR_SHA = (
     "sha256:9e50bb4570dcc1ff07157ad6198641e937357b641ae052cddcb3420b52ad11ed"
 )
+OPENINFERENCE_PROJECTION_PATH = (
+    "mappings/xinsight/openinference-span-to-m0-m0.1-v2.json"
+)
 FINAL_IMPLEMENTATION_VERSION = "2.0.0+independent.1"
 PREDECESSOR_MANIFEST_SHA = (
-    "sha256:e7637eb3162e4076f991588c54cbeb083bcf39d8795587c2594ea45940a9b750"
+    "sha256:4a0800e0117e351606e91177bac0beb3276dbfcdc22bd6a6718bdcdec1d6289d"
 )
 CANDIDATE_REVIEW_SHAS = {
-    "reviews/candidates/v2.0.0-rc.1/source-owner-review.md":
-        "sha256:f09ab63b939ed0595c1ba2877856038acc2edd3c4129f09da169293288907582",
-    "reviews/candidates/v2.0.0-rc.1/projection-owner-review.md":
-        "sha256:56c50149c70758b2df3f029934a45b6185cf2fd2bba7b916420ecb53c0941e9a",
-    "reviews/candidates/v2.0.0-rc.1/coordinator-review.md":
-        "sha256:a80a7a3fa111923c35bac9a3d299bb66c31f035b93cbcd8373bbe773221d1cd8",
+    "reviews/candidates/v2.0.1-rc.1/source-owner-review.md":
+        "sha256:89e1e58dbfedeacc94e5073bf9ad295f23079bb132074e18a51b3cff4da9f5ff",
+    "reviews/candidates/v2.0.1-rc.1/projection-owner-review.md":
+        "sha256:7392bc406bdf5d1252f2e6f45a221713068542b7cbe76e6795de06afab33e18a",
+    "reviews/candidates/v2.0.1-rc.1/coordinator-review.md":
+        "sha256:922e42ec8c4ed0d6db7f07f80355ff3208ec6fc49b5482cc707f9e1240864e01",
+}
+
+PATCH_TOOLING_COMPONENTS = {
+    "authority_readme",
+    "governance",
+    "shared_ci_action",
+    "authority_ci_workflow",
+    "conformance_kit_runner",
+    "release_builder",
+    "source_neutral_release_validator",
+    "source_neutral_release_tests",
+    "candidate_archive_tests",
+    "product_pin_verifier",
+    "openinference_connector_manifest",
 }
 
 
@@ -42,9 +58,8 @@ def require(condition: bool, message: str) -> None:
 
 
 def verify_candidate_archive() -> int:
-    path = ROOT / "docs/candidates/v2.0.0-rc.1/candidate-manifest.json"
+    path = ROOT / "docs/candidates/v2.0.1-rc.1/candidate-manifest.json"
     manifest = candidate.load_json_strict(path)
-    require(candidate.sha256(path) == CANDIDATE_MANIFEST_SHA, "candidate manifest bytes changed")
     content_hash_input = {
         key: manifest[key]
         for key in [
@@ -53,6 +68,9 @@ def verify_candidate_archive() -> int:
             "protocol_status",
             "authority",
             "predecessor",
+            "reviewed_candidate",
+            "candidate_reviews",
+            "compatibility",
             "components",
         ]
     }
@@ -60,10 +78,49 @@ def verify_candidate_archive() -> int:
         candidate.canonical_bytes(content_hash_input)
     ).hexdigest()
     require(
-        digest == manifest["content_digest"] == CANDIDATE_CONTENT_DIGEST,
+        digest == manifest["content_digest"],
         "candidate content digest changed",
     )
-    require(manifest["protocol_status"] == "not_binding", "candidate status changed")
+    require(
+        manifest["protocol_version"] == "2.0.1"
+        and manifest["protocol_status"] == "not_binding",
+        "candidate version or status changed",
+    )
+    require(
+        manifest["reviewed_candidate"]
+        == {
+            "commit": REVIEWED_CANDIDATE_COMMIT,
+            "tree": REVIEWED_CANDIDATE_TREE,
+            "content_digest": REVIEWED_CANDIDATE_CONTENT_DIGEST,
+        },
+        "reviewed candidate identity changed",
+    )
+    require(
+        manifest["compatibility"]
+        == "PATCH_COMPATIBLE_METADATA_INTEGRITY_ERRATUM",
+        "candidate compatibility class changed",
+    )
+    require(
+        manifest["predecessor"]
+        == {
+            "protocol_version": "2.0.0",
+            "tag": "v2.0.0",
+            "tag_commit": "a8ab25ef8c8dd1c12d073ec0cf23c376f5741744",
+            "tree": "981e2516154610c172c6a1607795512ad9c69f30",
+            "content_digest": "sha256:4231062a50b0334eda7f67e07200faf5e71261b2a8cf27ecd375529ec84f8b69",
+            "release_digest": "sha256:aa9537a8779758af1227ba42371e75ab5aeafc84d5b73c4cdff35320481aa3f9",
+        },
+        "candidate predecessor identity changed",
+    )
+    require(
+        manifest["approvals"]
+        == {
+            "source_domain_owner": "candidate_confirmed_non_binding",
+            "projection_owner": "candidate_confirmed_non_binding",
+            "coordinator": "candidate_confirmed_non_binding",
+        },
+        "candidate review gate changed",
+    )
     require(
         manifest["boundary"]
         == {
@@ -74,14 +131,26 @@ def verify_candidate_archive() -> int:
         },
         "candidate boundary changed",
     )
-    require(len(manifest["components"]) == 60, "candidate component count changed")
+    for name, component in manifest["components"].items():
+        require(
+            candidate.sha256(ROOT / component["path"]) == component["sha256"],
+            f"candidate component changed: {name}",
+        )
     for relative, expected in CANDIDATE_REVIEW_SHAS.items():
         require(candidate.sha256(ROOT / relative) == expected, f"candidate review changed: {relative}")
+    require(
+        {
+            review["path"]: review["sha256"]
+            for review in manifest["candidate_reviews"].values()
+        }
+        == CANDIDATE_REVIEW_SHAS,
+        "candidate review archive changed",
+    )
     return len(manifest["components"])
 
 
 def verify_predecessor_manifest() -> int:
-    path = ROOT / "releases/v1.1.2/release-manifest.json"
+    path = ROOT / "releases/v2.0.0/release-manifest.json"
     release = candidate.load_json_strict(path)
     require(candidate.sha256(path) == PREDECESSOR_MANIFEST_SHA, "predecessor manifest bytes changed")
     release_digest = release["release_digest"]
@@ -98,7 +167,7 @@ def verify_predecessor_manifest() -> int:
     require(
         calculated_content
         == content_digest
-        == candidate.PREDECESSOR_CONTENT_DIGEST,
+        == "sha256:4231062a50b0334eda7f67e07200faf5e71261b2a8cf27ecd375529ec84f8b69",
         "predecessor content digest changed",
     )
     for approval in approvals:
@@ -116,11 +185,53 @@ def verify_predecessor_manifest() -> int:
     require(
         calculated_release
         == release_digest
-        == candidate.PREDECESSOR_RELEASE_DIGEST,
+        == "sha256:aa9537a8779758af1227ba42371e75ab5aeafc84d5b73c4cdff35320481aa3f9",
         "predecessor release digest changed",
     )
-    require(len(release["components"]) == 57, "predecessor component count changed")
+    require(
+        release["protocol_version"] == "2.0.0"
+        and release["authority"]["tag"] == "v2.0.0",
+        "immediate predecessor identity changed",
+    )
+    require(len(release["components"]) == 93, "predecessor component count changed")
     return len(release["components"])
+
+
+def verify_patch_compatibility() -> None:
+    predecessor = candidate.load_json_strict(
+        ROOT / "releases/v2.0.0/release-manifest.json"
+    )
+    for name, component in predecessor["components"].items():
+        if name in PATCH_TOOLING_COMPONENTS:
+            continue
+        require(
+            candidate.sha256(ROOT / component["path"]) == component["sha256"],
+            f"v2.0.1 changed preserved v2.0.0 component: {name}",
+        )
+
+    manifest_path = (
+        ROOT / "manifests/foigent.openinference.otlp-spans-1.0.0.json"
+    )
+    current_bytes = manifest_path.read_bytes()
+    require(
+        candidate.sha256(manifest_path)
+        == "sha256:363123d5837741ed78c134e305593d3fd0fdf68040cebff068d3f76d5bc62a1b",
+        "corrected OpenInference Manifest bytes changed",
+    )
+    corrected = (
+        b"sha256:d5abcabffeb8bb368e5c188b7ed5179b5674092e9421af2c38e548bfdbec7077"
+    )
+    stale = (
+        b"sha256:b374f7a03c73b6fa94d9fab96ce20d819d4e1471f77d2e4c908df1297c1e49b2"
+    )
+    require(current_bytes.count(corrected) == 1, "corrected nested digest is not unique")
+    reconstructed_predecessor = current_bytes.replace(corrected, stale)
+    require(
+        "sha256:" + hashlib.sha256(reconstructed_predecessor).hexdigest()
+        == predecessor["components"]["openinference_connector_manifest"]["sha256"]
+        == "sha256:6f7665c580aeed86ab8b05775e00bc3bb93a7fde947589c0c4d0d967d4f0217b",
+        "OpenInference Manifest differs from v2.0.0 by more than the nested digest",
+    )
 
 
 def verify_control_error_spec(spec: str) -> None:
@@ -260,6 +371,7 @@ def verify_product_compatibility() -> None:
     manifest = candidate.load_json_strict(
         ROOT / "manifests/foigent.openinference.otlp-spans-1.0.0.json"
     )
+    verify_openinference_manifest_projection_reference(manifest)
     require(manifest["manifest_version"] == "foigent.connector-manifest.v2", "wrong Manifest version")
     require(
         manifest["transport"]["mode"]
@@ -350,25 +462,47 @@ def verify_product_compatibility() -> None:
     )
 
 
+def verify_openinference_manifest_projection_reference(
+    manifest: dict[str, Any],
+) -> None:
+    reference = manifest.get("compatibility", {}).get(
+        "reference_projection_contract"
+    )
+    require(
+        isinstance(reference, dict),
+        "OpenInference Manifest projection contract reference is absent",
+    )
+    require(
+        reference.get("path") == OPENINFERENCE_PROJECTION_PATH,
+        "OpenInference Manifest projection contract path changed",
+    )
+    require(
+        reference.get("sha256")
+        == candidate.sha256(ROOT / OPENINFERENCE_PROJECTION_PATH),
+        "OpenInference Manifest projection contract pin is stale",
+    )
+
+
 def validate() -> dict[str, Any]:
     candidate_components = verify_candidate_archive()
-    predecessor_components = verify_predecessor_manifest()
-    require(
-        candidate.verify_predecessor_release() == predecessor_components,
-        "current v1 compatibility base differs from the immutable predecessor",
-    )
+    immediate_predecessor_components = verify_predecessor_manifest()
+    v1_predecessor_components = candidate.verify_predecessor_release()
     candidate.verify_v1_xinsight_seed()
     candidate.verify_openinference_vectors()
     candidate.verify_operational_receipt_contract()
     verify_binding_artifacts()
     verify_product_compatibility()
+    verify_patch_compatibility()
     cases, classes = candidate.verify_reports()
     return {
         "status": "pass",
-        "protocol_version": "2.0.0",
-        "protocol_status": "binding",
+        "protocol_version": "2.0.1",
+        "protocol_status": "release_content_candidate",
+        "semantic_base_version": "2.0.0",
+        "compatibility": "patch_compatible_metadata_integrity_erratum",
         "candidate_components_verified": candidate_components,
-        "predecessor_components_verified": predecessor_components,
+        "immediate_predecessor_components_verified": immediate_predecessor_components,
+        "v1_predecessor_components_verified": v1_predecessor_components,
         "v1_m0_id_hash_pairs": 10,
         "v1_gap_rows": 8,
         "v1_provenance_ids": 2,

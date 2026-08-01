@@ -1,21 +1,39 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ "$#" -ne 2 ]]; then
-  echo "usage: run-source-neutral-v2-release-kit.sh <protocol-root> <temporary-directory>" >&2
+if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
+  echo "usage: run-source-neutral-v2-release-kit.sh <protocol-root> <temporary-directory> [--content-candidate]" >&2
   exit 2
 fi
 
 protocol_root="$(cd "$1" && pwd -P)"
 kit_tmp="$2"
+assembly_mode="${3:---release}"
+if [[ "$assembly_mode" != "--release" && "$assembly_mode" != "--content-candidate" ]]; then
+  echo "unsupported release-kit mode: $assembly_mode" >&2
+  exit 2
+fi
 mkdir -p \
+  "$kit_tmp/v1.1.2-predecessor" \
+  "$kit_tmp/v1-compatibility" \
+  "$kit_tmp/v2.0.0-predecessor" \
   "$kit_tmp/go-cache" \
   "$kit_tmp/go-path" \
   "$kit_tmp/deno"
 
+"$protocol_root/scripts/run-v1.1.2-predecessor-kit.sh" \
+  "$protocol_root" "$kit_tmp/v1.1.2-predecessor"
+"$protocol_root/scripts/run-v1-compatibility-kit.sh" \
+  "$protocol_root" "$kit_tmp/v1-compatibility"
+"$protocol_root/scripts/run-v2.0.0-predecessor-kit.sh" \
+  "$protocol_root" "$kit_tmp/v2.0.0-predecessor"
+
 node "$protocol_root/scripts/build-source-neutral-v2-artifacts.mjs" --check
 node \
   "$protocol_root/scripts/build-source-neutral-v2-implementation-manifests.mjs" \
+  --check
+node \
+  "$protocol_root/scripts/build-source-neutral-v2-candidate-manifest.mjs" \
   --check
 python3 "$protocol_root/scripts/validate_source_neutral_v2_release.py"
 (
@@ -80,8 +98,21 @@ cmp \
 node "$protocol_root/scripts/compare-source-neutral-conformance.mjs" \
   "$kit_tmp/go-source-neutral-v2-a.json" \
   "$kit_tmp/typescript-source-neutral-v2-a.json"
+if [[ "$assembly_mode" == "--content-candidate" ]]; then
+  node \
+    "$protocol_root/scripts/build-source-neutral-v2-release-manifest.mjs" \
+    --content-digest > "$kit_tmp/content-digest-a.txt"
+  node \
+    "$protocol_root/scripts/build-source-neutral-v2-release-manifest.mjs" \
+    --content-digest > "$kit_tmp/content-digest-b.txt"
+  cmp "$kit_tmp/content-digest-a.txt" "$kit_tmp/content-digest-b.txt"
+  echo "Foigent Source-Neutral Connector Protocol v2.0.1 release content candidate: pass"
+  cat "$kit_tmp/content-digest-a.txt"
+  exit 0
+fi
+
 node \
   "$protocol_root/scripts/build-source-neutral-v2-release-manifest.mjs" \
   --check
 
-echo "Foigent Source-Neutral Connector Protocol v2.0.0 Release Kit: pass"
+echo "Foigent Source-Neutral Connector Protocol v2.0.1 Release Kit: pass"

@@ -81,7 +81,7 @@ check(
     "foigent.protocol-release-manifest.v2",
   "invalid v2 release manifest",
 );
-check(release.protocol_version === "2.0.0", "unexpected protocol version");
+check(release.protocol_version === "2.0.1", "unexpected protocol version");
 check(
   release.protocol_version === pin.protocol_version,
   "protocol version mismatch",
@@ -90,7 +90,7 @@ check(
   release.authority.repository ===
       "https://github.com/foigent/event-connector-spec" &&
     release.authority.repository_id === 1313391565 &&
-    release.authority.tag === "v2.0.0",
+    release.authority.tag === "v2.0.1",
   "unexpected release authority",
 );
 check(
