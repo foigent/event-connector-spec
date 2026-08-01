@@ -49,6 +49,7 @@ const componentPaths = {
   protocol_v1_compatibility_base: "spec/protocol-v1.md",
   shared_ci_action: "actions/source-neutral-v2/action.yml",
   authority_ci_workflow: ".github/workflows/source-neutral-v2.yml",
+  generic_current_tree_ci_workflow: ".github/workflows/ci.yml",
   legacy_conformance_kit: "scripts/run-conformance-kit.sh",
   predecessor_conformance_kit:
     "scripts/run-v1.1.2-predecessor-kit.sh",

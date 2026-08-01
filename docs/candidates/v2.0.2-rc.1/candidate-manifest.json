@@ -16,48 +16,19 @@
     "content_digest": "sha256:b3fd6a0651ca2c501bb8040f89945f57abb16fc5e01476c0efe4356e46b08e3e",
     "release_digest": "sha256:b21e719b6dd0653aa93479aef64832d2e598c780c0e1804b84e34fbe658ac777"
   },
-  "reviewed_candidate": {
-    "commit": "6f729d9a3cf819e5c538ba8bd3a16a85cdc42967",
-    "tree": "5fb49fb450257dd1c40e33f6f8358e6dd434a367",
-    "manifest_sha256": "sha256:5900f60eea16a2d3e66751d57a4e34e814db8b974dbbfdee32529894669f8d02",
-    "content_digest": "sha256:d58e09d80a07184d1c5053ee8de082546ac2f2b88c6c2cde3de97273a860bed7"
-  },
-  "candidate_reviews": {
-    "source_domain_owner": {
-      "path": "reviews/candidates/v2.0.2-rc.1/source-owner-review.md",
-      "commit": "e1c2b5966c24dcac67662a768e8e19114f4a959c",
-      "tree": "f7e3383fcbdf6a6b149d3f8fd1a7b29e147b3773",
-      "sha256": "sha256:a2ae89adfa40a3a92ec2a453b2dfffefce1b7381c5340f4c673555941ca3a65f",
-      "status": "SOURCE_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING"
-    },
-    "projection_owner": {
-      "path": "reviews/candidates/v2.0.2-rc.1/projection-owner-review.md",
-      "commit": "140dc19f8455ba38949b2b81a356767ccb070792",
-      "tree": "1891bee63c60394ae39d24829f575ed67c4a18d7",
-      "sha256": "sha256:7f42849f6c7be89b54228c21f533ab41216c8b46de77226186230229ca95d4ed",
-      "status": "PROJECTION_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING"
-    },
-    "coordinator": {
-      "path": "reviews/candidates/v2.0.2-rc.1/coordinator-review.md",
-      "commit": "be63f837ae9e442a255da607ac9d35290be1a5eb",
-      "tree": "0d20561130c4d90936bcc08e4b1c6c45c78542ad",
-      "sha256": "sha256:5d7e16053a641797c03ffecef783e37eb43e5f01c8dcdef42052b20e3ed74429",
-      "status": "COORDINATOR_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING"
-    }
-  },
   "compatibility": "PATCH_COMPATIBLE_CI_PORTABILITY_FIX",
   "components": {
     "authority_readme": {
       "path": "README.md",
-      "sha256": "sha256:266c56121517ba3b4e2b34e6524d20f7393b389c0b0e0151f1f45ee8c6000158"
+      "sha256": "sha256:93f8c84132f158a3947cfcd311c930052bfc6b443aeaad4e24badf58a097127b"
     },
     "governance": {
       "path": "GOVERNANCE.md",
-      "sha256": "sha256:c3d6ce9bf9114f700da6097d1ea8228cf1664a9df55f395a371a5ac7243d6bcd"
+      "sha256": "sha256:eed648370913e4d625156711e244ab08f98a94bd0e092ac14e101cfa8c2f1130"
     },
     "release_decision": {
       "path": "docs/decisions/0005-composite-action-snapshot-portability-candidate.md",
-      "sha256": "sha256:3fbd96c4d5ea60fabcf92caa92711287962dd8d00c3e258ea42edaf49ba75e0d"
+      "sha256": "sha256:59bed914af01ab0828960f7d6c0d190379493600702650ad3d06e56661b4890c"
     },
     "predecessor_release_manifest": {
       "path": "releases/v2.0.1/release-manifest.json",
@@ -105,7 +76,7 @@
     },
     "release_builder": {
       "path": "scripts/build-source-neutral-v2-release-manifest.mjs",
-      "sha256": "sha256:fe709f0744565f5210afff82d55dd8737108b1657577115ce09231568d440d78"
+      "sha256": "sha256:aece4d0cee319cc30d8a09be3929f11d98b3d93ef8d655561b1c7d7f20e84c58"
     },
     "legacy_implementation_manifest_builder": {
       "path": "scripts/build-implementation-manifests.mjs",
@@ -145,11 +116,11 @@
     },
     "source_neutral_release_validator": {
       "path": "scripts/validate_source_neutral_v2_0_2_candidate.py",
-      "sha256": "sha256:57b928f43e5b9860cd8a6e9065a68f4b32981be9c72f950f67926432710a7546"
+      "sha256": "sha256:23c1aff25e543ead2d0dd58b0a2801afa5c7dd8bf63c922db9a6cf4df6ed9f52"
     },
     "source_neutral_release_tests": {
       "path": "tests/test_source_neutral_v2_0_2_candidate.py",
-      "sha256": "sha256:bbc0bebbc9a613d2b730e3347409dded0fa2619b4f12864fc41374e737aa1699"
+      "sha256": "sha256:a91be12590948ecc549c11d91c2d1637431ae991b8ec5587391c03d66b604e45"
     },
     "candidate_archive_tests": {
       "path": "tests/test_source_neutral_v2_candidate.py",
@@ -423,13 +394,17 @@
       "path": "reviews/candidates/v2.0.1-rc.1/coordinator-review.md",
       "sha256": "sha256:922e42ec8c4ed0d6db7f07f80355ff3208ec6fc49b5482cc707f9e1240864e01"
     },
+    "generic_current_tree_ci_workflow": {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "sha256:fd26f25cb8db8c27d033fa37184b0253ebbba42b4bc422c2e3e7b92ae2382ef3"
+    },
     "authority_release_kit_runner": {
       "path": "scripts/run-source-neutral-v2-release-kit.sh",
       "sha256": "sha256:9b4e03821732644f9bde569620b77edb025e963c9c81f0518204ef2fc44ca2ef"
     },
     "current_release_kit_runner": {
       "path": "scripts/run-source-neutral-v2-current-release-kit.sh",
-      "sha256": "sha256:83312eb530183f5b7253b846bbd8e68ae821024285bb392d50f2e542134e240c"
+      "sha256": "sha256:23951a0cf8081437322fbeffe0819f84a6dc4fa2d6e3a52f5fd60d5a0ac68b97"
     },
     "current_v1_compatibility_kit": {
       "path": "scripts/run-v1-compatibility-current-kit.sh",
@@ -445,7 +420,7 @@
     },
     "candidate_manifest_builder": {
       "path": "scripts/build-source-neutral-v2.0.2-candidate-manifest.mjs",
-      "sha256": "sha256:42df1a567d6668a576566413b2c4ea8988195d7e9288bd89cb507a3ecbbfe984"
+      "sha256": "sha256:dc3f097ad5f65094201ad0ca9bfdd64f1689f841da2b9aa3d8d414716a81f5d2"
     },
     "v2_0_1_release_validator": {
       "path": "scripts/validate_source_neutral_v2_release.py",
@@ -457,14 +432,14 @@
     },
     "action_portability_tests": {
       "path": "tests/test_source_neutral_v2_action_portability.py",
-      "sha256": "sha256:62d8f989ba94524c9336b1852608807df3041af3c20d2ac8b04e6aa3f2318947"
+      "sha256": "sha256:a1a5892206d3206448b321bca03594d60c30dacdb40e0d3f3eef809fb2a3d69c"
     }
   },
-  "content_digest": "sha256:b2075e4ab9e4a01029322f515b8759ee5901a2902e41c55a9ed6005b0e676387",
+  "content_digest": "sha256:370605f089793b56f93cf2146c01c8be6b77f937bc21b435ec63aedbd5477f21",
   "approvals": {
-    "source_domain_owner": "candidate_confirmed_non_binding",
-    "projection_owner": "candidate_confirmed_non_binding",
-    "coordinator": "candidate_confirmed_non_binding"
+    "source_domain_owner": "required",
+    "projection_owner": "separate_exact_digest_review_required",
+    "coordinator": "required"
   },
   "boundary": {
     "binding_release": false,

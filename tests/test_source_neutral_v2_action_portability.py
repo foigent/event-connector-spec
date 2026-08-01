@@ -10,6 +10,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SourceNeutralV2ActionPortabilityTests(unittest.TestCase):
+    def test_generic_ci_uses_only_current_v1_compatibility_scope(self) -> None:
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        self.assertIn("run-v1-compatibility-current-kit.sh", workflow)
+        self.assertNotIn("run-conformance-kit.sh", workflow)
+
     def test_composite_action_uses_snapshot_safe_consumer_kit(self) -> None:
         action = (ROOT / "actions/source-neutral-v2/action.yml").read_text()
         self.assertIn("run-source-neutral-v2-consumer-kit.sh", action)

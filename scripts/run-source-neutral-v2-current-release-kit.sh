@@ -123,12 +123,12 @@ node "$protocol_root/scripts/compare-source-neutral-conformance.mjs" \
   "$kit_tmp/typescript-source-neutral-v2-a.json"
 
 if [[ "$assembly_mode" == "--content-candidate" ]]; then
-  node "$protocol_root/scripts/build-source-neutral-v2-release-manifest.mjs" \
+  node "$candidate_builder" \
     --content-digest > "$kit_tmp/content-digest-a.txt"
-  node "$protocol_root/scripts/build-source-neutral-v2-release-manifest.mjs" \
+  node "$candidate_builder" \
     --content-digest > "$kit_tmp/content-digest-b.txt"
   cmp "$kit_tmp/content-digest-a.txt" "$kit_tmp/content-digest-b.txt"
-  echo "Foigent Source-Neutral Connector Protocol release content candidate: pass"
+  echo "Foigent Source-Neutral Connector Protocol current content candidate: pass"
   cat "$kit_tmp/content-digest-a.txt"
   exit 0
 fi

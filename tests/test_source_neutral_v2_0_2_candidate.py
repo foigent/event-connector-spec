@@ -17,10 +17,7 @@ class SourceNeutralV202CandidateTests(unittest.TestCase):
         result = release.validate()
         self.assertEqual("pass", result["status"])
         self.assertEqual("2.0.2", result["protocol_version"])
-        self.assertEqual(
-            "release_content_candidate_not_binding",
-            result["protocol_status"],
-        )
+        self.assertEqual("candidate_not_binding", result["protocol_status"])
         self.assertEqual("2.0.1", result["semantic_base_version"])
         self.assertEqual(
             "patch_compatible_ci_portability_fix",
@@ -59,6 +56,26 @@ class SourceNeutralV202CandidateTests(unittest.TestCase):
         ):
             release.verify_patch_compatibility(drifted_sha)
 
+    def test_v1_1_2_current_compatibility_allowlist_is_narrow(self) -> None:
+        self.assertEqual(
+            {"authority_ci_workflow"},
+            release.V1_1_2_CURRENT_TREE_PATCH_COMPONENTS,
+        )
+        self.assertEqual(56, release.verify_v1_1_2_current_compatibility())
+
+        target = ROOT / "schemas/event-envelope.v1.schema.json"
+
+        def drifted_sha(path: Path) -> str:
+            if path == target:
+                return "sha256:" + ("0" * 64)
+            return semantic_candidate.sha256(path)
+
+        with self.assertRaisesRegex(
+            semantic_candidate.ValidationError,
+            "v1.1.2 current compatibility changed: schemas/event-envelope.v1.schema.json",
+        ):
+            release.verify_v1_1_2_current_compatibility(drifted_sha)
+
     def test_candidate_is_non_binding_and_has_no_product_authority(self) -> None:
         manifest = semantic_candidate.load_json_strict(ROOT / release.CANDIDATE_PATH)
         self.assertEqual("not_binding", manifest["protocol_status"])
@@ -71,9 +88,9 @@ class SourceNeutralV202CandidateTests(unittest.TestCase):
         self.assertEqual("none", manifest["boundary"]["runtime_mutation"])
         self.assertEqual(
             {
-                "source_domain_owner": "candidate_confirmed_non_binding",
-                "projection_owner": "candidate_confirmed_non_binding",
-                "coordinator": "candidate_confirmed_non_binding",
+                "source_domain_owner": "required",
+                "projection_owner": "separate_exact_digest_review_required",
+                "coordinator": "required",
             },
             manifest["approvals"],
         )
