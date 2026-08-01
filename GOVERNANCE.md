@@ -92,8 +92,13 @@ After bootstrap, protocol semantics must flow through reviewed pull requests.
 
 ## 8. Current boundary
 
-Protocol `2.0.0` may publish its source-neutral contracts, Conformance Kit,
-immutable release manifest, compatibility mappings, and product pin contract.
-The shared protocol release does not authorize product repository migration,
-runtime extraction, deployment, credentials, traffic, Cursor/Checkpoint, or
-database changes.
+Protocol `2.0.0` remains the immediate immutable Binding predecessor. A
+`2.0.1` patch-compatible metadata-integrity erratum may assemble release
+content only after exact Source Owner, Projection Owner and Coordinator
+candidate review. It becomes Binding only with three fresh final approvals, a
+canonical `releases/v2.0.1/release-manifest.json`, and an immutable `v2.0.1`
+tag over the same bytes. No `2.0.0` approval may be reused.
+
+Neither the `2.0.1` assembly nor a later shared protocol release authorizes
+product repository migration, runtime extraction, deployment, credentials,
+traffic, Cursor/Checkpoint, or database changes.

@@ -1,6 +1,6 @@
-# Decision 0004 candidate: OpenInference Manifest projection digest erratum
+# Decision 0004: Protocol v2.0.1 OpenInference projection digest erratum assembly
 
-Status: `NON_BINDING_REQUIRES_THREE_ROLE_REVIEW`
+Status: `RELEASE_CONTENT_CANDIDATE_NOT_BINDING`
 
 Work item: `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V2-SOURCE-NEUTRAL-20260731`
 
@@ -21,10 +21,21 @@ The released projection bytes are not defective. The stale internal Manifest
 reference is the defect, and the v2.0.0 tag and released bytes remain
 immutable.
 
-## Proposed disposition
+## Candidate gate
 
-Publish a patch release `2.0.1` after exact Source Owner, Projection Owner and
-Coordinator review. The patch release must:
+The exact corrected candidate content at commit
+`61e21ee6988814f2d4a785bcf1723f5ce9dc49b1`, tree
+`9c152180d9132fa279c75b8b6cc4cfaac895d411`, and content digest
+`sha256:25a19cd9aad2b86cf9108a634fdfacd98bba7e3d6ee4d7e013bb95ec3aaf02ba`
+has independent non-binding Source Owner, Projection Owner and Coordinator
+candidate reviews under `reviews/candidates/v2.0.1-rc.1/`.
+
+Those reviews authorize only exact local release-content assembly. They are
+not final release approvals and cannot be copied into the release manifest.
+
+## Disposition
+
+Assemble patch release candidate `2.0.1`. The release must:
 
 1. retain every Event, Source, Envelope, M0, Gap, provenance, identity,
    idempotency, canonicalization and hash semantic from `2.0.0`;
@@ -56,7 +67,9 @@ The following must remain byte-identical to `v2.0.0`:
 
 ## Boundary
 
-This candidate is not Binding and authorizes no product migration, runtime
+This release-content candidate is not Binding. It requires three fresh final
+release approvals over one exact assembled content digest before a canonical
+release manifest may be created. It authorizes no product migration, runtime
 activation, deployment, traffic, credentials, Cursor/Checkpoint or database
 mutation. X-Insight bounded-offline receipt implementation and any later
 runtime activation remain product-owned, separately reviewed decisions.
