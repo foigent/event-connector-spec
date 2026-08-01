@@ -119,6 +119,8 @@ def verify_candidate_manifest() -> int:
             "protocol_status",
             "authority",
             "predecessor",
+            "reviewed_candidate",
+            "candidate_reviews",
             "compatibility",
             "components",
         ]
@@ -147,15 +149,58 @@ def verify_candidate_manifest() -> int:
         "candidate predecessor changed",
     )
     require(
+        manifest["reviewed_candidate"]
+        == {
+            "commit": "6f729d9a3cf819e5c538ba8bd3a16a85cdc42967",
+            "tree": "5fb49fb450257dd1c40e33f6f8358e6dd434a367",
+            "manifest_sha256": "sha256:5900f60eea16a2d3e66751d57a4e34e814db8b974dbbfdee32529894669f8d02",
+            "content_digest": "sha256:d58e09d80a07184d1c5053ee8de082546ac2f2b88c6c2cde3de97273a860bed7",
+        },
+        "reviewed candidate identity changed",
+    )
+    expected_reviews = {
+        "source_domain_owner": {
+            "path": "reviews/candidates/v2.0.2-rc.1/source-owner-review.md",
+            "commit": "e1c2b5966c24dcac67662a768e8e19114f4a959c",
+            "tree": "f7e3383fcbdf6a6b149d3f8fd1a7b29e147b3773",
+            "sha256": "sha256:a2ae89adfa40a3a92ec2a453b2dfffefce1b7381c5340f4c673555941ca3a65f",
+            "status": "SOURCE_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING",
+        },
+        "projection_owner": {
+            "path": "reviews/candidates/v2.0.2-rc.1/projection-owner-review.md",
+            "commit": "140dc19f8455ba38949b2b81a356767ccb070792",
+            "tree": "1891bee63c60394ae39d24829f575ed67c4a18d7",
+            "sha256": "sha256:7f42849f6c7be89b54228c21f533ab41216c8b46de77226186230229ca95d4ed",
+            "status": "PROJECTION_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING",
+        },
+        "coordinator": {
+            "path": "reviews/candidates/v2.0.2-rc.1/coordinator-review.md",
+            "commit": "be63f837ae9e442a255da607ac9d35290be1a5eb",
+            "tree": "0d20561130c4d90936bcc08e4b1c6c45c78542ad",
+            "sha256": "sha256:5d7e16053a641797c03ffecef783e37eb43e5f01c8dcdef42052b20e3ed74429",
+            "status": "COORDINATOR_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING",
+        },
+    }
+    require(
+        manifest["candidate_reviews"] == expected_reviews,
+        "candidate review identities changed",
+    )
+    for role, review in expected_reviews.items():
+        evidence = ROOT / review["path"]
+        require(
+            semantic_candidate.sha256(evidence) == review["sha256"],
+            f"candidate review bytes changed: {role}",
+        )
+    require(
         manifest["compatibility"] == "PATCH_COMPATIBLE_CI_PORTABILITY_FIX",
         "candidate compatibility changed",
     )
     require(
         manifest["approvals"]
         == {
-            "source_domain_owner": "required",
-            "projection_owner": "separate_exact_digest_review_required",
-            "coordinator": "required",
+            "source_domain_owner": "candidate_confirmed_non_binding",
+            "projection_owner": "candidate_confirmed_non_binding",
+            "coordinator": "candidate_confirmed_non_binding",
         },
         "candidate review boundary changed",
     )
@@ -253,15 +298,19 @@ def verify_candidate_decision() -> None:
         ROOT
         / "docs/decisions/0005-composite-action-snapshot-portability-candidate.md"
     ).read_text()
+    normalized = " ".join(decision.split())
     for required in [
-        "CANDIDATE_NOT_BINDING",
+        "THREE_ROLE_CANDIDATE_CONFIRMED_RELEASE_CONTENT_NOT_BINDING",
         "PATCH_COMPATIBLE_CI_PORTABILITY_FIX",
         "Product migration: `NOT_AUTHORIZED`",
         "Runtime mutation: `NONE`",
         "snapshot without `.git`",
-        "Fresh Projection, Source and Coordinator review is required",
+        "a2ae89adfa40a3a92ec2a453b2dfffefce1b7381c5340f4c673555941ca3a65f",
+        "7f42849f6c7be89b54228c21f533ab41216c8b46de77226186230229ca95d4ed",
+        "5d7e16053a641797c03ffecef783e37eb43e5f01c8dcdef42052b20e3ed74429",
+        "Fresh three-role final approval is required",
     ]:
-        require(required in decision, f"candidate decision lost {required}")
+        require(required in normalized, f"candidate decision lost {required}")
 
 
 def verify_preserved_semantics() -> dict[str, int]:
@@ -287,7 +336,7 @@ def validate() -> dict[str, Any]:
     return {
         "status": "pass",
         "protocol_version": "2.0.2",
-        "protocol_status": "candidate_not_binding",
+        "protocol_status": "release_content_candidate_not_binding",
         "semantic_base_version": "2.0.1",
         "compatibility": "patch_compatible_ci_portability_fix",
         "candidate_components_verified": candidate_components,

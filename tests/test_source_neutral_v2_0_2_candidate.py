@@ -17,7 +17,10 @@ class SourceNeutralV202CandidateTests(unittest.TestCase):
         result = release.validate()
         self.assertEqual("pass", result["status"])
         self.assertEqual("2.0.2", result["protocol_version"])
-        self.assertEqual("candidate_not_binding", result["protocol_status"])
+        self.assertEqual(
+            "release_content_candidate_not_binding",
+            result["protocol_status"],
+        )
         self.assertEqual("2.0.1", result["semantic_base_version"])
         self.assertEqual(
             "patch_compatible_ci_portability_fix",
@@ -66,6 +69,14 @@ class SourceNeutralV202CandidateTests(unittest.TestCase):
             manifest["boundary"]["product_adoption"],
         )
         self.assertEqual("none", manifest["boundary"]["runtime_mutation"])
+        self.assertEqual(
+            {
+                "source_domain_owner": "candidate_confirmed_non_binding",
+                "projection_owner": "candidate_confirmed_non_binding",
+                "coordinator": "candidate_confirmed_non_binding",
+            },
+            manifest["approvals"],
+        )
 
 
 if __name__ == "__main__":

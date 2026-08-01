@@ -122,9 +122,63 @@ const hashInput = {
     release_digest:
       "sha256:b21e719b6dd0653aa93479aef64832d2e598c780c0e1804b84e34fbe658ac777",
   },
+  reviewed_candidate: {
+    commit: "6f729d9a3cf819e5c538ba8bd3a16a85cdc42967",
+    tree: "5fb49fb450257dd1c40e33f6f8358e6dd434a367",
+    manifest_sha256:
+      "sha256:5900f60eea16a2d3e66751d57a4e34e814db8b974dbbfdee32529894669f8d02",
+    content_digest:
+      "sha256:d58e09d80a07184d1c5053ee8de082546ac2f2b88c6c2cde3de97273a860bed7",
+  },
+  candidate_reviews: {
+    source_domain_owner: {
+      path: "reviews/candidates/v2.0.2-rc.1/source-owner-review.md",
+      commit: "e1c2b5966c24dcac67662a768e8e19114f4a959c",
+      tree: "f7e3383fcbdf6a6b149d3f8fd1a7b29e147b3773",
+      sha256:
+        "sha256:a2ae89adfa40a3a92ec2a453b2dfffefce1b7381c5340f4c673555941ca3a65f",
+      status: "SOURCE_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING",
+    },
+    projection_owner: {
+      path: "reviews/candidates/v2.0.2-rc.1/projection-owner-review.md",
+      commit: "140dc19f8455ba38949b2b81a356767ccb070792",
+      tree: "1891bee63c60394ae39d24829f575ed67c4a18d7",
+      sha256:
+        "sha256:7f42849f6c7be89b54228c21f533ab41216c8b46de77226186230229ca95d4ed",
+      status: "PROJECTION_OWNER_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING",
+    },
+    coordinator: {
+      path: "reviews/candidates/v2.0.2-rc.1/coordinator-review.md",
+      commit: "be63f837ae9e442a255da607ac9d35290be1a5eb",
+      tree: "0d20561130c4d90936bcc08e4b1c6c45c78542ad",
+      sha256:
+        "sha256:5d7e16053a641797c03ffecef783e37eb43e5f01c8dcdef42052b20e3ed74429",
+      status: "COORDINATOR_V2_0_2_PORTABILITY_CANDIDATE_CONFIRM_NON_BINDING",
+    },
+  },
   compatibility: "PATCH_COMPATIBLE_CI_PORTABILITY_FIX",
   components,
 };
+for (const [role, review] of Object.entries(hashInput.candidate_reviews)) {
+  const bytes = readRegular(review.path, `${role} candidate review`);
+  if (sha256(bytes) !== review.sha256) {
+    throw new Error(`${role} candidate review bytes changed`);
+  }
+  const text = bytes.toString("utf8");
+  for (const required of [
+    `Role: \`${role}\``,
+    `Status: \`${review.status}\``,
+    hashInput.reviewed_candidate.commit,
+    hashInput.reviewed_candidate.tree,
+    hashInput.reviewed_candidate.manifest_sha256,
+    hashInput.reviewed_candidate.content_digest,
+    hashInput.compatibility,
+  ]) {
+    if (!text.includes(required)) {
+      throw new Error(`${role} candidate review is missing ${required}`);
+    }
+  }
+}
 const contentDigest = sha256(
   Buffer.from(canonicalize(hashInput), "utf8"),
 );
@@ -138,9 +192,9 @@ const manifest = {
   ...hashInput,
   content_digest: contentDigest,
   approvals: {
-    source_domain_owner: "required",
-    projection_owner: "separate_exact_digest_review_required",
-    coordinator: "required",
+    source_domain_owner: "candidate_confirmed_non_binding",
+    projection_owner: "candidate_confirmed_non_binding",
+    coordinator: "candidate_confirmed_non_binding",
   },
   boundary: {
     binding_release: false,

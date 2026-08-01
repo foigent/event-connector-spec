@@ -1,6 +1,6 @@
 # Decision 0005: Protocol v2.0.2 composite-action snapshot portability candidate
 
-Status: `CANDIDATE_NOT_BINDING`
+Status: `THREE_ROLE_CANDIDATE_CONFIRMED_RELEASE_CONTENT_NOT_BINDING`
 
 Work item:
 `FV-FOIGENT-EVENT-CONNECTOR-PLATFORM-V2-SOURCE-NEUTRAL-20260731`
@@ -52,6 +52,24 @@ Checkpoint semantic artifact.
 
 It does not authorize product adoption, deployment, traffic, credentials,
 database mutation, runtime activation or an X-Insight repository change.
-Fresh Projection, Source and Coordinator review is required before release
-assembly, and fresh three-role final approval is required before a canonical
-`v2.0.2` manifest or immutable tag.
+
+## Candidate review disposition
+
+All three roles independently confirmed the same exact candidate commit
+`6f729d9a3cf819e5c538ba8bd3a16a85cdc42967`, tree
+`5fb49fb450257dd1c40e33f6f8358e6dd434a367`, candidate-manifest SHA-256
+`5900f60eea16a2d3e66751d57a4e34e814db8b974dbbfdee32529894669f8d02`
+and content digest
+`sha256:d58e09d80a07184d1c5053ee8de082546ac2f2b88c6c2cde3de97273a860bed7`:
+
+- Source Owner evidence SHA-256:
+  `a2ae89adfa40a3a92ec2a453b2dfffefce1b7381c5340f4c673555941ca3a65f`;
+- Projection Owner evidence SHA-256:
+  `7f42849f6c7be89b54228c21f533ab41216c8b46de77226186230229ca95d4ed`;
+- Coordinator evidence SHA-256:
+  `5d7e16053a641797c03ffecef783e37eb43e5f01c8dcdef42052b20e3ed74429`.
+
+This closes only the candidate gate. Fresh three-role final approval is
+required over one exact release-content digest before a canonical `v2.0.2`
+release manifest may be generated. No prior approval may be reused, and no
+immutable tag or product/runtime action is authorized here.
