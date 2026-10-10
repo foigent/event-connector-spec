@@ -18,7 +18,7 @@ a model answer or the success of a business task.
 ## Run the consumer checks
 
 Use Go 1.24.3, Deno 2.7.13, Node.js and Python 3, as used by the existing kit.
-Once the repository is public:
+Clone the public repository:
 
 ```sh
 git clone https://github.com/foigent/event-connector-spec.git
@@ -63,6 +63,6 @@ Project-owned material is [Apache-2.0](../LICENSE), like UniRouter.
 [Third-party licenses](../THIRD_PARTY_NOTICES.md) retain their own terms.
 See [the licensing scope](../docs/LICENSING.md) for preserved historical snapshots.
 
-This is an open-source preparation branch. Repository visibility and private
-reporting availability still require publication verification. No schema,
-release manifest, immutable tag or product runtime is changed by this work.
+This repository is public, and GitHub private vulnerability reporting is
+enabled; see [Security](../SECURITY.md). Source publication preserves the
+schemas, release manifests, immutable tags and product runtime contracts.

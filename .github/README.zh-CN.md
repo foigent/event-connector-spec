@@ -11,7 +11,7 @@
 
 ## 运行消费者校验
 
-准备 Go 1.24.3、Deno 2.7.13、Node.js 和 Python 3。仓库公开后执行：
+准备 Go 1.24.3、Deno 2.7.13、Node.js 和 Python 3，然后执行：
 
 ```sh
 git clone https://github.com/foigent/event-connector-spec.git
@@ -29,4 +29,4 @@ cd event-connector-spec
 
 英文是第一语言，中文是第二语言；参与方式见[社区指南](../docs/COMMUNITY.md)。
 项目自有内容使用 Apache-2.0，第三方许可保留，详见[许可说明](../docs/LICENSING.md)。
-本分支仍处于开源准备阶段，不代表仓库已经公开，也没有改变协议、历史版本或产品运行时。
+仓库已公开，GitHub 私密漏洞报告已启用。源码公开保留协议、历史版本和产品运行时合同。
